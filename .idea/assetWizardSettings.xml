@@ -303,8 +303,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_close" />
-                            <entry key="sourceFile" value="D:\Ranjan_Digiline\Final_21\Android Project\SCP PHOTO\close.svg" />
+                            <entry key="outputName" value="ic_minus" />
+                            <entry key="sourceFile" value="D:\Ranjan_Digiline\Final_21\Android Project\SCP PHOTO\minus.svg" />
                           </map>
                         </option>
                       </PersistentState>
