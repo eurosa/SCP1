@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.Mika-89:Screenshot:master-SNAPSHOT@aar">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/2b0e4b2b7ba1b7dbadcf142f7c4a147f/Screenshot-master-SNAPSHOT/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/2b0e4b2b7ba1b7dbadcf142f7c4a147f/Screenshot-master-SNAPSHOT/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/2b0e4b2b7ba1b7dbadcf142f7c4a147f/Screenshot-master-SNAPSHOT/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.Mika-89/Screenshot/master-SNAPSHOT/cec16e24a80babbe597c79b3dc623f78ad7a3c91/Screenshot-master-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

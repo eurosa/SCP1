@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    tools:context=".DataControl">
+
+
+
+    <LinearLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="423dp"
+        android:layout_height="148dp"
+        android:background="@color/colorPrimaryDark"
+        android:layout_marginBottom="2dp"
+        android:gravity="center"
+         >
+
+        <TextView
+            android:id="@+id/display"
+            android:layout_width="388dp"
+            android:layout_height="104dp"
+             android:layout_margin="20dp"
+            android:gravity="center"
+            android:textColor="@color/red"
+            android:textSize="70sp"
+            android:background="@color/colorWhite"
+              />
+
+    </LinearLayout>
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@id/constraintLayout"
+
+    android:gravity="center">
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/first_row"
+        android:gravity="center"
+
+          >
+        <Button
+            android:id="@+id/one"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:text="1"
+            android:layout_margin="9dp"
+            android:textColor="@color/whiteColor"
+            android:textSize="42sp"
+
+            />
+        <Button
+            android:id="@+id/two"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:text="2"
+            android:layout_margin="9dp"
+
+            android:textColor="@color/whiteColor"
+            android:textSize="42sp"
+            android:layout_alignLeft="@+id/one"
+            />
+
+        <Button
+            android:id="@+id/three"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:layout_margin="9dp"
+            android:background="@drawable/mybutton"
+            android:text="3"
+
+            android:textColor="@color/whiteColor"
+            android:textSize="42sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/second_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/first_row"
+        android:gravity="center"
+         >
+
+        <Button
+            android:id="@+id/four"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:text="4"
+            android:layout_margin="9dp"
+
+            android:textColor="@color/whiteColor"
+            android:textSize="42sp"
+              />
+        <Button
+            android:id="@+id/five"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:text="5"
+            android:layout_margin="9dp"
+
+            android:textColor="@color/whiteColor"
+            android:textSize="42sp"
+              />
+
+        <Button
+            android:id="@+id/six"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:text="6"
+            android:layout_margin="9dp"
+
+            android:textColor="@color/whiteColor"
+            android:textSize="42sp"
+              />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/third_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/second_row"
+        android:gravity="center"
+         >
+
+        <Button
+            android:id="@+id/seven"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:text="7"
+            android:layout_margin="9dp"
+
+            android:textColor="@color/whiteColor"
+            android:textSize="42sp"
+            />
+        <Button
+            android:id="@+id/eight"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:text="8"
+            android:layout_margin="9dp"
+
+            android:textColor="@color/whiteColor"
+            android:textSize="42sp"
+              />
+
+        <Button
+            android:id="@+id/nine"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:text="9"
+            android:layout_margin="9dp"
+
+            android:textColor="@color/whiteColor"
+            android:textSize="42sp"
+              />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/fourth_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/third_row"
+        android:gravity="center"
+         >
+
+        <Button
+            android:id="@+id/clear"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:layout_margin="9dp"
+            android:background="@drawable/mybutton"
+            android:text="RESET"
+
+            android:textColor="@color/whiteColor"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/zero"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:text="0"
+            android:layout_margin="9dp"
+
+            android:textColor="@color/whiteColor"
+            android:textSize="42sp"
+             />
+
+        <ImageButton
+            android:id="@+id/backDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="82dp"
+            android:layout_margin="9dp"
+
+            android:background="@drawable/mybutton"
+            android:padding="20dp"
+
+            android:src="@drawable/ic_backspace_black_24dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/fifth_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fourth_row"
+        android:gravity="center"
+         >
+
+        <ImageButton
+            android:id="@+id/up_btn"
+
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:layout_margin="5dp"
+
+            android:padding="20dp"
+            android:src="@drawable/ic_navigate_up_arrow"
+            />
+
+        <Button
+            android:id="@+id/send_btn"
+            android:layout_width="100dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+            android:text="Call"
+            android:textColor="@color/whiteColor"
+            android:textSize="20sp"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp" />
+
+        <ImageButton
+            android:id="@+id/down_btn"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:background="@drawable/mybutton"
+
+            android:padding="20dp"
+            android:src="@drawable/ic_navigate_down_arrow"
+            android:layout_margin="5dp"
+              />
+
+    </LinearLayout>
+</RelativeLayout>
+
+
+</RelativeLayout>

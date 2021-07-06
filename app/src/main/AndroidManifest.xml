@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.surg.scp">
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!--<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" />-->
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher_foreground"
+        android:label=""
+        android:requestLegacyExternalStorage="true"
+        android:theme="@style/MyMaterialTheme.Base">
+
+        <activity android:name="com.surg.scp.ScanActivity"
+
+                  android:theme="@style/MyMaterialTheme.Base"></activity>
+        <activity
+            android:name="com.surg.scp.SplashScreen"
+            android:label="Surgeon Control Panel"
+            android:theme="@style/MyMaterialTheme.Base">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:screenOrientation="portrait"
+            android:name="com.surg.scp.DeviceList"
+            android:theme="@style/MyMaterialTheme.Base"></activity>
+        <activity
+            android:name="com.surg.scp.DataControl"
+            android:label="Data Control"
+            android:theme="@style/MyMaterialTheme.Base"></activity>
+        <activity
+            android:name="com.surg.scp.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:theme="@style/MyMaterialTheme.Base"></activity>
+    </application>
+
+</manifest>

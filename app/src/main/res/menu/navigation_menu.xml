@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="HardcodedText">
+    <group
+        android:id="@+id/group_home"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:title="Home"
+            android:gravity="bottom|right"
+            android:icon="@drawable/ic_home"/>
+
+
+    </group>
+
+    <item
+        android:id="@+id/action_searchList"
+        android:title="Scan Nearby Devices"
+        android:gravity="right"
+        android:icon="@drawable/ic_bluetooth"/>
+
+    <item
+        android:id="@+id/action_pairedList"
+        android:title="Connect to a Paired Device"
+        android:gravity="right"
+        android:icon="@drawable/ic_pair_bluetooth"/>
+
+
+
+    <item android:title="Communicate">
+        <menu>
+            <item android:id="@+id/action_share"
+                android:icon="@drawable/ic_share"
+                android:orderInCategory="1"
+                android:title="Share this app" />
+            <item android:id="@+id/action_about"
+                android:icon="@drawable/digiline_logo"
+                android:orderInCategory="2"
+                android:title="About Us" />
+        </menu>
+    </item>
+    <group
+        android:id="@+id/group_exit"
+        android:checkableBehavior="single">
+    <item
+        android:id="@+id/nav_exit"
+        android:title="Exit"
+        android:icon="@drawable/ic_exit_button"/>
+</group>
+</menu>

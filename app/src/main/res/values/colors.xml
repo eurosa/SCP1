@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+
+
+    <color name="colorDeepBlue">#172734</color>
+    <color name="colorWhite">#FCFCFC</color>
+    <color name="colorBlack">#FF00060B</color>
+    <color name="colorLightBlack">#212121</color>
+    <color name="adFilling">#333333</color>
+    <color name="colorAccent">#3F51B5</color>
+    <color name="darkRed">#8b0000</color>
+    <color name="red">#FF0000</color>
+    <color name="lightBlue">#0e86d4</color>
+    <color name="navyBlue">#000c66</color>
+
+    <color name="colorSky">#58857e</color>
+    <color name="redColor">	#FF0000</color>
+    <color name="limeGreen">#32CD32</color>
+    <color name="blueColor">#0000FF</color>
+    <color name="highGray">#7F3356</color>
+    <color name="whiteColor">#FFFFFF</color>
+    <color name="babyBlue">#7ec8e3</color>
+    <color name="blue">#0000ff</color>
+
+</resources>
