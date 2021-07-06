@@ -303,8 +303,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_minus" />
-                            <entry key="sourceFile" value="D:\Ranjan_Digiline\Final_21\Android Project\SCP PHOTO\minus.svg" />
+                            <entry key="outputName" value="ic_bulb_icon" />
+                            <entry key="sourceFile" value="D:\Ranjan_Digiline\Final_21\Android Project\SCP PHOTO\bulb_icon.svg" />
                           </map>
                         </option>
                       </PersistentState>
