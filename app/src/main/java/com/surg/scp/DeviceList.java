@@ -220,7 +220,8 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
     private Button playPause;
     private Button stopButton;
     private Button resetButton;
-    private DiscreteSlider mSlider;
+    private DiscreteSlider mSlider1, mSlider2, mSlider3, mSlider4;
+
 
     /***************************************************************************************
     * End Stop Watch
@@ -269,8 +270,15 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
          * Discrete Slider
         *
         *************************************************************************************/
-        findView();
-        setUpView();
+
+        mSlider1 = findViewById(R.id.discreteSlider1);
+        mSlider2 = findViewById(R.id.discreteSlider2);
+        mSlider3 = findViewById(R.id.discreteSlider3);
+        mSlider4 = findViewById(R.id.discreteSlider4);
+        setUpView(mSlider1);
+        setUpView(mSlider2);
+        setUpView(mSlider3);
+        setUpView(mSlider4);
 
         /************************************************************************************
          *
@@ -629,11 +637,9 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
         }
     }
 
-    private void findView() {
-        mSlider = findViewById(R.id.discreteSlider1);
-    }
 
-    private void setUpView() {
+
+    private void setUpView(DiscreteSlider mSlider) {
         mSlider.setTrackWidth(Utils.convertDpToPixel(4, this));
         mSlider.setTrackColor(0xFFD81B60);
         mSlider.setInactiveTrackColor(0x3DD81B60);
