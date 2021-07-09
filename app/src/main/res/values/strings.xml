@@ -39,5 +39,8 @@
     <string name="air_4_bar">Air 4 Bar</string>
     <string name="air_7_bar">Air 7 Bar</string>
     <string name="vacuum">Vacuum</string>
+    <string name="time_date_title">Time &amp; Date</string>
+    <string name="normal">Normal</string>
+    <string name="light_control_title">Light Control</string>
 
 </resources>

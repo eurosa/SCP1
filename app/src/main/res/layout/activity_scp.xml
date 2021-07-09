@@ -10,6 +10,7 @@
     <!--this the navigation view which draws
         and shows the navigation drawer-->
     <!--include the menu created in the menu folder-->
+
     <RelativeLayout
         android:id="@+id/clockLayout"
         android:layout_width="match_parent"
@@ -40,6 +41,13 @@
 
         </androidx.appcompat.widget.Toolbar>
 
+       <!-- <com.google.android.material.tabs.TabLayout
+            android:id="@+id/simpleTabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </com.google.android.material.tabs.TabLayout>-->
+
         <LinearLayout
             android:id="@+id/clkLayout"
             android:layout_width="match_parent"
@@ -51,13 +59,18 @@
 
             <LinearLayout
                 android:id="@+id/textClockLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp"
-                android:layout_alignParentLeft="true"
-                android:layout_marginRight="10dp"
+                android:layout_width="170dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/timeDateTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/time_date_title"
+                    android:textColor="@color/whiteColor"></TextView>
 
                 <android.widget.TextClock
                     android:id="@+id/hk_time"
@@ -67,7 +80,7 @@
                     android:format12Hour="KK:mm:ss"
                     android:textColor="@color/limeGreen"
                     android:textColorHighlight="@color/limeGreen"
-                    android:textSize="33sp">
+                    android:textSize="28sp">
 
                 </android.widget.TextClock>
 
@@ -78,56 +91,83 @@
                     android:layout_gravity="center"
                     android:format12Hour="dd MMM yyyy"
                     android:textColor="@color/redColor"
-                    android:textSize="24sp">
+                    android:textSize="15sp">
 
                 </android.widget.TextClock>
             </LinearLayout>
 
+            <View
+                android:layout_width="1dp"
+                android:layout_gravity="center"
+                android:layout_height="match_parent"
+                android:background="@color/darkGray"/>
             <LinearLayout
                 android:id="@+id/timevalueLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:layout_alignParentRight="true"
-                android:orientation="vertical"
+                android:layout_gravity="right"
                 android:layout_weight="1"
-                 >
+                android:weightSum="2"
+                android:gravity="center"
 
-                <TextView
-                    android:id="@+id/timerValue"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="6dp"
+                     >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/whiteColor"
+                        android:text="Elapsed Time">
+
+                    </TextView>
+
+                    <TextView
+                        android:id="@+id/timerValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:text="00:00:00"
+                        android:textColor="#FFFFFF"
+                        android:textSize="28sp"></TextView>
+                </LinearLayout>
+
+
+
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:text="00:00:00"
-                    android:textColor="#FFFFFF"
+                    android:layout_gravity="right"
+                    android:layout_marginLeft="6dp"
+                    android:orientation="vertical">
 
-                    android:textSize="33sp"></TextView>
+                    <Button
+                        android:id="@+id/startButton"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
 
+                        android:layout_margin="6dp"
+                        android:background="@drawable/ic_play"
 
+                        />
 
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_below="@id/timerValue"
-    android:gravity="center"
-    android:orientation="horizontal">
-                <Button
-                    android:id="@+id/startButton"
-                    android:layout_width="33dp"
-                    android:layout_height="33dp"
-                    android:layout_marginRight="20dp"
-                    android:background="@drawable/ic_play"
-
-                    />
-
-                <Button
-                    android:id="@+id/resetButton"
-                    android:layout_width="33dp"
-                    android:layout_height="33dp"
-                    android:layout_centerHorizontal="true"
-                    android:background="@drawable/ic_close" />
-</LinearLayout>
+                    <Button
+                        android:id="@+id/resetButton"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_margin="6dp"
+                        android:layout_centerHorizontal="true"
+                        android:background="@drawable/ic_reset" />
+                </LinearLayout>
                 <!--      <Button
                 android:id="@+id/stopButton"
                 android:layout_width="42dp"
@@ -147,7 +187,7 @@
     android:layout_height="6dp"
     android:layout_below="@id/clkLayout"
     android:orientation="horizontal"
-    android:layout_marginTop="6dp"
+
     android:background="@color/blueColor">
     <TextView
         android:layout_width="match_parent"
@@ -168,7 +208,9 @@
         <LinearLayout
             android:id="@+id/LinearLayout02"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="wrap_content"
+            android:weightSum="2"
+
             android:background="@color/whiteColor"
             android:orientation="horizontal">
 
@@ -233,7 +275,7 @@
                 android:layout_width="167dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_margin="10dp"
+                android:layout_margin="2dp"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:background="@drawable/layout_bg_temp"
@@ -255,6 +297,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+
                     android:orientation="horizontal">
 
                     <ImageButton
@@ -300,34 +343,32 @@
         </LinearLayout>
 
 
-
-
     <LinearLayout
         android:id="@+id/LinearLayout"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:background="@color/whiteColor"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/LinearLayout02"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal">
+        android:background="@color/whiteColor"
+        android:orientation="horizontal"
+        android:weightSum="2">
 
         <LinearLayout
             android:id="@+id/leftPart2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="center"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/humControl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
                 android:layout_gravity="center"
+                android:text="Humidity Control"
                 android:textColor="@color/colorBlack"
-                android:text="Humidity Control">
-            </TextView>
+                android:textSize="12sp"></TextView>
 
             <LinearLayout
                 android:id="@+id/humLayout"
@@ -339,16 +380,16 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="3dp"
                     android:layout_gravity="center"
+                    android:layout_marginRight="3dp"
                     android:src="@drawable/ic_humidity_icon"></ImageView>
 
                 <TextView
                     android:id="@+id/humShow"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:text="00"
                     android:gravity="center"
+                    android:text="00"
                     android:textColor="@color/limeGreen"
                     android:textSize="24sp"></TextView>
 
@@ -356,10 +397,9 @@
                     android:id="@+id/humUnitShow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="24sp"
+                    android:text="%"
                     android:textColor="@color/limeGreen"
-                    android:text="%">
-                </TextView>
+                    android:textSize="24sp"></TextView>
 
             </LinearLayout>
 
@@ -368,11 +408,11 @@
 
         <LinearLayout
             android:id="@+id/rightPart2"
-            android:layout_width="151dp"
+            android:layout_width="167dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:layout_margin="10dp"
             android:background="@drawable/layout_bg_hum"
             android:gravity="center"
             android:orientation="vertical">
@@ -406,10 +446,10 @@
                     android:id="@+id/setHum"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:text="000"
-                    android:gravity="center"
-                    android:layout_marginRight="3dp"
                     android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:gravity="center"
+                    android:text="000"
                     android:textColor="@color/colorBlack"
                     android:textSize="24sp"></TextView>
 
@@ -417,10 +457,10 @@
                     android:id="@+id/humUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="%"
-                    android:layout_marginRight="3dp"
-                    android:layout_marginLeft="3dp"
                     android:layout_gravity="center"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:text="%"
                     android:textColor="@color/colorBlack"
                     android:textSize="24sp"></TextView>
 
@@ -438,33 +478,32 @@
     </LinearLayout>
 
 
-
-
     <LinearLayout
         android:id="@+id/LinearLayout3"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:background="@color/whiteColor"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/LinearLayout"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal">
+        android:background="@color/whiteColor"
+        android:orientation="horizontal"
+        android:weightSum="2">
 
         <LinearLayout
             android:id="@+id/leftPart3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="256dp"
+            android:layout_height="84dp"
             android:layout_gravity="center"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/diffControl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
                 android:layout_gravity="center"
+                android:text="Differential Air Pressure"
                 android:textColor="@color/colorBlack"
-                android:text="Differential Air Pressure">
+                android:textSize="12sp">
 
             </TextView>
 
@@ -474,33 +513,32 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:orientation="horizontal">
-f
+                f
+
                 <ImageView
                     android:id="@+id/diffPress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="3dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_diff_pressure"
-                     ></ImageView>
+                    android:layout_marginRight="3dp"
+                    android:src="@drawable/ic_diff_pressure"></ImageView>
 
                 <TextView
                     android:id="@+id/pressureShow"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:textSize="24sp"
                     android:gravity="center"
+                    android:text="000"
                     android:textColor="@color/limeGreen"
-                    android:text="000">
-                </TextView>
+                    android:textSize="24sp"></TextView>
+
                 <TextView
                     android:id="@+id/prssureUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="24sp"
+                    android:text="Pa"
                     android:textColor="@color/limeGreen"
-                    android:text="Pa">
-                </TextView>
+                    android:textSize="24sp"></TextView>
 
 
             </LinearLayout>
@@ -510,10 +548,10 @@ f
 
         <LinearLayout
             android:id="@+id/rightPart3"
-            android:layout_width="165dp"
+            android:layout_width="297dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_margin="10dp"
+            android:layout_margin="2dp"
             android:layout_weight="1"
             android:background="@drawable/layout_bg_pressure"
             android:gravity="center"
@@ -523,7 +561,7 @@ f
                 android:id="@+id/difSetPoint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_gravity="center|top"
                 android:text="HEPA FILTER STATUS"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/textSize">
@@ -535,8 +573,8 @@ f
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="30dp"
                 android:layout_marginTop="10dp"
+                android:gravity="center"
                 android:orientation="horizontal">
 
 
@@ -546,6 +584,8 @@ f
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="Healthy"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="20dp"
                     android:textColor="@color/colorBlack"
                     android:textSize="24sp"></TextView>
 
@@ -556,17 +596,277 @@ f
 
     </LinearLayout>
 
+
+    <LinearLayout
+        android:id="@+id/gasAlarmTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:gravity="center"
+        android:layout_below="@id/LinearLayout3">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gas Alarm"
+            android:textColor="@color/whiteColor"
+            android:textSize="18sp">
+
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/firstRowGasLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:layout_below="@+id/gasAlarmTitleLayout">
+
+
+        <LinearLayout
+            android:id="@+id/gas1Layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1"
+            >
+            <TextView
+                android:id="@+id/gasOne"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:textColor="@color/whiteColor"
+                android:layout_margin="3dp"
+                android:text="@string/oxygen">
+            </TextView>
+
+            <TextView
+                android:id="@+id/gasOneStatusIcon"
+                android:layout_width="60dp"
+                android:layout_height="33dp"
+                android:layout_margin="3dp"
+                android:textColor="@color/colorBlack"
+                android:gravity="center"
+                android:text="@string/normal"
+                android:background="@drawable/mybutton"
+
+                >
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/gas2Layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/gasTwo"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:textColor="@color/whiteColor"
+                android:layout_margin="3dp"
+                android:text="@string/nitrous_oxide">
+            </TextView>
+
+            <TextView
+                android:id="@+id/gasTwoStatusIcon"
+                android:layout_width="60dp"
+                android:layout_height="33dp"
+                android:layout_margin="3dp"
+                android:textColor="@color/colorBlack"
+                android:gravity="center"
+                android:text="@string/normal"
+                android:background="@drawable/mybutton"
+
+                >
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/gas3Layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/gasThree"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:textColor="@color/whiteColor"
+                android:layout_margin="3dp"
+                android:text="@string/carbon_dioxide">
+            </TextView>
+
+            <TextView
+                android:id="@+id/gasThreeStatusIcon"
+                android:layout_width="60dp"
+                android:layout_height="33dp"
+                android:layout_margin="3dp"
+                android:textColor="@color/colorBlack"
+                android:gravity="center"
+                android:text="@string/normal"
+                android:background="@drawable/mybutton"
+
+                >
+            </TextView>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/secondRowGasLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:layout_below="@+id/firstRowGasLayout">
+
+
+        <LinearLayout
+            android:id="@+id/gas4Layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1"
+            >
+            <TextView
+                android:id="@+id/gasFour"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:textColor="@color/whiteColor"
+                android:layout_margin="3dp"
+                android:text="@string/air_4_bar">
+            </TextView>
+
+            <TextView
+                android:id="@+id/gasFourStatusIcon"
+                android:layout_width="60dp"
+                android:layout_height="33dp"
+                android:layout_margin="3dp"
+                android:textColor="@color/colorBlack"
+                android:gravity="center"
+                android:text="@string/normal"
+                android:background="@drawable/mybutton"
+
+                >
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ga5Layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/gasFive"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:textColor="@color/whiteColor"
+                android:layout_margin="3dp"
+                android:text="@string/air_7_bar">
+            </TextView>
+
+            <TextView
+                android:id="@+id/gasFiveStatusIcon"
+                android:layout_width="60dp"
+                android:layout_height="33dp"
+                android:layout_margin="3dp"
+                android:textColor="@color/colorBlack"
+                android:gravity="center"
+                android:text="@string/normal"
+                android:background="@drawable/mybutton"
+
+                >
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/gas6Layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/gasSix"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:textColor="@color/whiteColor"
+                android:layout_margin="3dp"
+                android:text="@string/vacuum">
+            </TextView>
+
+            <TextView
+                android:id="@+id/gasSixStatusIcon"
+                android:layout_width="60dp"
+                android:layout_height="33dp"
+                android:layout_margin="3dp"
+                android:background="@drawable/mybutton"
+                android:textColor="@color/colorBlack"
+                android:gravity="center"
+                android:text="@string/normal"
+                >
+            </TextView>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/lio"
+        android:layout_width="match_parent"
+        android:layout_gravity="center"
+        android:layout_height="1dp"
+        android:layout_below="@id/secondRowGasLayout"
+        android:background="@color/darkGray"/>
+
+    <LinearLayout
+        android:id="@+id/lightControlTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_below="@id/lio"
+        android:orientation="horizontal">
+      <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center"
+          android:textColor="@color/whiteColor"
+          android:text="@string/light_control_title"
+          android:textSize="18sp">
+
+      </TextView>
+
+    </LinearLayout>
+
+
+
     <LinearLayout
         android:id="@+id/lightControlLayout1"
-        android:layout_below="@id/LinearLayout3"
-        android:layout_marginTop="10dp"
+        android:layout_below="@id/lightControlTitle"
+
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="51dp"
         android:clipChildren="false"
         android:gravity="center"
+
         android:clipToPadding="false"
         android:orientation="horizontal"
         >
+
+
 
         <ImageButton
             android:id="@+id/lightOneBtn"
@@ -574,7 +874,8 @@ f
             android:layout_height="wrap_content"
             android:src="@drawable/ic_bulb_icon"
             android:background="@color/colorBlack"
-            android:paddingTop="42dp">
+            android:layout_marginLeft="10dp"
+            >
 
         </ImageButton>
 
@@ -582,9 +883,24 @@ f
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:textColor="@color/whiteColor"
-    android:paddingTop="42dp"
+android:gravity="center"
     android:text="Light 1"></TextView>
 
+        <com.google.android.material.slider.Slider
+            android:id="@+id/slider1"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+
+            app:labelBehavior="withinBounds"
+            android:value="60"
+            android:stepSize="10"
+            android:valueFrom="0"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:valueTo="100"
+            />
+
+<!--
         <hearsilent.discreteslider.DiscreteSlider
             android:id="@+id/discreteSlider1"
             android:layout_width="match_parent"
@@ -611,16 +927,15 @@ f
             app:ds_trackWidth="4dp"
             app:ds_valueLabelMode="showOnPressHold"
             app:ds_valueLabelTextColor="#FFF"
-            app:ds_valueLabelTextSize="16sp" />
+            app:ds_valueLabelTextSize="16sp" />-->
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/lightControlLayout2"
         android:layout_below="@id/lightControlLayout1"
-        android:layout_marginTop="1dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="51dp"
         android:clipChildren="false"
         android:gravity="center"
         android:clipToPadding="false"
@@ -630,10 +945,12 @@ f
         <ImageButton
             android:id="@+id/lightTwoBtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="20dp"
             android:src="@drawable/ic_bulb_icon"
             android:background="@color/colorBlack"
-            android:paddingTop="42dp">
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+             >
 
         </ImageButton>
 
@@ -641,10 +958,24 @@ f
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/whiteColor"
-            android:paddingTop="42dp"
+            android:gravity="center"
             android:text="Light 2"></TextView>
 
-        <hearsilent.discreteslider.DiscreteSlider
+        <com.google.android.material.slider.Slider
+            android:id="@+id/slider2"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            app:labelBehavior="withinBounds"
+            android:value="60"
+            android:stepSize="10"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            />
+
+        <!--<hearsilent.discreteslider.DiscreteSlider
             android:id="@+id/discreteSlider2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -670,7 +1001,7 @@ f
             app:ds_trackWidth="4dp"
             app:ds_valueLabelMode="showOnPressHold"
             app:ds_valueLabelTextColor="#FFF"
-            app:ds_valueLabelTextSize="16sp" />
+            app:ds_valueLabelTextSize="16sp" />-->
 
     </LinearLayout>
 
@@ -678,9 +1009,8 @@ f
     <LinearLayout
         android:id="@+id/lightControlLayout3"
         android:layout_below="@id/lightControlLayout2"
-        android:layout_marginTop="1dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="51dp"
         android:clipChildren="false"
         android:gravity="center"
         android:clipToPadding="false"
@@ -693,7 +1023,8 @@ f
             android:layout_height="wrap_content"
             android:src="@drawable/ic_bulb_icon"
             android:background="@color/colorBlack"
-            android:paddingTop="42dp">
+            android:layout_marginLeft="10dp"
+             >
 
         </ImageButton>
 
@@ -701,10 +1032,24 @@ f
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/whiteColor"
-            android:paddingTop="42dp"
+
             android:text="Light 3"></TextView>
 
-        <hearsilent.discreteslider.DiscreteSlider
+        <com.google.android.material.slider.Slider
+            android:id="@+id/slider3"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            app:labelBehavior="withinBounds"
+            android:value="60"
+            android:stepSize="10"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            />
+
+       <!-- <hearsilent.discreteslider.DiscreteSlider
             android:id="@+id/discreteSlider3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -730,7 +1075,7 @@ f
             app:ds_trackWidth="4dp"
             app:ds_valueLabelMode="showOnPressHold"
             app:ds_valueLabelTextColor="#FFF"
-            app:ds_valueLabelTextSize="16sp" />
+            app:ds_valueLabelTextSize="16sp" />-->
 
     </LinearLayout>
 
@@ -738,9 +1083,9 @@ f
     <LinearLayout
         android:id="@+id/lightControlLayout4"
         android:layout_below="@id/lightControlLayout3"
-        android:layout_marginTop="1dp"
+
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="51dp"
         android:clipChildren="false"
         android:gravity="center"
         android:clipToPadding="false"
@@ -753,7 +1098,8 @@ f
             android:layout_height="wrap_content"
             android:src="@drawable/ic_bulb_icon"
             android:background="@color/colorBlack"
-            android:paddingTop="42dp">
+            android:layout_marginLeft="10dp"
+             >
 
         </ImageButton>
 
@@ -761,10 +1107,24 @@ f
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/whiteColor"
-            android:paddingTop="42dp"
+
             android:text="Light 4"></TextView>
 
-        <hearsilent.discreteslider.DiscreteSlider
+        <com.google.android.material.slider.Slider
+            android:id="@+id/slider4"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            app:labelBehavior="withinBounds"
+            android:value="60"
+            android:stepSize="10"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            />
+
+       <!-- <hearsilent.discreteslider.DiscreteSlider
             android:id="@+id/discreteSlider4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -790,7 +1150,7 @@ f
             app:ds_trackWidth="4dp"
             app:ds_valueLabelMode="showOnPressHold"
             app:ds_valueLabelTextColor="#FFF"
-            app:ds_valueLabelTextSize="16sp" />
+            app:ds_valueLabelTextSize="16sp" />-->
 
     </LinearLayout>
 
@@ -824,8 +1184,8 @@ f
         <com.kyleduo.switchbutton.SwitchButton
             android:id="@+id/switch1"
             style="@style/SwitchButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="150dp"
+            android:layout_height="51dp"
             android:textColor="@color/custom_text_state_color"
             android:textSize="16dp"
             android:layout_margin="6dp"
@@ -855,8 +1215,8 @@ f
             <com.kyleduo.switchbutton.SwitchButton
                 android:id="@+id/switch2"
                 style="@style/SwitchButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="150dp"
+                android:layout_height="51dp"
                 android:textColor="@color/custom_text_state_color"
                 android:textSize="16dp"
                 android:layout_margin="6dp"
@@ -888,280 +1248,8 @@ f
         </TextView>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/gasAlarmTitleLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:layout_below="@id/horizontalLineLayout">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/whiteColor"
-            android:textSize="24sp"
-            android:text="Gas Alarm">
-
-        </TextView>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/firstRowGasLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="3"
-        android:layout_below="@+id/gasAlarmTitleLayout">
 
 
-    <LinearLayout
-        android:id="@+id/gas1Layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:layout_weight="1"
-         >
-        <TextView
-            android:id="@+id/gasOne"
-            android:layout_width="wrap_content"
-            android:layout_height="24dp"
-            android:textColor="@color/whiteColor"
-       android:layout_margin="3dp"
-            android:text="@string/oxygen">
-        </TextView>
-        <TextView
-            android:id="@+id/gasOneStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/limeGreen"
-
-            android:text="Normal">
-
-        </TextView>
-        <ImageButton
-            android:id="@+id/gasOneStatusIcon"
-            android:layout_width="51dp"
-            android:layout_height="51dp"
-            android:layout_margin="3dp"
-            android:src="@drawable/ic_tick"
-            android:background="@drawable/mybutton"
-
-             >
-        </ImageButton>
-    </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/gas2Layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            >
-            <TextView
-                android:id="@+id/gasTwo"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:textColor="@color/whiteColor"
-                android:layout_margin="3dp"
-                android:text="@string/nitrous_oxide">
-            </TextView>
-            <TextView
-                android:id="@+id/gasTwoOneStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/limeGreen"
-                android:text="Normal">
-
-            </TextView>
-            <ImageButton
-                android:id="@+id/gasTwoStatusIcon"
-                android:layout_width="51dp"
-                android:layout_height="51dp"
-                android:layout_margin="3dp"
-                android:src="@drawable/ic_tick"
-                android:background="@drawable/mybutton"
-
-                >
-            </ImageButton>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/gas3Layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            >
-            <TextView
-                android:id="@+id/gasThree"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:textColor="@color/whiteColor"
-                android:layout_margin="3dp"
-                android:text="@string/carbon_dioxide">
-            </TextView>
-            <TextView
-                android:id="@+id/gasThreeStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/limeGreen"
-                android:text="Normal">
-
-            </TextView>
-            <ImageButton
-                android:id="@+id/gasThreeStatusIcon"
-                android:layout_width="51dp"
-                android:layout_height="51dp"
-                android:layout_margin="3dp"
-                android:src="@drawable/ic_tick"
-                android:background="@drawable/mybutton"
-
-                >
-            </ImageButton>
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/gasBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@id/firstRowGasLayout"
-        android:background="@color/darkGray"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"></TextView>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/secondRowGasLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="3"
-        android:layout_below="@+id/gasBarLayout">
-
-
-        <LinearLayout
-            android:id="@+id/gas4Layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_weight="1"
-            >
-            <TextView
-                android:id="@+id/gasFour"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:textColor="@color/whiteColor"
-                android:layout_margin="3dp"
-                android:text="@string/air_4_bar">
-            </TextView>
-            <TextView
-                android:id="@+id/gasFourStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/limeGreen"
-
-                android:text="Normal">
-
-            </TextView>
-            <ImageButton
-                android:id="@+id/gasFourStatusIcon"
-                android:layout_width="51dp"
-                android:layout_height="51dp"
-                android:layout_margin="3dp"
-                android:src="@drawable/ic_tick"
-                android:background="@drawable/mybutton"
-
-                >
-            </ImageButton>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ga5Layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            >
-            <TextView
-                android:id="@+id/gasFive"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:textColor="@color/whiteColor"
-                android:layout_margin="3dp"
-                android:text="@string/air_7_bar">
-            </TextView>
-            <TextView
-                android:id="@+id/gasFiveStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/limeGreen"
-
-                android:text="Normal">
-
-            </TextView>
-            <ImageButton
-                android:id="@+id/gasFiveStatusIcon"
-                android:layout_width="51dp"
-                android:layout_height="51dp"
-                android:layout_margin="3dp"
-                android:src="@drawable/ic_tick"
-                android:background="@drawable/mybutton"
-
-                >
-            </ImageButton>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/gas6Layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            >
-            <TextView
-                android:id="@+id/gasSix"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:textColor="@color/whiteColor"
-                android:layout_margin="3dp"
-                android:text="@string/vacuum">
-            </TextView>
-            <TextView
-                android:id="@+id/gasSixStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/limeGreen"
-
-                android:text="Normal">
-
-            </TextView>
-            <ImageButton
-                android:id="@+id/gasSixStatusIcon"
-                android:layout_width="51dp"
-                android:layout_height="51dp"
-                android:src="@drawable/ic_tick"
-                android:layout_margin="3dp"
-                android:background="@drawable/mybutton"
-
-                >
-            </ImageButton>
-        </LinearLayout>
-
-    </LinearLayout>
 
 </RelativeLayout>
         </ScrollView>

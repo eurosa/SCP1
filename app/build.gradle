@@ -63,5 +63,6 @@ dependencies {
     implementation 'com.github.angads25:toggle:1.1.0'
     implementation 'com.kyleduo.switchbutton:library:2.1.0'
     implementation 'com.github.hearsilent:DiscreteSlider:1.2.1'
+    implementation 'com.google.android.material:material:1.2.0-alpha01'
 
 }

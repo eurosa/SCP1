@@ -25,5 +25,7 @@
     <color name="babyBlue">#7ec8e3</color>
     <color name="blue">#0000ff</color>
     <color name="darkGray">#a6a6a6</color>
-
+    <color name="solidDarkColor">#7f7f7f</color>
+    <color name="solidBlueColor">#00004c</color>
+    <color name="silverColor">#C0C0C0</color>
 </resources>

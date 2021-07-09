@@ -51,6 +51,7 @@ import android.widget.ListView;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,6 +70,8 @@ import androidx.exifinterface.media.ExifInterface;
 
 import com.google.android.gms.instantapps.InstantApps;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
+import com.kyleduo.switchbutton.SwitchButton;
 
 import java.io.File;
 import java.io.IOException;
@@ -221,6 +224,7 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
     private Button stopButton;
     private Button resetButton;
     private DiscreteSlider mSlider1, mSlider2, mSlider3, mSlider4;
+    private SwitchButton switch1;
 
 
     /***************************************************************************************
@@ -271,20 +275,34 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
         *
         *************************************************************************************/
 
-        mSlider1 = findViewById(R.id.discreteSlider1);
-        mSlider2 = findViewById(R.id.discreteSlider2);
-        mSlider3 = findViewById(R.id.discreteSlider3);
-        mSlider4 = findViewById(R.id.discreteSlider4);
-        setUpView(mSlider1);
-        setUpView(mSlider2);
-        setUpView(mSlider3);
-        setUpView(mSlider4);
+       // mSlider1 = findViewById(R.id.discreteSlider1);
+       // mSlider2 = findViewById(R.id.discreteSlider2);
+       // mSlider3 = findViewById(R.id.discreteSlider3);
+       // mSlider4 = findViewById(R.id.discreteSlider4);
+        //setUpView(mSlider1);
+      //  setUpView(mSlider2);
+       // setUpView(mSlider3);
+       // setUpView(mSlider4);
 
         /************************************************************************************
          *
          * Discrete Slider
          *
          *************************************************************************************/
+        /*************************************************************************************
+         * Switch configure
+        **************************************************************************************/
+         switch1 =findViewById(R.id.switch1);
+
+        /*************************************************************************************
+         * Switch configure
+        **************************************************************************************/
+        //TabLayout   tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout); // get the reference of TabLayout
+        //TabLayout.Tab firstTab = tabLayout.newTab(); // Create a new Tab names
+        //firstTab.setText("First Tab"); // set the Text for the first Tab
+        //firstTab.setIcon(R.drawable.ic_left_arrow); // set an icon for the first tab
+        //tabLayout.addTab(firstTab); // add  the tab to the TabLayout
+        //https://abhiandroid.com/materialdesign/tablayout-example-android-studio.html
 
         connectionStatus = findViewById(R.id.connectionStatus);
         IntentFilter filter = new IntentFilter();
@@ -663,10 +681,15 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
             }
         });
 
-        mSlider.setCount(21);
+        mSlider.setCount(101);
         mSlider.setMode(DiscreteSlider.MODE_NORMAL);
+        mSlider.setProgressOffset(0);
+        mSlider.setMinProgress(0);
+        mSlider.setTickMarkStep(10);
 
-        mSlider.setMinProgress(5);
+
+
+
 
         mSlider.setOnValueChangedListener(new DiscreteSlider.OnValueChangedListener() {
 
