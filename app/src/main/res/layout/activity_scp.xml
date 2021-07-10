@@ -109,13 +109,11 @@
                 android:layout_weight="1"
                 android:weightSum="2"
                 android:gravity="center"
-
                 android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-
                     android:gravity="center"
                     android:layout_gravity="center"
                     android:orientation="vertical"
@@ -126,8 +124,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/whiteColor"
-                        android:text="Elapsed Time">
-
+                        android:text="@string/elapsed_time">
                     </TextView>
 
                     <TextView
@@ -142,7 +139,6 @@
 
 
 
-
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -150,23 +146,21 @@
                     android:layout_marginLeft="6dp"
                     android:orientation="vertical">
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/startButton"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-
                         android:layout_margin="6dp"
                         android:background="@drawable/ic_play"
-
                         />
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/resetButton"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_margin="6dp"
                         android:layout_centerHorizontal="true"
-                        android:background="@drawable/ic_reset" />
+                        android:background="@drawable/ic_reset_great" />
                 </LinearLayout>
                 <!--      <Button
                 android:id="@+id/stopButton"
@@ -227,7 +221,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Temperature Control"
+                    android:text="@string/temperature_control"
                     android:textColor="@color/colorBlack"
                     android:textSize="12sp">
                 </TextView>
@@ -275,66 +269,82 @@
                 android:layout_width="167dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_margin="2dp"
+                android:layout_margin="6dp"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:background="@drawable/layout_bg_temp"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/setPoint"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="SET POINT"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/textSize">
 
-                </TextView>
 
                 <LinearLayout
                     android:id="@+id/setTempLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-
                     android:orientation="horizontal">
 
                     <ImageButton
                         android:id="@+id/tempBtnMinus"
                         android:layout_width="51dp"
                         android:layout_height="51dp"
+                        android:layout_gravity="center"
                         android:background="@drawable/mybutton_minus"
-                        android:src="@drawable/ic_minus"></ImageButton>
-
-                    <TextView
-                        android:id="@+id/setTemp"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:text="000"
-                        android:gravity="center"
-                        android:layout_marginRight="3dp"
-                        android:layout_marginLeft="3dp"
-                        android:textColor="@color/colorBlack"
-                        android:textSize="24sp"></TextView>
-
-                    <TextView
-                        android:id="@+id/tempUnit"
+                        android:src="@drawable/ic_minus" />
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="&#xb0;C"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="3dp"
-                        android:layout_marginRight="3dp"
-                        android:textColor="@color/colorBlack"
-                        android:textSize="24sp"></TextView>
+                        android:orientation="vertical">
+
+                           <TextView
+                    android:id="@+id/setPoint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/set_point"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="@dimen/textSize">
+
+                </TextView>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/setTemp"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:text="000"
+                                android:gravity="center"
+                                android:layout_marginRight="3dp"
+                                android:layout_marginLeft="3dp"
+                                android:layout_gravity="center"
+                                android:textColor="@color/colorBlack"
+                                android:textSize="24sp" />
+
+                            <TextView
+                                android:id="@+id/tempUnit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="&#xb0;C"
+                                android:layout_gravity="center"
+                                android:layout_marginLeft="3dp"
+                                android:layout_marginRight="3dp"
+                                android:textColor="@color/colorBlack"
+                                android:textSize="24sp" />
+                        </LinearLayout>
+
+                    </LinearLayout>
 
                     <ImageButton
                         android:id="@+id/tempBtnPlus"
                         android:layout_width="51dp"
                         android:layout_height="51dp"
+                        android:layout_gravity="center"
                         android:background="@drawable/mybutton_plus"
-                        android:src="@drawable/ic_plus"></ImageButton>
+                        android:src="@drawable/ic_plus" />
 
                 </LinearLayout>
 
@@ -368,7 +378,7 @@
                 android:layout_gravity="center"
                 android:text="Humidity Control"
                 android:textColor="@color/colorBlack"
-                android:textSize="12sp"></TextView>
+                android:textSize="12sp" />
 
             <LinearLayout
                 android:id="@+id/humLayout"
@@ -382,7 +392,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginRight="3dp"
-                    android:src="@drawable/ic_humidity_icon"></ImageView>
+                    android:src="@drawable/ic_humidity_icon" />
 
                 <TextView
                     android:id="@+id/humShow"
@@ -391,15 +401,15 @@
                     android:gravity="center"
                     android:text="00"
                     android:textColor="@color/limeGreen"
-                    android:textSize="24sp"></TextView>
+                    android:textSize="24sp" />
 
                 <TextView
                     android:id="@+id/humUnitShow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="%"
+                    android:text="@string/percent"
                     android:textColor="@color/limeGreen"
-                    android:textSize="24sp"></TextView>
+                    android:textSize="24sp" />
 
             </LinearLayout>
 
@@ -411,22 +421,12 @@
             android:layout_width="167dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_margin="2dp"
+            android:layout_margin="6dp"
             android:layout_weight="1"
             android:background="@drawable/layout_bg_hum"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/setHumPointTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="SET POINT"
-                android:textColor="@color/colorBlack"
-                android:textSize="@dimen/textSize">
-
-            </TextView>
 
             <LinearLayout
                 android:id="@+id/setDiffLayout"
@@ -439,37 +439,64 @@
                     android:id="@+id/humBtnMinus"
                     android:layout_width="51dp"
                     android:layout_height="51dp"
+                    android:layout_gravity="center"
                     android:background="@drawable/mybutton_minus"
-                    android:src="@drawable/ic_minus"></ImageButton>
+                    android:src="@drawable/ic_minus" />
 
-                <TextView
-                    android:id="@+id/setHum"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginRight="3dp"
-                    android:gravity="center"
-                    android:text="000"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="24sp"></TextView>
-
-                <TextView
-                    android:id="@+id/humUnit"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginRight="3dp"
-                    android:text="%"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="24sp"></TextView>
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/setHumPointTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/set_point"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="@dimen/textSize">
+
+                    </TextView>
+
+
+                    <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/setHum"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_marginLeft="3dp"
+                            android:layout_marginRight="3dp"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:text="000"
+                            android:textColor="@color/colorBlack"
+                            android:textSize="24sp" />
+
+                        <TextView
+                            android:id="@+id/humUnit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="3dp"
+                            android:layout_marginRight="3dp"
+                            android:text="%"
+                            android:textColor="@color/colorBlack"
+                            android:textSize="24sp" />
+                </LinearLayout>
+                </LinearLayout>
 
                 <ImageButton
                     android:id="@+id/humBtnPlus"
                     android:layout_width="51dp"
                     android:layout_height="51dp"
+                    android:layout_gravity="center"
                     android:background="@drawable/mybutton_plus"
-                    android:src="@drawable/ic_plus"></ImageButton>
+                    android:src="@drawable/ic_plus" />
 
             </LinearLayout>
 
@@ -501,7 +528,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Differential Air Pressure"
+                android:text="@string/differential_air_pressure"
                 android:textColor="@color/colorBlack"
                 android:textSize="12sp">
 
@@ -513,7 +540,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:orientation="horizontal">
-                f
+
 
                 <ImageView
                     android:id="@+id/diffPress"
@@ -521,28 +548,26 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginRight="3dp"
-                    android:src="@drawable/ic_diff_pressure"></ImageView>
+                    android:src="@drawable/ic_diff_pressure" />
 
                 <TextView
                     android:id="@+id/pressureShow"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:gravity="center"
-                    android:text="000"
+                    android:text="@string/_000"
                     android:textColor="@color/limeGreen"
-                    android:textSize="24sp"></TextView>
+                    android:textSize="24sp" />
 
                 <TextView
                     android:id="@+id/prssureUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Pa"
+                    android:text="@string/pa"
                     android:textColor="@color/limeGreen"
-                    android:textSize="24sp"></TextView>
-
+                    android:textSize="24sp" />
 
             </LinearLayout>
-
         </LinearLayout>
 
 
@@ -551,7 +576,7 @@
             android:layout_width="297dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_margin="2dp"
+            android:layout_margin="6dp"
             android:layout_weight="1"
             android:background="@drawable/layout_bg_pressure"
             android:gravity="center"
@@ -562,20 +587,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
-                android:text="HEPA FILTER STATUS"
+                android:gravity="center"
+                android:layout_marginBottom="6dp"
+                android:text="@string/hepa_filter_status"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/textSize">
-
             </TextView>
-
-            <LinearLayout
-                android:id="@+id/diffLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:gravity="center"
-                android:orientation="horizontal">
 
 
                 <TextView
@@ -584,13 +601,13 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="Healthy"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="10dp"
                     android:textColor="@color/colorBlack"
                     android:textSize="24sp"></TextView>
 
 
-            </LinearLayout>
+
 
         </LinearLayout>
 
@@ -608,7 +625,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gas Alarm"
+            android:text="@string/gas_alarm"
             android:textColor="@color/whiteColor"
             android:textSize="18sp">
 
@@ -879,18 +896,17 @@
 
         </ImageButton>
 
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:textColor="@color/whiteColor"
-android:gravity="center"
-    android:text="Light 1"></TextView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/whiteColor"
+            android:gravity="center"
+            android:text="@string/light_1" />
 
         <com.google.android.material.slider.Slider
             android:id="@+id/slider1"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-
             app:labelBehavior="withinBounds"
             android:value="60"
             android:stepSize="10"
@@ -939,8 +955,7 @@ android:gravity="center"
         android:clipChildren="false"
         android:gravity="center"
         android:clipToPadding="false"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/lightTwoBtn"
@@ -959,7 +974,7 @@ android:gravity="center"
             android:layout_height="wrap_content"
             android:textColor="@color/whiteColor"
             android:gravity="center"
-            android:text="Light 2"></TextView>
+            android:text="@string/light_2"/>
 
         <com.google.android.material.slider.Slider
             android:id="@+id/slider2"
@@ -1033,7 +1048,7 @@ android:gravity="center"
             android:layout_height="wrap_content"
             android:textColor="@color/whiteColor"
 
-            android:text="Light 3"></TextView>
+            android:text="@string/light_3"></TextView>
 
         <com.google.android.material.slider.Slider
             android:id="@+id/slider3"
@@ -1108,7 +1123,7 @@ android:gravity="center"
             android:layout_height="wrap_content"
             android:textColor="@color/whiteColor"
 
-            android:text="Light 4"></TextView>
+            android:text="@string/light_4"></TextView>
 
         <com.google.android.material.slider.Slider
             android:id="@+id/slider4"
@@ -1178,7 +1193,7 @@ android:gravity="center"
                 android:layout_height="wrap_content"
                 android:textColor="@color/whiteColor"
                 android:layout_gravity="center"
-                android:text="OT Light">
+                android:text="@string/ot_light">
 
             </TextView>
         <com.kyleduo.switchbutton.SwitchButton
@@ -1209,7 +1224,7 @@ android:gravity="center"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textColor="@color/whiteColor"
-                android:text="HVAC">
+                android:text="@string/hvac">
 
             </TextView>
             <com.kyleduo.switchbutton.SwitchButton
@@ -1260,11 +1275,9 @@ android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center|bottom"
-
-            android:text="No device connected"
+            android:text="@string/no_device_connected"
             android:textColor="@color/redColor"
             android:textSize="24sp">
-
         </TextView>
 
     </RelativeLayout>

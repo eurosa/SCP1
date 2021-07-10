@@ -42,5 +42,22 @@
     <string name="time_date_title">Time &amp; Date</string>
     <string name="normal">Normal</string>
     <string name="light_control_title">Light Control</string>
+    <string name="elapsed_time">Elapsed Time</string>
+    <string name="temperature_control">Temperature Control</string>
+    <string name="differential_air_pressure">Differential Air Pressure</string>
+    <string name="hepa_filter_status">HEPA FILTER STATUS</string>
+    <string name="gas_alarm">Gas Alarm</string>
+    <string name="light_2">Light 2</string>
+    <string name="light_3">Light 3</string>
+    <string name="light_4">Light 4</string>
+    <string name="ot_light">OT Light</string>
+    <string name="hvac">HVAC</string>
+    <string name="no_device_connected">No device connected</string>
+    <string name="light_1">Light 1</string>
+    <string name="pa">Pa</string>
+    <string name="_000">000</string>
+    <string name="set_point">SET POINT</string>
+    <string name="percent">%</string>
+
 
 </resources>

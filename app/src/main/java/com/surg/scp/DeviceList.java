@@ -220,9 +220,9 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
     long timeInMilliseconds = 0L;
     long timeSwapBuff = 0L;
     long updatedTime = 0L;
-    private Button playPause;
-    private Button stopButton;
-    private Button resetButton;
+    private ImageButton playPause;
+    private ImageButton stopButton;
+    private ImageButton resetButton;
     private DiscreteSlider mSlider1, mSlider2, mSlider3, mSlider4;
     private SwitchButton switch1;
 
@@ -460,17 +460,17 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
 /**************************************************************************************
 * Start Stop Watch
 ***************************************************************************************/
-        final Button startButton;
+        final ImageButton startButton;
 
 
 
         timerValue = (TextView) findViewById (R.id.timerValue);
 
-        resetButton = (Button) findViewById (R.id.resetButton);
+        resetButton =  findViewById (R.id.resetButton);
         resetButton.setClickable(false);
-        resetButton.setTextColor(Color.parseColor("#a6a6a6"));
+       // resetButton.setTextColor(Color.parseColor("#a6a6a6"));
 
-        startButton = (Button)  findViewById (R.id.startButton);
+        startButton =  findViewById (R.id.startButton);
 
           //stopButton = (Button) findViewById (R.id.stopButton);
           //stopButton.setClickable(false);
@@ -479,7 +479,7 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 resetButton.setClickable(false);
-                resetButton.setTextColor(Color.parseColor("#8e8e8e"));
+               // resetButton.setTextColor(Color.parseColor("#8e8e8e"));
                 timerValue.setText(String.format("%02d", 00) + ":"
                         + String.format("%02d", 00) + ":"
                         + String.format("%02d", 00));
@@ -615,7 +615,7 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
        // playPause.setClickable(false);
        // playPause.setTextColor(Color.parseColor("#a6a6a6"));
        resetButton.setClickable(false);
-       resetButton.setTextColor(Color.parseColor("#a6a6a6"));
+      // resetButton.setTextColor(Color.parseColor("#a6a6a6"));
         //stopButton.setClickable(true);
         //stopButton.setTextColor(Color.parseColor("#000000"));
         startTime = SystemClock.uptimeMillis();
@@ -632,7 +632,7 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
 
 
       resetButton.setClickable(true);
-      resetButton.setTextColor(Color.parseColor("#000000"));
+     // resetButton.setTextColor(Color.parseColor("#000000"));
         timeSwapBuff += timeInMilliseconds;
         customHandler.removeCallbacks(updateTimerThread);
 
