@@ -48,7 +48,9 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dcfbe793-51c3-4cf6-af46-b956e7d3f469" name="Default Changelist" comment="Commit" />
+    <list default="true" id="dcfbe793-51c3-4cf6-af46-b956e7d3f469" name="Default Changelist" comment="Commit">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -225,13 +227,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1598381539889</updated>
-    </task>
-    <task id="LOCAL-00001" summary="commit">
-      <created>1620990378181</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1620990378181</updated>
     </task>
     <task id="LOCAL-00002" summary="commit">
       <created>1620990453439</created>
@@ -569,7 +564,14 @@
       <option name="project" value="LOCAL" />
       <updated>1625833455089</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="ok">
+      <created>1625893434446</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1625893434446</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -604,7 +606,8 @@
     <MESSAGE value="    commit" />
     <MESSAGE value="commit" />
     <MESSAGE value="Commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Commit" />
+    <MESSAGE value="ok" />
+    <option name="LAST_COMMIT_MESSAGE" value="ok" />
   </component>
   <component name="WindowStateProjectService">
     <state x="435" y="188" key="#Notifications" timestamp="1625567982750">
