@@ -65,35 +65,29 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/timeDateTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/time_date_title"
-                    android:textColor="@color/whiteColor"></TextView>
-
-                <android.widget.TextClock
-                    android:id="@+id/hk_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:format12Hour="KK:mm:ss"
-                    android:textColor="@color/limeGreen"
-                    android:textColorHighlight="@color/limeGreen"
-                    android:textSize="28sp">
-
-                </android.widget.TextClock>
-
                 <android.widget.TextClock
                     android:id="@+id/hk_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:format12Hour="dd MMM yyyy"
-                    android:textColor="@color/silverColor"
-                    android:textSize="15sp">
+                    android:textColor="@color/whiteColor"
+                     >
 
                 </android.widget.TextClock>
+                <android.widget.TextClock
+                    android:id="@+id/hk_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:format12Hour="hh:mm:ss"
+                    android:textColor="@color/limeGreen"
+                    android:textColorHighlight="@color/limeGreen"
+                    android:textSize="28sp">
+
+                </android.widget.TextClock>
+
+
 
             </LinearLayout>
 
@@ -118,6 +112,7 @@
                     android:gravity="center"
                     android:layout_gravity="center"
                     android:orientation="vertical"
+                    android:layout_marginTop="1dp"
                     android:layout_marginBottom="6dp"
                      >
 
@@ -125,6 +120,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/whiteColor"
+
                         android:text="@string/elapsed_time">
                     </TextView>
 
@@ -144,7 +140,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+                    android:layout_gravity="center"
                     android:layout_marginLeft="10dp"
+                    android:layout_marginTop="3dp"
                     android:orientation="vertical">
 
                     <ImageButton
@@ -159,7 +157,7 @@
                         android:id="@+id/resetButton"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:layout_margin="6dp"
+                        android:layout_marginBottom="6dp"
                         android:background="@drawable/ic_reset_great" />
                 </LinearLayout>
                 <!--<Button
@@ -256,7 +254,7 @@
                         android:text="00"
                         android:gravity="center"
                         android:textColor="@color/limeGreen"
-                        android:textSize="24sp"></TextView>
+                        android:textSize="29sp"></TextView>
 
                     <TextView
                         android:id="@+id/celUnit"
@@ -409,7 +407,7 @@
                     android:gravity="center"
                     android:text="00"
                     android:textColor="@color/limeGreen"
-                    android:textSize="24sp" />
+                    android:textSize="29sp" />
 
                 <TextView
                     android:id="@+id/humUnitShow"
@@ -565,7 +563,7 @@
                     android:gravity="center"
                     android:text="@string/_000"
                     android:textColor="@color/limeGreen"
-                    android:textSize="24sp" />
+                    android:textSize="29sp" />
 
                 <TextView
                     android:id="@+id/prssureUnit"
@@ -573,7 +571,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/pa"
                     android:textColor="@color/limeGreen"
-                    android:textSize="24sp" />
+                    android:textSize="29sp" />
 
             </LinearLayout>
         </LinearLayout>
@@ -613,9 +611,6 @@
                     android:layout_marginBottom="10dp"
                     android:textColor="@color/colorBlack"
                     android:textSize="24sp"></TextView>
-
-
-
 
         </LinearLayout>
 
