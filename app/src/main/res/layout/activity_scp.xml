@@ -632,6 +632,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
             android:text="@string/gas_alarm"
             android:textColor="@color/whiteColor"
             android:textSize="18sp">
@@ -829,7 +830,7 @@
         android:id="@+id/lio"
         android:layout_width="match_parent"
         android:layout_gravity="center"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="6dp"
         android:layout_height="1dp"
         android:layout_below="@id/firstRowGasLayout"
         android:background="@color/darkGray"/>
@@ -845,7 +846,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:gravity="center"
-          android:layout_marginTop="2dp"
+          android:layout_marginTop="4dp"
           android:textColor="@color/whiteColor"
           android:text="@string/light_control_title"
           android:textSize="18sp">

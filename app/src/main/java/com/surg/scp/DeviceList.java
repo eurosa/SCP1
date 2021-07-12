@@ -569,7 +569,6 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
         {
             try
             {
-
                 final Handler handler=new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
