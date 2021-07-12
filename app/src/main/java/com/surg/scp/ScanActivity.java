@@ -75,14 +75,14 @@ import java.util.UUID;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-/**
+/*******************************************************************************************************
  * Main Activity of this application.
  *
  * @author Donato Rimenti
- */
+ *******************************************************************************************************/
 public class ScanActivity extends AppCompatActivity implements ListInteractionListener<BluetoothDevice> {
 
-    //==============================To Connect Bluetooth Device=============================
+    //==============================To Connect Bluetooth Device==========================================
     private ProgressDialog progress;
     private boolean isBtConnected = false;
     BluetoothSocket btSocket = null;
@@ -624,7 +624,7 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
     }
 /*---------------this override method has been used to back home it works with
 *         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+          getSupportActionBar().setDisplayShowHomeEnabled(true);
 *
 *
 *
@@ -675,6 +675,7 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
                 Toast.makeText(this, "Error while pairing with device " + deviceName + "!", Toast.LENGTH_SHORT).show();
             }
         }
+        pairedDevicesList();
     }
 
     /**
@@ -773,6 +774,4 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
 
         }
     }
-
-
 }

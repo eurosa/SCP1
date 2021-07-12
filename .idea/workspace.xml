@@ -17,7 +17,7 @@
     </shared>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_LOG_LEVEL" value="verbose" />
+    <option name="TOOL_WINDOW_LOG_LEVEL" value="error" />
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="No Filters" />
   </component>
   <component name="AutoImportSettings">
@@ -48,13 +48,30 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dcfbe793-51c3-4cf6-af46-b956e7d3f469" name="Default Changelist" comment="Commit" />
+    <list default="true" id="dcfbe793-51c3-4cf6-af46-b956e7d3f469" name="Default Changelist" comment="Commit">
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_scp_copy.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.7.1/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.7.1/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.7.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.7.1/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.7.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.7.1/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.7.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.7.1/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.7.1/javaCompile/classAnalysis.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.7.1/javaCompile/classAnalysis.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.7.1/javaCompile/javaCompile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.7.1/javaCompile/javaCompile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/sha1-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/ScanActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/ScanActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/mybutton.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/mybutton.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_scp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_scp.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[VirtualDevicePath@C:\Users\DIGILINE RANJAN\.android\avd\Pixel_2_API_30.avd]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[SerialNumber@RZ8N824YCWJ]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -128,7 +145,7 @@
     <property name="android-custom-viewC:/Users/DIGILINE RANJAN/AppData/Local/Android/Sdk/sources/android-30/android/widget/Switch.java_SELECTED" value="Switch" />
     <property name="android-custom-viewC:/Users/DIGILINE RANJAN/AppData/Local/Android/Sdk/sources/android-30/android/widget/TextView.java_SELECTED" value="TextView" />
     <property name="com.intellij.openapi.externalSystem.service.settings.ExternalSystemGroupConfigurable" value="ALL" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../Ranjan/Android/AndroidStudioProjects (2)/Content Based App/BhagavatGitaBanglaASITIS" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/src/main/res/layout" />
     <property name="project.structure.last.edited" value="SDK Location" />
     <property name="project.structure.proportion" value="0.17" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -140,9 +157,9 @@
       <recent name="com.bluetooth.scan" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Ranjan_Digiline\Final_21\Android Project\SCP\app\src\main\res\layout" />
       <recent name="D:\Ranjan_Digiline\Final_21\Android Project\SCP" />
       <recent name="D:\Ranjan_Digiline\Final_21\Android Project\SCP\app\src\main\res\drawable" />
-      <recent name="D:\Ranjan_Digiline\Final_21\Android Project\SCP\app\src\main\res\layout" />
       <recent name="D:\Ranjan_Digiline\Final_21\Android Project\DisplayTok\app\src\main\res\drawable" />
       <recent name="D:\Ranjan_Digiline\Final_21\Android Project\DisplayTok\app\src\main\res\font" />
     </key>
@@ -225,13 +242,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1598381539889</updated>
-    </task>
-    <task id="LOCAL-00004" summary="commit">
-      <created>1620990573677</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1620990573677</updated>
     </task>
     <task id="LOCAL-00005" summary="commit">
       <created>1620990585721</created>
@@ -569,7 +579,14 @@
       <option name="project" value="LOCAL" />
       <updated>1625919904153</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="ok">
+      <created>1626065858582</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1626065858582</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -603,9 +620,9 @@
     </ignored-roots>
     <MESSAGE value="    commit" />
     <MESSAGE value="commit" />
-    <MESSAGE value="ok" />
     <MESSAGE value="Commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Commit" />
+    <MESSAGE value="ok" />
+    <option name="LAST_COMMIT_MESSAGE" value="ok" />
   </component>
   <component name="WindowStateProjectService">
     <state x="435" y="188" key="#Notifications" timestamp="1625567982750">
@@ -660,22 +677,22 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="460" y="69" key="Github.UntrackedFilesDialog/0.0.1366.728@0.0.1366.728" timestamp="1625312902533" />
-    <state width="1323" height="428" key="GridCell.Tab.0.bottom" timestamp="1625901016761">
+    <state width="1323" height="428" key="GridCell.Tab.0.bottom" timestamp="1626085601311">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="428" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1625901016761" />
-    <state width="1323" height="428" key="GridCell.Tab.0.center" timestamp="1625901016761">
+    <state width="1323" height="428" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1626085601311" />
+    <state width="1323" height="428" key="GridCell.Tab.0.center" timestamp="1626085601311">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="428" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1625901016761" />
-    <state width="1323" height="428" key="GridCell.Tab.0.left" timestamp="1625901016761">
+    <state width="1323" height="428" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1626085601311" />
+    <state width="1323" height="428" key="GridCell.Tab.0.left" timestamp="1626085601311">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="428" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1625901016761" />
-    <state width="1323" height="428" key="GridCell.Tab.0.right" timestamp="1625901016761">
+    <state width="1323" height="428" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1626085601311" />
+    <state width="1323" height="428" key="GridCell.Tab.0.right" timestamp="1626085601311">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="428" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1625901016761" />
+    <state width="1323" height="428" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1626085601311" />
     <state x="356" y="68" key="NewModule_or_Project.wizard" timestamp="1625216888625">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
@@ -710,22 +727,22 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java</url>
-          <line>950</line>
+          <line>949</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java</url>
-          <line>952</line>
+          <line>951</line>
           <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java</url>
-          <line>951</line>
+          <line>950</line>
           <option name="timeStamp" value="15" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java</url>
-          <line>949</line>
+          <line>948</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">

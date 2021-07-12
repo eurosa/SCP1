@@ -19,7 +19,7 @@
 
             <corners android:radius="10dip" />
             <stroke android:width="1dip" android:color="#5e7974" />
-            <gradient android:angle="-90" android:startColor="@color/lightBlue" android:endColor="@color/colorAccent" />
+            <gradient android:angle="-90" android:startColor="@color/limeGreen" android:endColor="@color/limeGreen" />
         </shape>
     </item>
     <!--Last Item Is corner round radius of button -->

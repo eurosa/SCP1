@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -225,6 +226,7 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
     private ImageButton resetButton;
     private DiscreteSlider mSlider1, mSlider2, mSlider3, mSlider4;
     private SwitchButton switch1;
+    private SwitchButton switch2;
 
 
     /***************************************************************************************
@@ -279,8 +281,8 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
        // mSlider2 = findViewById(R.id.discreteSlider2);
        // mSlider3 = findViewById(R.id.discreteSlider3);
        // mSlider4 = findViewById(R.id.discreteSlider4);
-        //setUpView(mSlider1);
-      //  setUpView(mSlider2);
+       // setUpView(mSlider1);
+       //  setUpView(mSlider2);
        // setUpView(mSlider3);
        // setUpView(mSlider4);
 
@@ -293,7 +295,9 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
          * Switch configure
         **************************************************************************************/
          switch1 =findViewById(R.id.switch1);
-
+         switch2 = findViewById(R.id.switch2);
+         switch1.setOnClickListener(this);
+         switch2.setOnClickListener(this);
         /*************************************************************************************
          * Switch configure
         **************************************************************************************/
@@ -544,13 +548,13 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
             int minutes = seconds / 60;
             int hours = seconds / 3600;
             seconds = seconds % 60;
-          //  int milliseconds = (int) (updatedTime % 1000);
+            //  int milliseconds = (int) (updatedTime % 1000);
 
             String string = "";
             string += "" + String.format("%02d", hours);
             string += ":" + String.format("%02d", minutes);
             string += ":" + String.format("%02d", seconds);
-          //  string += ":" + String.format("%03d", milliseconds);
+            //  string += ":" + String.format("%03d", milliseconds);
 
             timerValue.setText(string);
             customHandler.postDelayed(this, 0);
@@ -604,8 +608,6 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
         String stringData = null;
         // String stringData = textData.rightPad(lenght, ' ').Substring(0, length);
         // String stringData = leftpad(textData,28);
-
-
         return stringData;
     }
 
@@ -746,7 +748,7 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
 
 
         //--------------------------------------------------------------------------------------------------------------
-       Dialog dialog = new Dialog(this);
+        Dialog dialog = new Dialog(this);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select a paired device for connecting");
 
@@ -833,8 +835,6 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
         devicelist.setAdapter(adapter);
         devicelist.setOnItemClickListener(myListClickListener); //Method called when the device from the list is clicked
 
-
-
     }
 
     private AdapterView.OnItemClickListener myListClickListener = new AdapterView.OnItemClickListener()
@@ -909,9 +909,8 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
 
 
         /*******************************************************************************
-        *
-        * Navigation Menu Item
-        * ******************************************************************************/
+         * Navigation Menu Item
+         *******************************************************************************/
        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
            //Toast.makeText(getApplicationContext(), "nav_exit"+item.getItemId(), Toast.LENGTH_LONG).show();
           /*  int n_id= item.getItemId();
@@ -975,7 +974,7 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
             shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
             startActivity(Intent.createChooser(shareIntent, "choose one"));
         } catch(Exception e) {
-            //e.toString();
+            // e.toString();
         }
 
     }
@@ -1075,7 +1074,46 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
 
     @Override
     public void onClick(View v) {
+        // So we will make
+       // int backgroundColor = ContextCompat.getColor(getApplicationContext(), R.color.red);
+        switch (v.getId() /*to get clicked view id**/) {
+            case R.id.switch1:
+                switch1(v);
+                break;
+            case R.id.switch2:
+                switch2(v);
+                break;
 
+            default:
+                break;
+        }
+    }
+
+
+    public void switch1(View v){
+        if(v.getStateDescription().toString().contains("checked")) {
+            switch1.setThumbColorRes(R.color.red);
+            //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
+        }
+        if(v.getStateDescription().toString().contains("not checked")){
+
+            switch1.setThumbColorRes(R.color.limeGreen);
+            //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+
+    public void switch2(View v){
+        if(v.getStateDescription().toString().contains("checked")) {
+            switch2.setThumbColorRes(R.color.red);
+           // Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
+        }
+        if(v.getStateDescription().toString().contains("not checked")){
+
+            switch2.setThumbColorRes(R.color.limeGreen);
+            //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -1323,22 +1361,17 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
     @Override
     protected void onPause() {
         super.onPause();
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-
     }
 
 
-
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//The BroadcastReceiver that listens for bluetooth broadcasts
+    //The BroadcastReceiver that listens for bluetooth broadcasts
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-
 
         @Override
         public void onReceive(Context context, Intent intent) {
