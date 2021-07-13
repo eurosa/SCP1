@@ -59,9 +59,10 @@
 
             <LinearLayout
                 android:id="@+id/textClockLayout"
-                android:layout_width="170dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -99,9 +100,10 @@
             <LinearLayout
                 android:id="@+id/timevalueLayout"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="right"
                 android:layout_weight="1"
+                android:layout_marginTop="3dp"
                 android:weightSum="2"
                 android:gravity="center"
                 android:orientation="horizontal">
@@ -112,17 +114,15 @@
                     android:gravity="center"
                     android:layout_gravity="center"
                     android:orientation="vertical"
-                    android:layout_marginTop="1dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginBottom="6dp"
                      >
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/whiteColor"
-
-                        android:text="@string/elapsed_time">
-                    </TextView>
+                        android:text="@string/elapsed_time"
+                        android:textColor="@color/whiteColor"></TextView>
 
                     <TextView
                         android:id="@+id/timerValue"
@@ -141,23 +141,26 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="20dp"
                     android:layout_marginTop="3dp"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <ImageButton
                         android:id="@+id/startButton"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_margin="6dp"
-                        android:background="@drawable/ic_play"
-                        />
+                        android:layout_width="38dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="2dp"
+                        android:background="@drawable/ic_play" />
 
                     <ImageButton
                         android:id="@+id/resetButton"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginBottom="6dp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+
+                        android:layout_marginTop="2dp"
+
+                        android:layout_marginLeft="6dp"
                         android:background="@drawable/ic_reset_great" />
                 </LinearLayout>
                 <!--<Button
@@ -317,12 +320,12 @@
 
                             <TextView
                                 android:id="@+id/setTemp"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
-                                android:text="000"
+                                android:layout_width="42dp"
+                                android:layout_height="wrap_content"
+                                android:text="00"
                                 android:gravity="center"
                                 android:layout_marginRight="3dp"
-                                android:layout_marginLeft="3dp"
+                                android:layout_marginLeft="1dp"
                                 android:layout_gravity="center"
                                 android:textColor="@color/colorBlack"
                                 android:textSize="29sp" />
@@ -334,7 +337,7 @@
                                 android:text="&#xb0;C"
                                 android:layout_gravity="center"
                                 android:layout_marginLeft="3dp"
-                                android:layout_marginRight="3dp"
+                                android:layout_marginRight="6dp"
                                 android:textColor="@color/colorBlack"
                                 android:textSize="24sp" />
                         </LinearLayout>
@@ -399,7 +402,7 @@
 
                 <TextView
                     android:id="@+id/humShow"
-                    android:layout_width="60dp"
+                    android:layout_width="55dp"
                     android:layout_height="60dp"
                     android:gravity="center"
                     android:text="00"
@@ -470,13 +473,13 @@
 
                         <TextView
                             android:id="@+id/setHum"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
+                            android:layout_width="42dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginLeft="3dp"
                             android:layout_marginRight="3dp"
                             android:gravity="center"
                             android:layout_gravity="center"
-                            android:text="000"
+                            android:text="00"
                             android:textColor="@color/colorBlack"
                             android:textSize="29sp" />
 
@@ -485,8 +488,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_marginLeft="3dp"
-                            android:layout_marginRight="3dp"
+                            android:layout_marginLeft="1dp"
+                            android:layout_marginRight="6dp"
                             android:text="@string/percent_sign"
                             android:textColor="@color/colorBlack"
                             android:textSize="24sp" />
@@ -498,6 +501,7 @@
                     android:layout_width="51dp"
                     android:layout_height="51dp"
                     android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
                     android:background="@drawable/mybutton_plus"
                     android:src="@drawable/ic_plus" />
 
@@ -555,7 +559,7 @@
 
                 <TextView
                     android:id="@+id/pressureShow"
-                    android:layout_width="60dp"
+                    android:layout_width="70dp"
                     android:layout_height="60dp"
                     android:gravity="center"
                     android:text="@string/_000"
@@ -641,60 +645,61 @@
         android:layout_below="@+id/gasAlarmTitleLayout">
 
 
-         <LinearLayout
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:orientation="vertical"
-             android:layout_weight="1"
-             android:gravity="right">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/gasOne"
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
-                android:textColor="@color/whiteColor"
-                android:layout_margin="3dp"
-                android:text="@string/oxygen">
-            </TextView>
 
-        <TextView
-            android:id="@+id/gasFour"
+
+                android:text="@string/oxygen"
+                android:textColor="@color/whiteColor"></TextView>android:layout_marginRight="2dp"
+
+            <TextView
+                android:id="@+id/gasFour"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginRight="2dp"
+                android:text="@string/air_4_bar"
+                android:textColor="@color/whiteColor"></TextView>
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="24dp"
-            android:textColor="@color/whiteColor"
-            android:layout_marginTop="10dp"
-            android:text="@string/air_4_bar">
-        </TextView>
-         </LinearLayout>
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/gasOneStatusIcon"
-                android:layout_width="60dp"
+                android:layout_width="80dp"
                 android:layout_height="33dp"
-                android:layout_margin="3dp"
-                android:textColor="@color/colorBlack"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/mybutton"
                 android:gravity="center"
                 android:text="@string/normal"
+                android:textColor="@color/colorBlack" />
+
+            <TextView
+                android:id="@+id/gasFourStatusIcon"
+                android:layout_width="80dp"
+                android:layout_height="33dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/mybutton"
-                >
-            </TextView>
+                android:gravity="center"
+                android:text="@string/normal"
+                android:textColor="@color/colorBlack"
 
-        <TextView
-            android:id="@+id/gasFourStatusIcon"
-            android:layout_width="60dp"
-            android:layout_height="33dp"
-            android:layout_margin="3dp"
-            android:textColor="@color/colorBlack"
-            android:gravity="center"
-            android:text="@string/normal"
-            android:background="@drawable/mybutton"
-
-            >
-        </TextView>
-</LinearLayout>
+                />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -707,16 +712,18 @@
                 android:id="@+id/gasTwo"
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
-                android:layout_margin="3dp"
+
                 android:text="@string/nitrous_oxide"
+                android:layout_marginRight="2dp"
                 android:textColor="@color/whiteColor" />
 
             <TextView
                 android:id="@+id/gasFive"
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="30dp"
                 android:text="@string/air_7_bar"
+                android:layout_marginRight="2dp"
                 android:textColor="@color/whiteColor" />
 
         </LinearLayout>
@@ -729,9 +736,10 @@
 
             <TextView
                 android:id="@+id/gasTwoStatusIcon"
-                android:layout_width="60dp"
+                android:layout_width="80dp"
                 android:layout_height="33dp"
-                android:layout_margin="3dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/colorBlack"
                 android:gravity="center"
                 android:text="@string/normal"
@@ -741,9 +749,9 @@
             </TextView>
             <TextView
                 android:id="@+id/gasFiveStatusIcon"
-                android:layout_width="60dp"
+                android:layout_width="80dp"
                 android:layout_height="33dp"
-                android:layout_margin="3dp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/colorBlack"
                 android:gravity="center"
                 android:text="@string/normal"
@@ -768,7 +776,8 @@
             android:layout_width="wrap_content"
             android:layout_height="24dp"
             android:textColor="@color/whiteColor"
-            android:layout_margin="3dp"
+
+            android:layout_marginRight="2dp"
             android:text="@string/carbon_dioxide">
         </TextView>
 
@@ -777,7 +786,8 @@
             android:layout_width="wrap_content"
             android:layout_height="24dp"
             android:textColor="@color/whiteColor"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="2dp"
             android:text="@string/vacuum">
         </TextView>
 
@@ -790,9 +800,10 @@
     android:orientation="vertical">
             <TextView
                 android:id="@+id/gasThreeStatusIcon"
-                android:layout_width="60dp"
+                android:layout_width="80dp"
                 android:layout_height="33dp"
-                android:layout_margin="3dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/colorBlack"
                 android:gravity="center"
                 android:text="@string/normal"
@@ -801,9 +812,9 @@
             </TextView>
     <TextView
         android:id="@+id/gasSixStatusIcon"
-        android:layout_width="60dp"
+        android:layout_width="80dp"
         android:layout_height="33dp"
-        android:layout_margin="3dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/mybutton"
         android:textColor="@color/colorBlack"
         android:gravity="center"
@@ -822,7 +833,7 @@
         android:id="@+id/lio"
         android:layout_width="match_parent"
         android:layout_gravity="center"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="10dp"
         android:layout_height="1dp"
         android:layout_below="@id/firstRowGasLayout"
         android:background="@color/darkGray"/>
@@ -895,34 +906,41 @@
             android:valueTo="100"
             />
 
-<!--
-        <hearsilent.discreteslider.DiscreteSlider
-            android:id="@+id/discreteSlider1"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="42dp"
-            app:ds_count="21"
-            app:ds_inactiveTrackColor="#3DD81B60"
-            app:ds_maxProgress="10"
-            app:ds_minProgress="5"
-            app:ds_mode="range"
-            app:ds_progressOffset="10"
-            app:ds_thumbColor="@color/colorAccent"
-            app:ds_thumbPressedColor="#1FD81B60"
-            app:ds_thumbRadius="6dp"
-            app:ds_tickMarkColor="#3DFFFFFF"
-            app:ds_tickMarkDashLength="1dp"
-            app:ds_tickMarkInactiveColor="#1FD81B60"
-            app:ds_tickMarkPatterns="dot,dash"
-            app:ds_trackColor="@color/colorAccent"
-            app:ds_trackWidth="4dp"
-            app:ds_valueLabelMode="showOnPressHold"
-            app:ds_valueLabelTextColor="#FFF"
-            app:ds_valueLabelTextSize="16sp" />-->
+            android:layout_weight="1"
+            android:text="android:layout_marginTop=&quot;30dp&quot;" />
+
+        <!--
+                <hearsilent.discreteslider.DiscreteSlider
+                    android:id="@+id/discreteSlider1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingTop="42dp"
+                    app:ds_count="21"
+                    app:ds_inactiveTrackColor="#3DD81B60"
+                    app:ds_maxProgress="10"
+                    app:ds_minProgress="5"
+                    app:ds_mode="range"
+                    app:ds_progressOffset="10"
+                    app:ds_thumbColor="@color/colorAccent"
+                    app:ds_thumbPressedColor="#1FD81B60"
+                    app:ds_thumbRadius="6dp"
+                    app:ds_tickMarkColor="#3DFFFFFF"
+                    app:ds_tickMarkDashLength="1dp"
+                    app:ds_tickMarkInactiveColor="#1FD81B60"
+                    app:ds_tickMarkPatterns="dot,dash"
+                    app:ds_trackColor="@color/colorAccent"
+                    app:ds_trackWidth="4dp"
+                    app:ds_valueLabelMode="showOnPressHold"
+                    app:ds_valueLabelTextColor="#FFF"
+                    app:ds_valueLabelTextSize="16sp" />-->
 
     </LinearLayout>
 
