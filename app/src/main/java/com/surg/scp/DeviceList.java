@@ -84,6 +84,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import hearsilent.discreteslider.Dash;
@@ -97,6 +99,18 @@ import static android.content.ContentValues.TAG;
 public class DeviceList extends AppCompatActivity implements  View.OnClickListener  , NavigationView.OnNavigationItemSelectedListener
 {
     private static final String MY_PREFS_NAME = "MyTxtFile";
+
+    /***************************************************************************************
+    *                           Start Increment and Decrement
+    ****************************************************************************************/
+    TextView setTempDisplay;
+    TextView setHumDisplay;
+    ImageButton tempMinusButton;
+    ImageButton tempPlusButton;
+    ImageButton[] arrayOfControlButtons;
+    /***************************************************************************************
+     *                          End Increment and Decrement
+     ****************************************************************************************/
 
     /***************************************************************************************
     *   Play and pause in only one button - Android
@@ -131,6 +145,7 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
     //-----------------------------------Camera-----------------------------------------------
     // ------------------------ Auto Repeat increment and decrement --------------------------
     Integer currentDisplayValue = 0;
+    Integer currentHumValue = 0;
 
     final int DisplayValueMin = 0;
     final int DisplayValueMax1 = 99;
@@ -196,8 +211,6 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
     private Dialog typeDialog;
     private DatabaseHandler dbHandler;
     private DataModel dataModel;
-    private ImageButton minusButton, plusButton;
-    ImageButton[] arrayOfControlButtons;
     private boolean success =  false;
     private TextView connectionStatus;
     private String infoBLE = null;
@@ -227,6 +240,8 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
     private DiscreteSlider mSlider1, mSlider2, mSlider3, mSlider4;
     private SwitchButton switch1;
     private SwitchButton switch2;
+    private ImageButton humBtnPlus;
+    private ImageButton humBtnMinus;
 
 
     /***************************************************************************************
@@ -282,7 +297,7 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
        // mSlider3 = findViewById(R.id.discreteSlider3);
        // mSlider4 = findViewById(R.id.discreteSlider4);
        // setUpView(mSlider1);
-       //  setUpView(mSlider2);
+       // setUpView(mSlider2);
        // setUpView(mSlider3);
        // setUpView(mSlider4);
 
@@ -535,7 +550,137 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
         if (relativeLayout != null) {
             relativeLayout.addView(textClock);
         }*/
+
+
+        /********************************************************************************************
+        *                          Start Increment and Decrement
+        *********************************************************************************************/
+        setTempDisplay = findViewById(R.id.setTemp);
+        setHumDisplay = findViewById(R.id.setHum);
+        tempMinusButton = findViewById(R.id.tempBtnMinus);
+        tempPlusButton = findViewById(R.id.tempBtnPlus);
+
+        humBtnPlus = findViewById(R.id.humBtnPlus);
+        humBtnMinus = findViewById(R.id.humBtnMinus);
+
+        tempMinusButton.setOnClickListener(this);
+        tempPlusButton.setOnClickListener(this);
+        humBtnMinus.setOnClickListener(this);
+        humBtnPlus.setOnClickListener(this);
+
+        arrayOfControlButtons = new ImageButton[]{tempPlusButton, tempMinusButton,humBtnPlus,humBtnMinus}; // this could be a large set of buttons
+
+        updateDisplay(); // initial setting of display
+
+        for (ImageButton b : arrayOfControlButtons) {
+
+            b.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(final View v) {
+
+                    final Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if (v.isPressed()) { // important: checking if button still pressed
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // --------------------------------------------------
+                                        // this is code that runs each time the
+                                        // long-click timer "goes off."
+                                        switch (v.getId()) {
+
+                                            // which button was pressed?
+                                            case R.id.tempBtnPlus: {
+                                                currentDisplayValue = currentDisplayValue + 10;
+                                                break;
+                                            }
+
+                                            case R.id.tempBtnMinus: {
+                                                currentDisplayValue = currentDisplayValue - 10;
+                                                break;
+                                            }
+
+                                            // which button was pressed?
+                                            case R.id.humBtnPlus: {
+                                                currentHumValue = currentHumValue + 10;
+                                                break;
+                                            }
+
+                                            case R.id.humBtnMinus: {
+                                                currentHumValue = currentHumValue - 10;
+                                                break;
+                                            }
+                                        }
+                                        updateHumDisplay();
+                                        updateDisplay();
+
+                                        // --------------------------------------------------
+                                    }
+                                });
+                            } else
+                                timer.cancel();
+                        }
+                    }, 100, 200);
+                    // if set to false, then long clicks will propagate into single-clicks
+                    // also, and we don't want that.
+                    return true;
+                }
+            });
+
+        }
+
+
+
+        /********************************************************************************************
+        *                          End Increment and Decrement
+        *********************************************************************************************/
+
+
     }
+
+
+    /*************************************************************************************************
+    *                              Start Increment and Decrement
+    *************************************************************************************************/
+    // ON-CLICKS (referred to from XML)
+
+    public void tempBtnMinusPressed() {
+        currentDisplayValue--;
+        updateDisplay();
+    }
+
+    public void tempBtnPlusPressed() {
+        currentDisplayValue++;
+        updateDisplay();
+    }
+
+
+    // ON-CLICKS (referred to from XML)
+
+    public void humBtnMinusPressed() {
+        currentHumValue--;
+        updateHumDisplay();
+    }
+
+    public void humBtnPlusPressed() {
+        currentHumValue++;
+        updateHumDisplay();
+    }
+
+    // INTERNAL
+
+    private void updateDisplay() {
+        setTempDisplay.setText(currentDisplayValue.toString());
+    }
+
+    private void updateHumDisplay() {
+        setHumDisplay.setText(currentHumValue.toString());
+    }
+    /*************************************************************************************************
+    *                              End Increment and Decrement
+    *************************************************************************************************/
 
 
 
@@ -1082,7 +1227,18 @@ public class DeviceList extends AppCompatActivity implements  View.OnClickListen
             case R.id.switch2:
                 switch2(v);
                 break;
-
+            case R.id.tempBtnPlus:
+                tempBtnPlusPressed();
+                break;
+            case R.id.tempBtnMinus:
+                tempBtnMinusPressed();
+                break;
+            case R.id.humBtnPlus:
+                humBtnPlusPressed();
+                break;
+            case R.id.humBtnMinus:
+                humBtnMinusPressed();
+                break;
             default:
                 break;
         }
