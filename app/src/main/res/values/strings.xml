@@ -58,6 +58,9 @@
     <string name="_000">000</string>
     <string name="set_point">SET POINT</string>
     <string name="percent">%</string>
+    <string name="healthy">Healthy</string>
+    <string name="percent_sign">%</string>
+    <string name="humidity_control">Humidity Control</string>
 
 
 </resources>
