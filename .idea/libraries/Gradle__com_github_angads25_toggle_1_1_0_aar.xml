@@ -1,9 +1,9 @@
 <component name="libraryTable">
-  <library name="Gradle: com.github.angads25:toggle:1.1.0@aar">
+  <library name="Gradle: com.github.angads25:toggle:1.1.0@aar" external-system-id="GRADLE">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/75fc60364ed0763db18ea9603a13699b/toggle-1.1.0/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/75fc60364ed0763db18ea9603a13699b/toggle-1.1.0/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/75fc60364ed0763db18ea9603a13699b/toggle-1.1.0/AndroidManifest.xml" />
+      <root url="file://$PROJECT_DIR$/../RTM/gradle/caches/transforms-2/files-2.1/75fc60364ed0763db18ea9603a13699b/toggle-1.1.0/AndroidManifest.xml" />
+      <root url="jar://$PROJECT_DIR$/../RTM/gradle/caches/transforms-2/files-2.1/75fc60364ed0763db18ea9603a13699b/toggle-1.1.0/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/../RTM/gradle/caches/transforms-2/files-2.1/75fc60364ed0763db18ea9603a13699b/toggle-1.1.0/res" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.angads25/toggle/1.1.0/e6d8549c32779295d7ece8733da79f1641a5862b/toggle-1.1.0-javadoc.jar!/" />

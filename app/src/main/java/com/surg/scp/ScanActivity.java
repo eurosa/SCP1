@@ -721,8 +721,8 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
 
             // Dismisses the progress dialog and prints a message to the user.
             this.bondingProgressDialog.dismiss();
-            Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
-
+           // Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),message,Toast.LENGTH_SHORT).show();
             // Cleans up state.
             this.bondingProgressDialog = null;
         }
