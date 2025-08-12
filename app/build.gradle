@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace 'com.surg.scp'  // ← Add this line
     compileSdkVersion 34
     buildToolsVersion "30.0.3"
 
@@ -16,6 +17,15 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_17
+    }
+    ndkVersion '22.1.7171670'
+
+    viewBinding {
+        enabled = true
     }
 }
 allprojects {
@@ -58,8 +68,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 //    Add Dependencies!!
-    implementation 'com.jakewharton:butterknife:10.2.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
     implementation 'com.github.angads25:toggle:1.1.0'
     implementation 'com.kyleduo.switchbutton:library:2.1.0'
     implementation 'com.github.hearsilent:DiscreteSlider:1.2.1'

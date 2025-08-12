@@ -88,8 +88,10 @@ public class BroadcastReceiverDelegator extends BroadcastReceiver implements Clo
                 // Discovery has found a device. Get the BluetoothDevice
                 // object and its info from the Intent.
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.d(TAG, "Device discovered! " + BluetoothController.deviceToString(device));
-                listener.onDeviceDiscovered(device);
+                if (device != null) {
+                    Log.d(TAG, "Device discovered! " + BluetoothController.deviceToString(device));
+                    listener.onDeviceDiscovered(device);
+                }
                 break;
             case BluetoothAdapter.ACTION_DISCOVERY_FINISHED :
                 // Discovery has ended.

@@ -23,6 +23,8 @@
  */
 package com.surg.scp;
 
+import static com.surg.scp.bluetooth.BluetoothController.PERMISSION_REQUEST_BLUETOOTH_SCAN_CONNECT;
+
 import android.Manifest;
 import android.app.ActivityOptions;
 import android.app.Dialog;
@@ -45,11 +47,14 @@ import com.surg.scp.view.ListInteractionListener;
 import com.surg.scp.view.RecyclerViewProgressEmptySupport;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.appcompat.widget.Toolbar;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -95,7 +100,7 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
     private String name = null;
     private Button sendBtn;
 
-    boolean listViewFlag=true;
+    boolean listViewFlag = true;
 
     ListView devicelist;
     //Bluetooth
@@ -157,9 +162,9 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
 
         requestLocationPermission();
         // Ads.
-      //  MobileAds.initialize(this);
+        //  MobileAds.initialize(this);
         //this.adContainer = (LinearLayout) findViewById(R.id.ad_container);
-        devicelist = (ListView)findViewById(R.id.listView);
+        devicelist = (ListView) findViewById(R.id.listView);
 
         // Sets up the RecyclerView.
         this.recyclerViewAdapter = new DeviceRecyclerViewAdapter(this);
@@ -176,7 +181,6 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
         this.recyclerView.setProgressView(progressBar);
 
         this.recyclerView.setAdapter(recyclerViewAdapter);
-
 
 
         // [#11] Ensures that the Bluetooth is available on this device before proceeding.
@@ -204,19 +208,26 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
         //if the device has bluetooth
         myBluetooth = BluetoothAdapter.getDefaultAdapter();
 
-        if(myBluetooth == null)
-        {
+        if (myBluetooth == null) {
             //Show a Mensag. That the device has no bluetooth adapter
             Toast.makeText(getApplicationContext(), "Bluetooth Device Not Available", Toast.LENGTH_LONG).show();
 
             //finish apk
             finish();
-        }
-        else if(!myBluetooth.isEnabled())
-        {
+        } else if (!myBluetooth.isEnabled()) {
             //Ask to the user turn the bluetooth on
             Intent turnBTon = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(turnBTon,1);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            startActivityForResult(turnBTon, 1);
         }
 
   /*      btnPaired.setOnClickListener(new View.OnClickListener() {
@@ -244,7 +255,6 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
         });*/
 
 
-
         //new ConnectBT().execute(); //Call the class to connect
         //-------------------------------------To Receive device address from background==================
         //====================================Camera======================================================
@@ -265,15 +275,32 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
     }
 
 
-    private void pairedDevicesList()
-    {
+    private void pairedDevicesList() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         pairedDevices = myBluetooth.getBondedDevices();
         ArrayList list = new ArrayList();
 
-        if (pairedDevices.size()>0)
-        {
-            for(BluetoothDevice bt : pairedDevices)
-            {
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice bt : pairedDevices) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
                 list.add(bt.getName() + "\n" + bt.getAddress()); //Get the device's name and the address
             }
         }
@@ -282,68 +309,13 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
             Toast.makeText(getApplicationContext(), "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
         }
 
-
-
         //--------------------------------------------------------------------------------------------------------------
         Dialog dialog = new Dialog(this);
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-      //  builder.setTitle("Select a paired device for connecting");
-
-      //  LinearLayout parent = new LinearLayout( this);
-
-      //  parent.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-       // parent.setOrientation(LinearLayout.VERTICAL);
-
-      //  ListView modeList = new ListView(this);
-
-
-
-        //------------------To fixed height of listView------------------------------------
-      // setListViewHeightBasedOnItems(modeList);
-        //RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams(200, 0);
-        //modeList.setLayoutParams(params);
-        //modeList.requestLayout();
-        /******************************************************************************************************************
-         *
-         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-         params.height = 20;
-         modeList.setLayoutParams(params);
-         modeList.requestLayout();
-
-         *
-         * */
-        // ViewGroup.LayoutParams listViewParams = (ViewGroup.LayoutParams)modeList.getLayoutParams();
-        //listViewParams.height = 20;
-        // modeList.smoothScrollToPosition(3);
-/*
-        ListAdapter listadp = modeList.getAdapter();
-        if (listadp != null) {
-            int totalHeight = 0;
-            for (int i = 0; i < listadp.getCount(); i++) {
-                View listItem = listadp.getView(i, null, modeList);
-                listItem.measure(0, 0);
-                totalHeight += listItem.getMeasuredHeight();
-            }
-            ViewGroup.LayoutParams params = modeList.getLayoutParams();
-            params.height = totalHeight + (modeList.getDividerHeight() * (listadp.getCount() - 1));
-            modeList.setLayoutParams(params);
-            modeList.requestLayout();
-        }
-*/
-        //------------------End of fixed height of listView---------------------------------
 
         final ArrayAdapter modeAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, list);
         devicelist.setAdapter(modeAdapter);
         devicelist.setOnItemClickListener(myListClickListener);
-        //builder.setView(modeList);
-        //  builder.show();
-       // dialog = builder.create();
-       // dialog.show();
-      //  dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, 600); //Controlling width and height.
-
-
-        //-------------------------------------------------------------------------------------------------------------
-
 
 
     }
@@ -425,124 +397,7 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
 
 
 
-    private class ConnectBT extends AsyncTask<Void, Void, Void>  // UI thread
-    {
 
-        private boolean ConnectSuccess = true; //if it's here, it's almost connected
-        public ConnectBT(String address,String info) {
-            super();
-            addressBLE=address;
-            infoBLE=info;
-            //Do stuff
-        }
-
-
-        @Override
-        protected void onPreExecute()
-        {
-            progress = ProgressDialog.show(getApplicationContext(), "Connecting...", "Please wait!!!");  //show a progress dialog
-        }
-
-        @Override
-        protected Void doInBackground(Void... devices) //while the progress dialog is shown, the connection is done in background
-        {
-
-            if(btSocket!=null){
-                try {
-                    btSocket.close();
-                    btSocket=null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-            try
-            {
-                if (btSocket == null || !isBtConnected)
-                {
-                    myBluetooth = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
-                    BluetoothDevice dispositivo = myBluetooth.getRemoteDevice(addressBLE);//connects to the device's address and checks if it's available
-                    btSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection
-                    BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-                    btSocket.connect();//start connection
-                    mmOutputStream = btSocket.getOutputStream();
-                    mmInputStream = btSocket.getInputStream();
-
-                }
-            }
-            catch (IOException e)
-            {
-                ConnectSuccess = false;//if the try failed, you can check the exception here
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void result) //after the doInBackground, it checks if everything went fine
-        {
-            super.onPostExecute(result);
-
-
-            if (!ConnectSuccess)
-            {
-                Intent intent = getIntent();
-                msg("Connection Failed. Is it a SPP Bluetooth? Try again.");
-                // finish();
-                //  startActivity(intent);
-                // Disconnect();
-                //getSupportActionBar().setTitle(R.string.app_name);
-            }
-            else
-            {
-
-                isBtConnected = true;
-                address = infoBLE.substring(infoBLE.length() - 17);
-                name = infoBLE.replace(address, "");
-                msg("Device connected.");
-                // getSupportActionBar().setTitle(name);
-               // connectionStatus.setText("Device connected");
-             //   connectionStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.limeGreen));
-
-
-
-/*
-                try {
-                    receiveData();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }*/
-            }
-            progress.dismiss();
-
-            //beginListenForData();
-
-            new Thread(new Runnable() {
-                public void run(){
-                    try {
-                        //   receiveData();
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    //beginListenForData();
-                }
-            }).start();
-            /*try {
-                receiveData();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            /*if(isBtConnected){
-
-                try {
-                    receiveData();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }*/
-        }
-    }
 
     // fast way to call Toast
     private void msg(String s)
@@ -551,10 +406,19 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
     }
 
     public void searchDeviceList(){
+        // Check permissions first
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.BLUETOOTH_SCAN},
+                        PERMISSION_REQUEST_BLUETOOTH_SCAN_CONNECT);
+                return;
+            }
+        }
 
         // If the bluetooth is not enabled, turns it on.
         if (!bluetooth.isBluetoothEnabled()) {
-           // Snackbar.make(getCurrentFocus(), R.string.enabling_bluetooth, Snackbar.LENGTH_SHORT).show();
             Toast.makeText(getApplicationContext(),R.string.enabling_bluetooth,Toast.LENGTH_SHORT).show();
             bluetooth.turnOnBluetoothAndScheduleDiscovery();
         } else {
@@ -562,11 +426,9 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
             if (!bluetooth.isDiscovering()) {
                 // Starts the discovery.
                 Toast.makeText(getApplicationContext(),R.string.device_discovery_started,Toast.LENGTH_SHORT).show();
-                //Snackbar.make(getCurrentFocus(), R.string.device_discovery_started, Snackbar.LENGTH_SHORT).show();
                 bluetooth.startDiscovery();
             } else {
                 Toast.makeText(getApplicationContext(),R.string.device_discovery_stopped,Toast.LENGTH_SHORT).show();
-                //Snackbar.make(getCurrentFocus(), R.string.device_discovery_stopped, Snackbar.LENGTH_SHORT).show();
                 bluetooth.cancelDiscovery();
             }
         }
@@ -578,6 +440,15 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == BluetoothController.PERMISSION_REQUEST_BLUETOOTH_SCAN_CONNECT) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, try the operation again
+                searchDeviceList();
+            } else {
+                Toast.makeText(this, "Bluetooth scan permission required", Toast.LENGTH_SHORT).show();
+            }
+        }
 
         // Forward results to EasyPermissions
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);

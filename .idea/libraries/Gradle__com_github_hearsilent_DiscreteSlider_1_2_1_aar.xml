@@ -1,16 +1,16 @@
 <component name="libraryTable">
   <library name="Gradle: com.github.hearsilent:DiscreteSlider:1.2.1@aar" external-system-id="GRADLE">
     <ANNOTATIONS>
-      <root url="jar://$PROJECT_DIR$/../RTM/gradle/caches/transforms-2/files-2.1/8a04add262255255ddc4cbc006d9f28a/DiscreteSlider-1.2.1/annotations.zip!/" />
+      <root url="jar://$PROJECT_DIR$/../RTM/gradle/caches/transforms-3/823e088ec56cd39f85b317f75e2bcb41/transformed/jetified-DiscreteSlider-1.2.1/annotations.zip!/" />
     </ANNOTATIONS>
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../RTM/gradle/caches/transforms-2/files-2.1/8a04add262255255ddc4cbc006d9f28a/DiscreteSlider-1.2.1/jars/classes.jar!/" />
-      <root url="file://$PROJECT_DIR$/../RTM/gradle/caches/transforms-2/files-2.1/8a04add262255255ddc4cbc006d9f28a/DiscreteSlider-1.2.1/AndroidManifest.xml" />
-      <root url="file://$PROJECT_DIR$/../RTM/gradle/caches/transforms-2/files-2.1/8a04add262255255ddc4cbc006d9f28a/DiscreteSlider-1.2.1/res" />
+      <root url="file://$PROJECT_DIR$/../RTM/gradle/caches/transforms-3/823e088ec56cd39f85b317f75e2bcb41/transformed/jetified-DiscreteSlider-1.2.1/res" />
+      <root url="jar://$PROJECT_DIR$/../RTM/gradle/caches/transforms-3/823e088ec56cd39f85b317f75e2bcb41/transformed/jetified-DiscreteSlider-1.2.1/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/../RTM/gradle/caches/transforms-3/823e088ec56cd39f85b317f75e2bcb41/transformed/jetified-DiscreteSlider-1.2.1/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.hearsilent/DiscreteSlider/1.2.1/7e5e152dc0e9cd98a3699c76d6da185a10d61335/DiscreteSlider-1.2.1-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../RTM/gradle/caches/modules-2/files-2.1/com.github.hearsilent/DiscreteSlider/1.2.1/7e5e152dc0e9cd98a3699c76d6da185a10d61335/DiscreteSlider-1.2.1-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
