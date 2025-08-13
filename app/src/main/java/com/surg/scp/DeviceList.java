@@ -407,6 +407,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         mNavigationView.setItemIconTintList(null); // <-- HERE add this code for icon color
         // to make the Navigation drawer icon always appear on the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);  // ← Important!
         /***************************************************************************************
          * Navigation Drawer Layout
          *
@@ -1147,24 +1148,29 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            int id = item.getItemId();
 
 
-        /*******************************************************************************
-         * Navigation Menu Item
-         *******************************************************************************/
+            /*******************************************************************************
+             * Navigation Menu Item
+             *******************************************************************************/
 
 
-        if (id == R.id.action_disconnect) {
-            Disconnect();
-            return true;
-        } else if (id == R.id.action_searchList) {
-            ScanDevicesList();
-            return true;
-        } else if (id == R.id.action_pairedList) {
-            pairedDevicesList();
+
+            if (id == R.id.action_disconnect) {
+                Disconnect();
+                return true;
+            } else if (id == R.id.action_searchList) {
+                ScanDevicesList();
+                return true;
+            } else if (id == R.id.action_pairedList) {
+                pairedDevicesList();
+                return true;
+            }
             return true;
         }
+
 /* else if (id == R.id.action_about) {
     Intent intent = new Intent(this, AboutActivity.class);
     startActivity(intent);
