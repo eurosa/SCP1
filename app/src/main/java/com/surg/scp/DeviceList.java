@@ -30,8 +30,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.text.Html;
 import android.transition.Slide;
 import android.util.Log;
@@ -78,6 +80,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.kyleduo.switchbutton.SwitchButton;
 import com.surg.scp.bluetooth.BluetoothController;
+import com.surg.scp.bluetooth.BluetoothService;
 
 import java.io.File;
 import java.io.IOException;
@@ -269,7 +272,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
          *   Play and pause in only one button - Android
          ****************************************************************************************/
         playPause = findViewById(R.id.startButton);
-
+        // Start from your activity
+        startService(new Intent(this, BluetoothService.class));
         playPause.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (isPlaying) {
@@ -422,7 +426,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
            // new ConnectBT(address, info_address).execute(); //Call the class to
 
 
-            bluetoothManager.connect(address, info_address, new BluetoothConnectionManager.ConnectionCallback() {
+            bluetoothManager.connect(address, info_address != null ? info_address : "",  new BluetoothConnectionManager.ConnectionCallback() {
                 @Override
                 public void onConnectionResult(int resultCode, String message) {
                     switch (resultCode) {
@@ -884,7 +888,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 if (address != null) {
                    // new ConnectBT(address, info_address).execute();
 
-                    bluetoothManager.connect(address, info_address, new BluetoothConnectionManager.ConnectionCallback() {
+                    bluetoothManager.connect(address, info_address != null ? info_address : "",  new BluetoothConnectionManager.ConnectionCallback() {
                         @Override
                         public void onConnectionResult(int resultCode, String message) {
                             switch (resultCode) {
@@ -1073,7 +1077,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             //startActivity(i);
           //  new ConnectBT(address,info).execute(); //Call the class to connect
 
-            bluetoothManager.connect(address, info_address, new BluetoothConnectionManager.ConnectionCallback() {
+            bluetoothManager.connect(address, info_address != null ? info_address : "",  new BluetoothConnectionManager.ConnectionCallback() {
                 @Override
                 public void onConnectionResult(int resultCode, String message) {
                     switch (resultCode) {
@@ -1476,8 +1480,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                         }
 
                         isBtConnected = true;
+                        startKeepAlive();
                         notifyResult(CONNECTION_SUCCESS,
-                                "Connected to " + deviceInfo.replace(deviceAddress, ""), callback);
+                                "Connected to " + (deviceInfo != null ? deviceInfo.replace(deviceAddress, "") : device.getName()),
+                                callback);
 
                         // Start listening for incoming data
                         startListening();
@@ -1492,6 +1498,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 } catch (IllegalArgumentException e) {
                     notifyResult(CONNECTION_FAILED, "Invalid device address: " + deviceAddress, callback);
                 } catch (Exception e) {
+                    Log.d("Unexpected error", e.getMessage()+" " +deviceAddress+" "+deviceInfo);
                     notifyResult(CONNECTION_FAILED, "Unexpected error: " + e.getMessage(), callback);
                 }
             });
@@ -1524,23 +1531,26 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         }
 
+        // Modify your startListening() method
         private void startListening() {
             executorService.execute(() -> {
                 byte[] buffer = new byte[1024];
-                int bytes;
 
                 while (isBtConnected) {
                     try {
-                        bytes = mmInputStream.read(buffer);
-                        String receivedData = new String(buffer, 0, bytes);
-                        // Handle incoming data
-                        Log.d(TAG, "Received: " + receivedData);
+                        int bytes = mmInputStream.read(buffer);
+                        if (bytes == -1) {
+                            throw new IOException("Stream ended");
+                        }
+
+                        // Process data...
+
                     } catch (IOException e) {
-                        Log.e(TAG, "Connection lost", e);
+                        Log.e(TAG, "Connection lost: " + e.getMessage());
                         mainHandler.post(() -> {
                             if (isBtConnected) {
                                 disconnect();
-                                // Notify UI about disconnection
+                                // Optionally trigger reconnection here
                             }
                         });
                         break;
@@ -1602,8 +1612,75 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             disconnect();
             executorService.shutdown();
         }
-    }
 
+
+        // Add this to your BluetoothConnectionManager class
+        private final Runnable keepAliveRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isBtConnected && btSocket != null) {
+                    try {
+                        // Send a small keep-alive packet periodically
+                        mmOutputStream.write(0); // Null byte
+                    } catch (IOException e) {
+                        disconnect();
+                    }
+                    // Repeat every 5 seconds
+                    mainHandler.postDelayed(this, 5000);
+                }
+            }
+        };
+
+        // Start this when connection is established
+        private void startKeepAlive() {
+            mainHandler.post(keepAliveRunnable);
+        }
+
+        // Stop when disconnecting
+        private void stopKeepAlive() {
+            mainHandler.removeCallbacks(keepAliveRunnable);
+        }
+
+
+        // In your BluetoothConnectionManager
+        private void startReconnectionThread(String deviceAddress, String deviceInfo) {
+            executorService.execute(() -> {
+                while (true) {
+                    try {
+                        Thread.sleep(5000); // Check every 5 seconds
+
+                        if (!isBtConnected) {
+                            Log.d(TAG, "Attempting reconnection...");
+                            connect(deviceAddress, deviceInfo, new ConnectionCallback() {
+                                @Override
+                                public void onConnectionResult(int resultCode, String message) {
+                                    if (resultCode == CONNECTION_SUCCESS) {
+                                        Log.d(TAG, "Reconnected successfully");
+                                    }
+                                }
+                            });
+                        }
+                    } catch (InterruptedException e) {
+                        break;
+                    }
+                }
+            });
+        }
+    }
+    // Add to your DeviceList activity
+    private void disableBatteryOptimization() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent();
+            String packageName = getPackageName();
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + packageName));
+                startActivity(intent);
+            }
+        }
+    }
 
     // fast way to call Toast
     private void msg(String s)
