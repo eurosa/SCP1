@@ -1,5 +1,6 @@
 package com.surg.scp.bluetooth;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.surg.scp.R;
 
 public class BluetoothService extends Service {
+    @SuppressLint("ForegroundServiceType")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Create notification for Android 8.0+

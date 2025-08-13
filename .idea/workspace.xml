@@ -81,9 +81,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dcfbe793-51c3-4cf6-af46-b956e7d3f469" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/bluetooth/BluetoothConnectionManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_bluetooth_connected.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_bluetooth_disconnected.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_bluetooth_searching.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/bluetooth/BluetoothService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/bluetooth/BluetoothService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_scp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_scp.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/menu/navigation_menu.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/menu/navigation_menu.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -641,7 +650,7 @@
       <option name="project" value="LOCAL" />
       <updated>1626256050906</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -17,6 +18,11 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />-->
 
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -50,6 +56,13 @@
             android:name="com.surg.scp.AboutActivity"
             android:label="@string/title_activity_about"
             android:theme="@style/MyMaterialTheme.Base" />
+
+        <service
+            android:name=".bluetooth.BluetoothService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice|location"
+          />
     </application>
 
 </manifest>

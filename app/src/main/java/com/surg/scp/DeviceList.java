@@ -79,6 +79,7 @@ import com.google.android.gms.instantapps.InstantApps;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.kyleduo.switchbutton.SwitchButton;
+import com.surg.scp.bluetooth.BluetoothConnectionManager;
 import com.surg.scp.bluetooth.BluetoothController;
 import com.surg.scp.bluetooth.BluetoothService;
 
@@ -107,9 +108,10 @@ import hearsilent.discreteslider.libs.Utils;
 import static android.content.ContentValues.TAG;
 
 
-public class DeviceList extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class DeviceList extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener,
+        BluetoothConnectionManager.ConnectionCallback {
     private static final String MY_PREFS_NAME = "MyTxtFile";
-
+    private ImageView connectionStatusIcon;
     /***************************************************************************************
      *                           Start Increment and Decrement
      ****************************************************************************************/
@@ -273,7 +275,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
          ****************************************************************************************/
         playPause = findViewById(R.id.startButton);
         // Start from your activity
-        startService(new Intent(this, BluetoothService.class));
+        //startService(new Intent(this, BluetoothService.class));
         playPause.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (isPlaying) {
@@ -303,7 +305,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
          * Discrete Slider
          *
          *************************************************************************************/
-
+        connectionStatusIcon = findViewById(R.id.connectionStatusIcon);
         // mSlider1 = findViewById(R.id.discreteSlider1);
         // mSlider2 = findViewById(R.id.discreteSlider2);
         // mSlider3 = findViewById(R.id.discreteSlider3);
@@ -340,7 +342,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        this.registerReceiver(mReceiver, filter);
+        //this.registerReceiver(mReceiver, filter);
         //------------------------------------------------------------------------------------------------
         //=========================Adding Toolbar in android layout=======================================
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -424,15 +426,18 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         address = newint.getStringExtra(DeviceList.EXTRA_ADDRESS); //receive the address of the bluetooth device
         info_address = newint.getStringExtra(DeviceList.EXTRA_INFO);
         if (address != null) {
-           // new ConnectBT(address, info_address).execute(); //Call the class to
+            // new ConnectBT(address, info_address).execute(); //Call the class to
 
-
-            bluetoothManager.connect(address, info_address != null ? info_address : "",  new BluetoothConnectionManager.ConnectionCallback() {
+            if (address != null) {
+                connectToDevice(address, info_address);
+            }
+         /*   bluetoothManager.connect(address, info_address != null ? info_address : "", new BluetoothConnectionManager.ConnectionCallback() {
                 @Override
                 public void onConnectionResult(int resultCode, String message) {
                     switch (resultCode) {
                         case BluetoothConnectionManager.CONNECTION_SUCCESS:
                             // Update UI for success
+                            updateConnectionStatus(true, message);
                             connectionStatus.setText("Connected");
                             Toast.makeText(DeviceList.this, message, Toast.LENGTH_SHORT).show();
                             break;
@@ -443,6 +448,14 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                                         new String[]{Manifest.permission.BLUETOOTH_CONNECT},
                                         PERMISSION_REQUEST_CODE);
                             }
+
+                        case BluetoothConnectionManager.IO_EXCEPTION:
+                            updateConnectionStatus(false, null);
+                            new AlertDialog.Builder(DeviceList.this)
+                                    .setTitle("Connection Failed")
+                                    .setMessage(message)
+                                    .setPositiveButton("OK", null)
+                                    .show();
                             // fall through
 
                         default:
@@ -455,7 +468,17 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                             break;
                     }
                 }
-            });
+
+                @Override
+                public void onDataReceived(byte[] data) {
+
+                }
+
+                @Override
+                public void onConnectionLost() {
+
+                }
+            });*/
 
         }
         //-------------------------------------To Receive device address from background==================
@@ -495,7 +518,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         final boolean hasWritePermission = RuntimePermissionUtil.checkPermissonGranted(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-      //  imageView = findViewById(R.id.imageView2);
+        //  imageView = findViewById(R.id.imageView2);
 
 
 //----------------------------------screen_shot xml view-----------------------------------------
@@ -662,6 +685,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
 
     }
+
+    private void connectToDevice(String address, String info) {
+        if (!BluetoothConnectionManager.checkBluetoothPermissions(this)) {
+            BluetoothConnectionManager.requestBluetoothPermissions(this, 1001);
+            return;
+        }
+
+        bluetoothManager.connect(address, info, this);
+    }
+
 
 
     /*************************************************************************************************
@@ -879,6 +912,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         }
         //overridePendingTransition(R.anim.slide_out_bottom, R.anim.slide_in_bottom);
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -887,14 +921,15 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, retry the connection
                 if (address != null) {
-                   // new ConnectBT(address, info_address).execute();
+                    // new ConnectBT(address, info_address).execute();
 
-                    bluetoothManager.connect(address, info_address != null ? info_address : "",  new BluetoothConnectionManager.ConnectionCallback() {
+                 /*   bluetoothManager.connect(address, info_address != null ? info_address : "", new BluetoothConnectionManager.ConnectionCallback() {
                         @Override
                         public void onConnectionResult(int resultCode, String message) {
                             switch (resultCode) {
                                 case BluetoothConnectionManager.CONNECTION_SUCCESS:
                                     // Update UI for success
+                                    updateConnectionStatus(true, message);
                                     connectionStatus.setText("Connected");
                                     Toast.makeText(DeviceList.this, message, Toast.LENGTH_SHORT).show();
                                     break;
@@ -905,6 +940,14 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                                                 new String[]{Manifest.permission.BLUETOOTH_CONNECT},
                                                 PERMISSION_REQUEST_CODE);
                                     }
+
+                                case BluetoothConnectionManager.IO_EXCEPTION:
+                                    updateConnectionStatus(false, null);
+                                    new AlertDialog.Builder(DeviceList.this)
+                                            .setTitle("Connection Failed")
+                                            .setMessage(message)
+                                            .setPositiveButton("OK", null)
+                                            .show();
                                     // fall through
 
                                 default:
@@ -917,13 +960,29 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                                     break;
                             }
                         }
+
+                        @Override
+                        public void onDataReceived(byte[] data) {
+
+                        }
+
+                        @Override
+                        public void onConnectionLost() {
+
+                        }
                     });
                 }
             } else {
                 Toast.makeText(this, "Bluetooth permission required", Toast.LENGTH_SHORT).show();
+            }*/
+                    if (address != null) {
+                        connectToDevice(address, info_address);
+                    }
+                }
             }
         }
     }
+
     private void pairedDevicesList() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -973,34 +1032,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         //------------------To fixed height of listView------------------------------------
         setListViewHeightBasedOnItems(modeList);
         //RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams(200, 0);
-        //modeList.setLayoutParams(params);
-        //modeList.requestLayout();
-        /******************************************************************************************************************
-         *
-         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-         params.height = 20;
-         modeList.setLayoutParams(params);
-         modeList.requestLayout();
-         *
-         * */
-        // ViewGroup.LayoutParams listViewParams = (ViewGroup.LayoutParams)modeList.getLayoutParams();
-        //listViewParams.height = 20;
-        // modeList.smoothScrollToPosition(3);
-/*
-        ListAdapter listadp = modeList.getAdapter();
-        if (listadp != null) {
-            int totalHeight = 0;
-            for (int i = 0; i < listadp.getCount(); i++) {
-                View listItem = listadp.getView(i, null, modeList);
-                listItem.measure(0, 0);
-                totalHeight += listItem.getMeasuredHeight();
-            }
-            ViewGroup.LayoutParams params = modeList.getLayoutParams();
-            params.height = totalHeight + (modeList.getDividerHeight() * (listadp.getCount() - 1));
-            modeList.setLayoutParams(params);
-            modeList.requestLayout();
-        }
-*/
+
         //------------------End of fixed height of listView---------------------------------
 
         final ArrayAdapter modeAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
@@ -1047,23 +1079,85 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 }
                 list.add(bt.getName() + "\n" + bt.getAddress()); //Get the device's name and the address
             }
-        }
-        else
-        {
+        } else {
             Toast.makeText(getApplicationContext(), "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
         }
 
-        final ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, list);
+        final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
         devicelist.setAdapter(adapter);
         devicelist.setOnItemClickListener(myListClickListener); //Method called when the device from the list is clicked
 
     }
 
-    private AdapterView.OnItemClickListener myListClickListener = new AdapterView.OnItemClickListener()
-    {
-        public void onItemClick (AdapterView<?> av, View v, int arg2, long arg3)
-        {
+    @Override
+    public void onConnectionResult(int resultCode, String message) {
+        runOnUiThread(() -> {
+            //Toast.makeText(this,resultCode+" code "+ message, Toast.LENGTH_LONG).show();
+            switch (resultCode) {
 
+                case BluetoothConnectionManager.CONNECTION_SUCCESS:
+                 //   connectionStatus.setText("Connected: " + message);
+                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_connected);
+                    Toast.makeText(this,message, Toast.LENGTH_SHORT).show();
+                    break;
+
+                case BluetoothConnectionManager.CONNECTION_FAILED:
+
+                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                    Toast.makeText(this, "Bluetooth connection failed "+message, Toast.LENGTH_LONG).show();
+                    break;
+                case BluetoothConnectionManager.IO_EXCEPTION:
+                  //  connectionStatus.setText("Connection failed");
+                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                    Toast.makeText(this, "IO_EXCEPTION "+message, Toast.LENGTH_LONG).show();
+                  //  showErrorDialog("Connection Error", message);
+                    break;
+                case BluetoothConnectionManager.CONNECTION_LOST:
+                  //  connectionStatus.setText("Connection failed");
+                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                    Toast.makeText(this, "Connection Lost "+message, Toast.LENGTH_LONG).show();
+                  //  showErrorDialog("Connection Error", message);
+                    break;
+
+                case BluetoothConnectionManager.PERMISSION_DENIED:
+                    connectionStatus.setText("Permission denied");
+                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                    Toast.makeText(this, "Bluetooth permission required "+message, Toast.LENGTH_LONG).show();
+                    break;
+
+                case BluetoothConnectionManager.BLUETOOTH_DISABLED:
+                   // connectionStatus.setText("Bluetooth disabled");
+                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                    Toast.makeText(this, "Bluetooth Disabled "+message, Toast.LENGTH_LONG).show();
+                   // showEnableBluetoothDialog();
+                    break;
+            }
+        });
+    }
+
+    @Override
+    public void onDataReceived(byte[] data) {
+        runOnUiThread(() -> {
+            // Handle incoming data
+            String received = new String(data);
+            Log.d(TAG, "Received: " + received);
+        });
+    }
+
+    @Override
+    public void onConnectionLost() {
+        runOnUiThread(() -> {
+            connectionStatus.setText("Connection lost");
+            connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+            Toast.makeText(this, "Connection lost, attempting to reconnect...", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+
+
+
+    private AdapterView.OnItemClickListener myListClickListener = new AdapterView.OnItemClickListener() {
+        public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
 
 
             //Get the device MAC address, the last 17 chars in the View
@@ -1076,14 +1170,17 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             //Change the activity.
             //i.putExtra(EXTRA_ADDRESS, address); //this will be received at DataControl (class) Activity
             //startActivity(i);
-          //  new ConnectBT(address,info).execute(); //Call the class to connect
-
-            bluetoothManager.connect(address, info_address != null ? info_address : "",  new BluetoothConnectionManager.ConnectionCallback() {
+            //  new ConnectBT(address,info).execute(); //Call the class to connect
+            if (address != null) {
+                connectToDevice(address, info);
+            }
+          /*  bluetoothManager.connect(address, info_address != null ? info_address : "", new BluetoothConnectionManager.ConnectionCallback() {
                 @Override
                 public void onConnectionResult(int resultCode, String message) {
                     switch (resultCode) {
                         case BluetoothConnectionManager.CONNECTION_SUCCESS:
                             // Update UI for success
+                            updateConnectionStatus(true, message);
                             connectionStatus.setText("Connected");
                             Toast.makeText(DeviceList.this, message, Toast.LENGTH_SHORT).show();
                             break;
@@ -1094,6 +1191,14 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                                         new String[]{Manifest.permission.BLUETOOTH_CONNECT},
                                         PERMISSION_REQUEST_CODE);
                             }
+
+                        case BluetoothConnectionManager.IO_EXCEPTION:
+                            updateConnectionStatus(false, null);
+                            new AlertDialog.Builder(DeviceList.this)
+                                    .setTitle("Connection Failed")
+                                    .setMessage(message)
+                                    .setPositiveButton("OK", null)
+                                    .show();
                             // fall through
 
                         default:
@@ -1106,7 +1211,17 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                             break;
                     }
                 }
-            });
+
+                @Override
+                public void onDataReceived(byte[] data) {
+
+                }
+
+                @Override
+                public void onConnectionLost() {
+
+                }
+            });*/
         }
     };
 
@@ -1126,6 +1241,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             ScanDevicesList();
         } else if (id == R.id.action_pairedList) {
             pairedDevicesList();
+        }else if (id == R.id.action_disconnect) {
+            bluetoothManager.disconnect();
         }
 
         // Close navigation drawer
@@ -1135,8 +1252,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_device_list, menu);
 
@@ -1155,7 +1271,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             /*******************************************************************************
              * Navigation Menu Item
              *******************************************************************************/
-
 
 
             if (id == R.id.action_disconnect) {
@@ -1184,26 +1299,24 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
 
-
-    public void shareApp(){
+    public void shareApp() {
 
         try {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My application name");
-            String shareMessage= "\nLet me recommend you this application\n\n";
-            shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=" +getPackageName() +"\n\n";
+            String shareMessage = "\nLet me recommend you this application\n\n";
+            shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=" + getPackageName() + "\n\n";
             shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
             startActivity(Intent.createChooser(shareIntent, "choose one"));
-        } catch(Exception e) {
+        } catch (Exception e) {
             // e.toString();
         }
 
     }
 
 
-
-    public void exitApplication(){
+    public void exitApplication() {
         final AlertDialog.Builder adb = new AlertDialog.Builder(this);
         // adb.setView(Integer.parseInt("Delete Folder"));
         // adb.setTitle("Exit");
@@ -1212,7 +1325,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-              finish();
+                finish();
             }
         });
         adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -1228,67 +1341,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
 
-
     @Override
     protected void onStart() {
         super.onStart();
 
     }
+
     @Override
     protected void onStop() {
-       // cameraKitView.onStop();
+        // cameraKitView.onStop();
         super.onStop();
-    }
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void requestCameraPermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)&&shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)&&shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            AlertDialog confirmationDialog = new AlertDialog.Builder(this)
-                    .setMessage(R.string.request_permission)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            requestPermissions(new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE},
-                                    REQUEST_CAMERA_PERMISSION);
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            })
-                    .create();
-            confirmationDialog.show();
-        } else {
-            requestPermissions(new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CAMERA_PERMISSION);
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void requestStoragePermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)&&shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            AlertDialog confirmationDialog = new AlertDialog.Builder(this)
-                    .setMessage(R.string.request_permission)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE},
-                                    REQUEST_STORAGE_PERMISSION);
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            })
-                    .create();
-            confirmationDialog.show();
-        } else {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
-        }
     }
 
 
@@ -1315,15 +1377,15 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
 
-    public void switch1(View v){
+    public void switch1(View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if(v.getStateDescription().toString().contains("checked")) {
+            if (v.getStateDescription().toString().contains("checked")) {
                 switch1.setThumbColorRes(R.color.red);
                 //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if(v.getStateDescription().toString().contains("not checked")){
+            if (v.getStateDescription().toString().contains("not checked")) {
 
                 switch1.setThumbColorRes(R.color.limeGreen);
                 //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
@@ -1333,15 +1395,15 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
 
-    public void switch2(View v){
+    public void switch2(View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if(v.getStateDescription().toString().contains("checked")) {
+            if (v.getStateDescription().toString().contains("checked")) {
                 switch2.setThumbColorRes(R.color.red);
-               // Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if(v.getStateDescription().toString().contains("not checked")){
+            if (v.getStateDescription().toString().contains("not checked")) {
 
                 switch2.setThumbColorRes(R.color.limeGreen);
                 //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
@@ -1350,8 +1412,25 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     }
 
+    private void updateConnectionStatus(boolean isConnected, String deviceName) {
+        runOnUiThread(() -> {
+            if (isConnected) {
+                connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_connected);
+                //connectionStatus.setText(deviceName + " connected");
+                //connectionStatus.setTextColor(ContextCompat.getColor(DeviceList.this, R.color.limeGreen));
+            } else {
+                connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                //connectionStatus.setText("No device connected");
+                // connectionStatus.setTextColor(ContextCompat.getColor(DeviceList.this, R.color.redColor));
+            }
+        });
+    }
 
-    public class BluetoothConnectionManager {
+
+
+
+
+  /*  public class BluetoothConnectionManager {
         private static final String TAG = "BluetoothConnection";
         private static final int CONNECTION_TIMEOUT_MS = 10000; // 10 seconds
 
@@ -1391,8 +1470,18 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         }
 
+
+
         public void connect(String deviceAddress, String deviceInfo, ConnectionCallback callback) {
             executorService.execute(() -> {
+
+                mainHandler.post(() -> {
+                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_searching);
+                   // connectionStatus.setText("Connecting...");
+                    connectionStatus.setTextColor(ContextCompat.getColor(context, R.color.blueColor));
+                });
+
+
                 if (isBtConnected && btSocket != null &&
                         btSocket.getRemoteDevice().getAddress().equals(deviceAddress)) {
                     notifyResult(CONNECTION_FAILED, "Already connected to this device", callback);
@@ -1400,14 +1489,14 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 }
                 // Close existing connection if any
                 disconnect();
-                if (deviceAddress.isEmpty()){
+                if (deviceAddress.isEmpty()) {
 
                     return;
-                }else{
+                } else {
 
 
                 }
-                Log.d("Device_adress 123",deviceAddress);
+                Log.d("Device_adress 123", deviceAddress);
                 // Check permissions first
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                         ContextCompat.checkSelfPermission(context,
@@ -1445,7 +1534,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                     try {
 
                         // Standard method
-                       // socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+                        // socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
                     } catch (Exception e) {
                         Log.w(TAG, "Standard connection failed, trying fallback", e);
                         try {
@@ -1487,6 +1576,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
                         isBtConnected = true;
                         startKeepAlive();
+                        startReconnectionThread(deviceAddress,deviceInfo);
+
+
                         notifyResult(CONNECTION_SUCCESS,
                                 "Connected to " + (deviceInfo != null ? deviceInfo.replace(deviceAddress, "") : device.getName()),
                                 callback);
@@ -1504,7 +1596,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 } catch (IllegalArgumentException e) {
                     notifyResult(CONNECTION_FAILED, "Invalid device address: " + deviceAddress, callback);
                 } catch (Exception e) {
-                    Log.d("Unexpected error", e.getMessage()+" " +deviceAddress+" "+deviceInfo);
+                    Log.d("Unexpected error", e.getMessage() + " " + deviceAddress + " " + deviceInfo);
                     notifyResult(CONNECTION_FAILED, "Unexpected error: " + e.getMessage(), callback);
                 }
             });
@@ -1660,8 +1752,38 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                             connect(deviceAddress, deviceInfo, new ConnectionCallback() {
                                 @Override
                                 public void onConnectionResult(int resultCode, String message) {
-                                    if (resultCode == CONNECTION_SUCCESS) {
-                                        Log.d(TAG, "Reconnected successfully");
+                                    switch (resultCode) {
+                                        case BluetoothConnectionManager.CONNECTION_SUCCESS:
+                                            // Update UI for success
+                                            updateConnectionStatus(true, message);
+                                            connectionStatus.setText("Connected");
+                                            Toast.makeText(DeviceList.this, message, Toast.LENGTH_SHORT).show();
+                                            break;
+
+                                        case BluetoothConnectionManager.PERMISSION_DENIED:
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                                ActivityCompat.requestPermissions(DeviceList.this,
+                                                        new String[]{Manifest.permission.BLUETOOTH_CONNECT},
+                                                        PERMISSION_REQUEST_CODE);
+                                            }
+
+                                        case BluetoothConnectionManager.IO_EXCEPTION:
+                                            updateConnectionStatus(false, null);
+                                            new AlertDialog.Builder(DeviceList.this)
+                                                    .setTitle("Connection Failed")
+                                                    .setMessage(message)
+                                                    .setPositiveButton("OK", null)
+                                                    .show();
+                                            // fall through
+
+                                        default:
+                                            // Show error message
+                                            new AlertDialog.Builder(DeviceList.this)
+                                                    .setTitle("Connection Failed")
+                                                    .setMessage(message)
+                                                    .setPositiveButton("OK", null)
+                                                    .show();
+                                            break;
                                     }
                                 }
                             });
@@ -1672,7 +1794,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 }
             });
         }
-    }
+    }*/
+
     // Add to your DeviceList activity
     private void disableBatteryOptimization() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1689,12 +1812,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
     // fast way to call Toast
-    private void msg(String s)
-    {
-        Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
+    private void msg(String s) {
+        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
     }
-
-
 
 
     public static boolean setListViewHeightBasedOnItems(ListView listView) {
@@ -1730,35 +1850,32 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     }
 
-    private void Disconnect()
-    {
-     if (btSocket!=null) //If the btSocket is busy
-         {
-            try
-            {
+    private void Disconnect() {
+        if (btSocket != null) //If the btSocket is busy
+        {
+            try {
                 btSocket.close(); //close connection
                 Toast.makeText(DeviceList.this, "Bluetooth device has been disconnected", Toast.LENGTH_LONG).show();
                 // getSupportActionBar().setTitle(R.string.app_name);
+            } catch (IOException e) {
+                msg("Error");
             }
-            catch (IOException e)
-            { msg("Error");}
-         }else{
-         Toast.makeText(DeviceList.this, "No device connected", Toast.LENGTH_LONG).show();
-     }
-     //    finish(); //return to the first layout
+        } else {
+            Toast.makeText(DeviceList.this, "No device connected", Toast.LENGTH_LONG).show();
+        }
+        //    finish(); //return to the first layout
 
     }
-
 
 
     @Override
     public void onBackPressed() {
 // TODO Auto-generated method stub
-        AlertDialog.Builder builder=new AlertDialog.Builder(DeviceList.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(DeviceList.this);
         // builder.setCancelable(false);
         builder.setTitle("Rate Us if u like this");
         builder.setMessage("Do you want to Exit?");
-        builder.setPositiveButton("yes",new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -1768,7 +1885,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 finish();
             }
         });
-        builder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -1778,7 +1895,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
             }
         });
-        builder.setNeutralButton("Rate",new DialogInterface.OnClickListener() {
+        builder.setNeutralButton("Rate", new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -1793,7 +1910,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
             }
         });
-        AlertDialog alert=builder.create();
+        AlertDialog alert = builder.create();
         alert.show();
         //super.onBackPressed();
     }
@@ -1833,6 +1950,24 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+            if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+                if (ActivityCompat.checkSelfPermission(DeviceList.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                String deviceName = device != null ? device.getName() : "Bluetooth device";
+                //updateConnectionStatus(true, deviceName);
+            }
+            else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+                //updateConnectionStatus(false, null);
+            }
 
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 Toast.makeText(getApplicationContext(),""+"Device found",Toast.LENGTH_LONG).show();
