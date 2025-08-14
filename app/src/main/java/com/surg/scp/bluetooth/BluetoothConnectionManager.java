@@ -1,5 +1,7 @@
 package com.surg.scp.bluetooth;
 
+import static com.surg.scp.bluetooth.BluetoothUtils.bytesToHex;
+
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -14,6 +16,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -21,21 +24,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BluetoothConnectionManager {
+
+    // Constants
     private static final String TAG = "BluetoothConnection";
+    private static final int PACKET_SIZE = 22;
+    private static final long KEEP_ALIVE_INTERVAL_MS = 3000;
+    private static final int MAX_RECONNECT_ATTEMPTS = 5;
+    private static final int RECONNECT_BASE_DELAY_MS = 5000;
+
+    // UUIDs for SPP (Serial Port Profile)
     private static final UUID[] SPP_UUIDS = {
             UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"), // Standard SPP
             UUID.fromString("00001105-0000-1000-8000-00805F9B34FB"), // OBEX
-            UUID.fromString("00001124-0000-1000-8000-00805F9B34FB"),  // HID
-
-
-            UUID.fromString("00001108-0000-1000-8000-00805F9B34FB"), // Headset (HSP)
-            UUID.fromString("00001112-0000-1000-8000-00805F9B34FB"), // Generic (HFP)
-            UUID.fromString("0000111E-0000-1000-8000-00805F9B34FB")  // Hands-Free (HFP)
+            UUID.fromString("00001124-0000-1000-8000-00805F9B34FB")  // HID
     };
 
     // Connection status constants
@@ -48,212 +56,218 @@ public class BluetoothConnectionManager {
     public static final int CONNECTION_LOST = 6;
     public static final int CONNECTION_TIMEOUT = 7;
 
+    // Application context and handlers
     private final Context context;
     private final Handler mainHandler;
     private final ExecutorService executorService;
+
+    // Bluetooth components
     private BluetoothSocket btSocket;
-    private InputStream mmInputStream;
-    private OutputStream mmOutputStream;
-    private volatile boolean isBtConnected = false;
+    private InputStream inputStream;
+    private OutputStream outputStream;
+    private final AtomicBoolean isConnected = new AtomicBoolean(false);
+
+    // Device information
     private String currentDeviceAddress;
     private String currentDeviceInfo;
-    private ConnectionCallback connectionCallback;
-    private final BroadcastReceiver bluetoothStateReceiver;
     private int reconnectAttempts = 0;
-    private static final int MAX_RECONNECT_ATTEMPTS = 5;
+
+    // Callback interface
+    private ConnectionCallback connectionCallback;
+
+    // Data buffers
+    private final byte[] rxBuffer = new byte[PACKET_SIZE];
+    private final byte[] txBuffer = new byte[PACKET_SIZE];
+    private final byte[] digitalMask = new byte[]{0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80};
+
+    // Controller state
+    public int deviceId;
+    public int tempSet;
+    public int humidSet;
+    public int diffPressureSet;
+    private byte[] DigitalOUT = new byte[]{0x00, 0x00};
+    public int intensity1, intensity2, intensity3, intensity4;
+    private int SET_TEMP, SET_HUMD, SET_AIRP, STM, SHM, STP;
+    private int READ_TEMP, READ_HUMD, READ_PRES;
+    public byte buzzerHexGas1, buzzerHexGas2, buzzerHexGas3, buzzerHexGas4;
+    public byte buzzerHexGas5, buzzerHexGas6, buzzerHexGas7, buzzerHexGas8;
+    public int autoManualStatus;
+
+    // Sensor readings
+    private int readTemp, readHumd, readPres;
+    private int dispTemp, dispHumd, dispPres;
+
+    // Broadcast receiver for Bluetooth state changes
+    private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                if (state == BluetoothAdapter.STATE_OFF) {
+                    disconnect();
+                    notifyConnectionResult(BLUETOOTH_DISABLED, "Bluetooth was turned off");
+                }
+            }
+        }
+    };
 
     public interface ConnectionCallback {
         void onConnectionResult(int resultCode, String message);
+
         void onDataReceived(byte[] data);
+
         void onConnectionLost();
     }
 
     public BluetoothConnectionManager(Context context) {
         this.context = context.getApplicationContext();
         this.mainHandler = new Handler(Looper.getMainLooper());
-        this.executorService = Executors.newSingleThreadExecutor();
+        this.executorService = Executors.newFixedThreadPool(2); // Separate threads for RX and TX
 
-        this.bluetoothStateReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-                    if (state == BluetoothAdapter.STATE_OFF) {
-                        disconnect();
-                        if (connectionCallback != null) {
-                            connectionCallback.onConnectionResult(BLUETOOTH_DISABLED, "Bluetooth was turned off");
-                        }
-                    }
-                }
-            }
-        };
-
+        // Register Bluetooth state receiver
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(bluetoothStateReceiver, filter);
+
+        // Initialize default values
+        resetControllerState();
     }
 
+    private void resetControllerState() {
+        deviceId = 0;
+        tempSet = 0;
+        humidSet = 0;
+        diffPressureSet = 0;
+        intensity1 = intensity2 = intensity3 = intensity4 = 0;
+        buzzerHexGas1 = buzzerHexGas2 = buzzerHexGas3 = buzzerHexGas4 = 0;
+        buzzerHexGas5 = buzzerHexGas6 = buzzerHexGas7 = buzzerHexGas8 = 0;
+        autoManualStatus = 0;
+        readTemp = readHumd = readPres = 0;
+        dispTemp = dispHumd = dispPres = 0;
+    }
+
+    // Connection Management
     public void connect(String deviceAddress, String deviceInfo, ConnectionCallback callback) {
         this.connectionCallback = callback;
         this.currentDeviceAddress = deviceAddress;
         this.currentDeviceInfo = deviceInfo;
+        this.reconnectAttempts = 0;
 
         executorService.execute(() -> {
-            mainHandler.post(() -> {
-                if (callback != null) {
-                    callback.onConnectionResult(-1, "Connecting...");
-                }
-            });
+            notifyConnectionResult(-1, "Connecting...");
 
             // Check if already connected to this device
             if (validateConnection() && deviceAddress.equals(btSocket.getRemoteDevice().getAddress())) {
-                notifyResult(CONNECTION_SUCCESS, "Already connected to this device", callback);
+                notifyConnectionResult(CONNECTION_SUCCESS, "Already connected to this device");
                 return;
             }
 
             // Clean up any existing connection
-         ///   disconnect();
+            disconnect();
 
             // Check permissions
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (ContextCompat.checkSelfPermission(context,
-                        Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    notifyResult(PERMISSION_DENIED, "Bluetooth permission required", callback);
-                    return;
-                }
+            if (!checkBluetoothPermissions()) {
+                notifyConnectionResult(PERMISSION_DENIED, "Bluetooth permission required");
+                return;
             }
 
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             if (bluetoothAdapter == null) {
-                notifyResult(CONNECTION_FAILED, "Bluetooth not supported", callback);
+                notifyConnectionResult(CONNECTION_FAILED, "Bluetooth not supported");
                 return;
             }
 
             if (!bluetoothAdapter.isEnabled()) {
-                notifyResult(BLUETOOTH_DISABLED, "Bluetooth is disabled", callback);
+                notifyConnectionResult(BLUETOOTH_DISABLED, "Bluetooth is disabled");
                 return;
             }
 
             try {
                 BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
-                establishConnection(device, callback);
+                establishConnection(device);
+                notifyConnectionResult(CONNECTION_SUCCESS, "Connected to " + getDeviceDisplayName(device));
             } catch (IllegalArgumentException e) {
-                notifyResult(CONNECTION_FAILED, "Invalid device address", callback);
+                notifyConnectionResult(CONNECTION_FAILED, "Invalid device address");
             } catch (SecurityException e) {
-                notifyResult(SECURITY_EXCEPTION, "Bluetooth permission denied", callback);
-            } catch (Exception e) {
-                notifyResult(CONNECTION_FAILED, "Connection failed: " + e.getMessage(), callback);
+                notifyConnectionResult(SECURITY_EXCEPTION, "Bluetooth permission denied");
+            } catch (IOException e) {
+                notifyConnectionResult(CONNECTION_FAILED, "Connection failed: " + e.getMessage());
+                startAutoReconnect();
             }
         });
     }
 
-    private boolean validateConnection() {
-        if (btSocket == null || !btSocket.isConnected() || mmInputStream == null || mmOutputStream == null) {
-            return false;
-        }
-
-        try {
-            // Simple write to validate connection
-            mmOutputStream.write(0x00);
-            mmOutputStream.flush();
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    private void establishConnection(BluetoothDevice device, ConnectionCallback callback) throws IOException {
+    private void establishConnection(BluetoothDevice device) throws IOException {
         BluetoothSocket socket = null;
         IOException lastException = null;
 
         // Try all known UUIDs for SPP devices
         for (UUID uuid : SPP_UUIDS) {
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        notifyResult(PERMISSION_DENIED, "Bluetooth permission required", callback);
-                        return;
-                    }
-                    socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-                } else {
-                    socket = device.createRfcommSocketToServiceRecord(uuid);
+                socket = createSocket(device, uuid);
+                if (ActivityCompat.checkSelfPermission(BluetoothController.context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
                 }
-
-                // Cancel discovery to speed up connection
-                try {
-                    BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-                } catch (SecurityException e) {
-                    Log.w(TAG, "Couldn't cancel discovery", e);
-                }
-
-                // Connect with timeout
                 socket.connect();
 
                 // Connection successful
                 btSocket = socket;
-                mmInputStream = btSocket.getInputStream();
-                mmOutputStream = btSocket.getOutputStream();
+                inputStream = btSocket.getInputStream();
+                outputStream = btSocket.getOutputStream();
 
-                // Verify streams
-                if (mmInputStream == null || mmOutputStream == null) {
+                if (inputStream == null || outputStream == null) {
                     throw new IOException("Failed to establish streams");
                 }
 
-                isBtConnected = true;
-                reconnectAttempts = 0; // Reset on successful connection
-                startKeepAlive();
-                startListeningThread();
+                isConnected.set(true);
 
-                String successMessage = "Connected to " +
-                        (currentDeviceInfo != null ? currentDeviceInfo.replace(currentDeviceAddress, "") : device.getName());
-                notifyResult(CONNECTION_SUCCESS, successMessage, callback);
+                verifyProtocol();
+                startListeningThread();
+                startKeepAlive();
+                // Send initial controller data after connection
+
                 return;
 
             } catch (IOException e) {
-                // Close failed socket
                 if (socket != null) {
-                    try { socket.close(); } catch (IOException ce) { /* ignore */ }
+                    try {
+                        socket.close();
+                    } catch (IOException ce) { /* ignore */ }
                 }
                 lastException = e;
-                // Try next UUID
             }
         }
 
         // Fallback method if standard connection fails
-        // Fallback method if standard connection fails
         try {
             Method m = device.getClass().getMethod("createInsecureRfcommSocket", int.class);
             BluetoothSocket fallbackSocket = (BluetoothSocket) m.invoke(device, 1);
+            if (ActivityCompat.checkSelfPermission(BluetoothController.context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             fallbackSocket.connect();
 
             btSocket = fallbackSocket;
-            mmInputStream = btSocket.getInputStream();
-            mmOutputStream = btSocket.getOutputStream();
-            isBtConnected = true;
-            reconnectAttempts = 0; // Reset on successful connection
+            inputStream = btSocket.getInputStream();
+            outputStream = btSocket.getOutputStream();
+            isConnected.set(true);
 
-            startKeepAlive();
             startListeningThread();
-
-            // Safe device name handling
-            String deviceName = "unknown device";
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    if (ContextCompat.checkSelfPermission(context,
-                            Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                        deviceName = device.getName() != null ? device.getName() : deviceName;
-                    }
-                } else {
-                    deviceName = device.getName() != null ? device.getName() : deviceName;
-                }
-            } catch (SecurityException e) {
-                Log.w(TAG, "Couldn't get device name", e);
-            }
-
-            notifyResult(CONNECTION_SUCCESS,
-                    "Connected (fallback method) to " + deviceName,
-                    callback);
+            startKeepAlive();
             return;
         } catch (Exception e) {
             Log.w(TAG, "Fallback connection method failed", e);
@@ -267,184 +281,403 @@ public class BluetoothConnectionManager {
         }
     }
 
-    private void startListeningThread() {
-        executorService.execute(() -> {
-            byte[] buffer = new byte[1024];
-            int bytes;
+    private BluetoothSocket createSocket(BluetoothDevice device, UUID uuid) throws IOException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
+                    != PackageManager.PERMISSION_GRANTED) {
+                throw new SecurityException("Bluetooth permission required");
+            }
+            return device.createInsecureRfcommSocketToServiceRecord(uuid);
+        } else {
+            return device.createRfcommSocketToServiceRecord(uuid);
+        }
+    }
 
-            while (isBtConnected) {
+    private String getDeviceDisplayName(BluetoothDevice device) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    return device.getName() != null ? device.getName() : "Unknown Device";
+                }
+            }
+            return device.getName() != null ? device.getName() : "Unknown Device";
+        } catch (SecurityException e) {
+            return "Unknown Device";
+        }
+    }
+
+    // Data Transmission
+    public void sendControllerData() {
+        if (!isConnected.get()) {
+            Log.w(TAG, "Not connected - cannot send data");
+            return;
+        }
+
+        // Prepare device ID message
+        byte[] deviceIdMsg = ("$ID" + deviceId + ";").getBytes();
+
+        // Prepare main controller data
+        txBuffer[0] = 0x02;
+        txBuffer[1] = (byte) '1';
+        txBuffer[2] = (byte) 'C';
+        // ... rest of your data preparation logic ...
+        txBuffer[3] = DigitalOUT[0];
+        txBuffer[4] = DigitalOUT[1];
+        txBuffer[5] = (byte) (intensity1 >> 8);
+        txBuffer[6] = (byte) intensity1;
+        txBuffer[7] = (byte) (intensity2 >> 8);
+        txBuffer[8] = (byte) intensity2;
+        txBuffer[9] = (byte) (intensity3 >> 8);
+        txBuffer[10] = (byte) intensity3;
+        txBuffer[11] = (byte) (tempSet >> 8);
+        txBuffer[12] = (byte) (tempSet);
+        txBuffer[13] = (byte) (humidSet >> 8);
+        txBuffer[14] = (byte) (humidSet);
+        txBuffer[15] = (byte) (intensity4 >> 8);
+        txBuffer[16] = (byte) intensity4;
+
+        SET_TEMP = tempSet;
+        SET_HUMD = humidSet;
+        SET_AIRP = diffPressureSet;
+
+        if (autoManualStatus == 0) {
+            STM = READ_TEMP - (SET_TEMP * 10);
+            if (STM < 0) {
+                STM = 0;
+            }
+            if (STM > 50) {
+                STM = 50;
+            }
+            STM = STM * 20;
+            txBuffer[17] = (byte) (STM >> 8);
+            txBuffer[18] = (byte) (STM);
+
+            SHM = READ_HUMD - (SET_HUMD * 10);
+            if (SHM < 0) {
+                SHM = 0;
+            }
+            if (SHM > 100) {
+                SHM = 100;
+            }
+            SHM = SHM * 10;
+            txBuffer[19] = (byte) (SHM >> 8);
+            txBuffer[20] = (byte) (SHM);
+        } else {
+            STM = SET_TEMP * 10;
+            txBuffer[17] = (byte) (STM >> 8);
+            txBuffer[18] = (byte) (STM);
+
+            SHM = SET_HUMD * 10;
+            txBuffer[19] = (byte) (SHM >> 8);
+            txBuffer[20] = (byte) (SHM);
+        }
+
+        txBuffer[21] = 0x20;
+        try {
+            synchronized (this) {
+                if (isConnected.get() && outputStream != null) {
+                    outputStream.write(txBuffer);
+                    outputStream.flush();
+                    Log.d(TAG, "Data sent successfully");
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Error sending data", e);
+            handleConnectionLost();
+        }
+    }
+
+    private void verifyProtocol() throws IOException {
+        // Send verification packet
+        byte[] verificationPacket = new byte[]{0x01, 0x02, 0x03};
+        outputStream.write(verificationPacket);
+        outputStream.flush();
+
+        // Wait for response
+        byte[] response = new byte[3];
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < 2000) { // 2 second timeout
+            if (inputStream.available() >= 3) {
+                inputStream.read(response);
+                if (Arrays.equals(response, new byte[]{0x06, 0x06, 0x06})) { // Example ACK
+                    Log.d(TAG, "Protocol verified");
+                    return;
+                }
+            }
+        }
+        throw new IOException("Protocol verification failed");
+    }
+
+    // Add this method
+    private void disableFlowControl() {
+        try {
+            // This approach doesn't work on most Android versions
+            // Method m = btSocket.getClass().getMethod("setRcvBufSize", int.class);
+            // m.invoke(btSocket, 8192);
+
+            // Alternative approach that actually works:
+            if (btSocket != null) {
+                // For Bluetooth Classic (RFCOMM) sockets
+                if (ActivityCompat.checkSelfPermission(BluetoothController.context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                if (btSocket.getRemoteDevice().getType() == BluetoothDevice.DEVICE_TYPE_CLASSIC) {
+                    // Try to set socket buffer sizes through reflection
+                    try {
+                        Method setReceiveBuffer = btSocket.getClass().getMethod("setReceiveBufferSize", int.class);
+                        setReceiveBuffer.invoke(btSocket, 8192); // 8KB buffer
+
+                        Method setSendBuffer = btSocket.getClass().getMethod("setSendBufferSize", int.class);
+                        setSendBuffer.invoke(btSocket, 8192);
+
+                        Log.d(TAG, "Socket buffer sizes adjusted");
+                    } catch (Exception e) {
+                        Log.w(TAG, "Couldn't adjust socket buffers (normal on some devices)", e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Flow control adjustment failed", e);
+        }
+    }
+
+
+    public void sendData(byte[] data) {
+        if (!isConnected.get() || outputStream == null) {
+            Log.w(TAG, "Cannot send data - not connected");
+            return;
+        }
+
+        executorService.execute(() -> {
+            try {
+                synchronized (this) {
+                    outputStream.write(data);
+                    outputStream.flush();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Error sending data", e);
+                handleConnectionLost();
+            }
+        });
+    }
+    private void startListeningThread() {
+            final int BUFFER_SIZE = 4096; // 4KB buffer
+        executorService.execute(() -> {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while (isConnected.get()) {
                 try {
-                    bytes = mmInputStream.read(buffer);
-                    if (bytes > 0) {
-                        byte[] data = new byte[bytes];
-                        System.arraycopy(buffer, 0, data, 0, bytes);
-                        if (connectionCallback != null) {
-                            mainHandler.post(() -> connectionCallback.onDataReceived(data));
+                    // Read with timeout
+                    int available = inputStream.available();
+                    if (available > 0) {
+                        int bytesRead = inputStream.read(buffer, 0, Math.min(available, BUFFER_SIZE));
+                        if (bytesRead > 0) {
+                            processIncomingData(buffer, bytesRead);
                         }
                     }
-                } catch (IOException e) {
-                    Log.e(TAG, "Connection lost", e);
-                    if (isBtConnected) {
-                        disconnect();
-                        if (connectionCallback != null) {
-                            mainHandler.post(() -> {
-                                connectionCallback.onConnectionLost();
-                                connectionCallback.onConnectionResult(CONNECTION_LOST, "Connection lost");
-                            });
-                        }
-                        startAutoReconnect();
-                    }
+                    Thread.sleep(50); // Reduce CPU usage
+                } catch (Exception e) {
+                    Log.e(TAG, "Read error", e);
+                    handleConnectionLost();
                     break;
                 }
             }
         });
     }
 
+    private void processIncomingData(byte[] buffer, int length) {
+        // Process raw bytes here
+        Log.d(TAG, "Received " + length + " bytes: " + bytesToHex(Arrays.copyOf(buffer, length)));
+        // ... your packet processing logic ...
+    }
+    // Data Reception
+  /* private void startListeningThread() {
+        executorService.execute(() -> {
+            Log.d(TAG, "Listening thread started");
+
+            while (isConnected.get()) {
+                try {
+                    // Read exactly PACKET_SIZE bytes
+                    int bytesRead = 0;
+                    while (bytesRead < PACKET_SIZE && isConnected.get()) {
+                        int read = inputStream.read(rxBuffer, bytesRead, PACKET_SIZE - bytesRead);
+                        if (read == -1) {
+                            throw new IOException("Stream closed");
+                        }
+                        bytesRead += read;
+                    }
+
+                    if (bytesRead == PACKET_SIZE) {
+                        processReceivedData(rxBuffer);
+                        notifyDataReceived(rxBuffer);
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "Error in listening thread", e);
+                    if (isConnected.get()) {
+                        handleConnectionLost();
+                    }
+                    break;
+                }
+            }
+            Log.d(TAG, "Listening thread stopped");
+        });
+    }*/
+
+    private void processReceivedData(byte[] data) {
+        if (data.length >= PACKET_SIZE) {
+            // Parse digital inputs
+            // digitalIn[0] = data[3];
+            // digitalIn[1] = data[4];
+
+            // Parse analog values
+            readTemp = ((data[5] & 0xFF) << 8) | (data[6] & 0xFF);
+            readHumd = ((data[7] & 0xFF) << 8) | (data[8] & 0xFF);
+            readPres = ((data[9] & 0xFF) << 8) | (data[10] & 0xFF);
+
+            // Update display values
+            dispTemp = readTemp / 10;
+            dispHumd = readHumd / 10;
+            dispPres = readPres;
+
+            Log.d(TAG, String.format("Received data - Temp: %d, Humid: %d, Pres: %d",
+                    dispTemp, dispHumd, dispPres));
+        }
+    }
+
+    // Connection Maintenance
+    private void startKeepAlive() {
+        mainHandler.postDelayed(keepAliveRunnable, KEEP_ALIVE_INTERVAL_MS);
+    }
+
+    private final Runnable keepAliveRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!isConnected.get() || outputStream == null) {
+                return;
+            }
+
+            try {
+                synchronized (BluetoothConnectionManager.this) {
+                  //  outputStream.write(0x00); // Simple keep-alive
+                   // outputStream.flush();
+                    sendControllerData();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Keep-alive failed", e);
+                handleConnectionLost();
+                return;
+            }
+
+            // Schedule next keep-alive
+            mainHandler.postDelayed(this, KEEP_ALIVE_INTERVAL_MS);
+        }
+    };
+
     private void startAutoReconnect() {
         if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
             reconnectAttempts++;
-            long delay = calculateReconnectDelay(reconnectAttempts);
+            long delay = RECONNECT_BASE_DELAY_MS * (long) Math.pow(2, reconnectAttempts - 1);
+
             Log.d(TAG, "Scheduling reconnect attempt " + reconnectAttempts + " in " + delay + "ms");
-            mainHandler.postDelayed(reconnectRunnable, delay);
+            mainHandler.postDelayed(() -> {
+                if (!isConnected.get() && currentDeviceAddress != null && connectionCallback != null) {
+                    connect(currentDeviceAddress, currentDeviceInfo, connectionCallback);
+                }
+            }, delay);
         } else {
             Log.d(TAG, "Max reconnect attempts reached");
             reconnectAttempts = 0;
         }
     }
 
-    private long calculateReconnectDelay(int attempt) {
-        // Exponential backoff: 5s, 10s, 20s, 40s, 80s
-        return 5000 * (long)Math.pow(2, attempt-1);
-    }
-
-    private final Runnable reconnectRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (!isBtConnected && currentDeviceAddress != null && connectionCallback != null) {
-                Log.d(TAG, "Attempting reconnect...");
-                connect(currentDeviceAddress, currentDeviceInfo, connectionCallback);
-            }
-        }
-    };
-
-    private void startKeepAlive() {
-        mainHandler.post(keepAliveRunnable);
-    }
-
-    private final Runnable keepAliveRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (!isBtConnected || mmOutputStream == null) {
-                return;
-            }
-
-            try {
-                // Use a more standard keep-alive message
-                mmOutputStream.write(new byte[]{0x01}); // SOH character
-                mmOutputStream.flush();
-            } catch (IOException e) {
-                Log.e(TAG, "Keep-alive failed", e);
-                disconnect();
-                if (connectionCallback != null) {
-                    mainHandler.post(() -> {
-                        connectionCallback.onConnectionLost();
-                        connectionCallback.onConnectionResult(CONNECTION_LOST, "Keep-alive failed");
-                    });
-                }
-                startAutoReconnect();
-                return;
-            }
-            // Schedule next keep-alive
-            mainHandler.postDelayed(this, 3000);
-        }
-    };
-
+    // Connection State Management
     public void disconnect() {
         executorService.execute(() -> {
-            isBtConnected = false;
+            isConnected.set(false);
 
-            // Remove all pending callbacks first
+            // Remove all pending callbacks
             mainHandler.removeCallbacks(keepAliveRunnable);
-            mainHandler.removeCallbacks(reconnectRunnable);
 
-            Log.d("sexy","love");
             // Close streams and socket
-            if (mmInputStream != null) {
-                try { mmInputStream.close(); } catch (IOException e) { Log.e(TAG, "Error closing input stream", e); }
-                mmInputStream = null;
+            synchronized (this) {
+                if (inputStream != null) {
+                    try { inputStream.close(); } catch (IOException e) { Log.e(TAG, "Error closing input stream", e); }
+                    inputStream = null;
+                }
+
+                if (outputStream != null) {
+                    try { outputStream.close(); } catch (IOException e) { Log.e(TAG, "Error closing output stream", e); }
+                    outputStream = null;
+                }
+
+                if (btSocket != null) {
+                    try { btSocket.close(); } catch (IOException e) { Log.e(TAG, "Error closing socket", e); }
+                    btSocket = null;
+                }
             }
 
-            if (mmOutputStream != null) {
-                try { mmOutputStream.close(); } catch (IOException e) { Log.e(TAG, "Error closing output stream", e); }
-                mmOutputStream = null;
-            }
+            notifyConnectionLost();
+        });
+    }
 
-            if (btSocket != null) {
-                try { btSocket.close(); } catch (IOException e) { Log.e(TAG, "Error closing socket", e); }
-                btSocket = null;
-            }
+    private void handleConnectionLost() {
+        if (isConnected.compareAndSet(true, false)) {
+            disconnect();
+            startAutoReconnect();
+        }
+    }
 
-            // Notify UI if this was an explicit disconnection
+    private boolean validateConnection() {
+        if (btSocket == null || !btSocket.isConnected() || inputStream == null || outputStream == null) {
+            return false;
+        }
+
+        try {
+            synchronized (this) {
+                outputStream.write(0x00);
+                outputStream.flush();
+                return true;
+            }
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    // Callback Notifications
+    private void notifyConnectionResult(int resultCode, String message) {
+        mainHandler.post(() -> {
             if (connectionCallback != null) {
-                mainHandler.post(() -> {
-                    connectionCallback.onConnectionLost();
-                    notifyResult(CONNECTION_LOST, "Connection Loss", connectionCallback);
-                    connectionCallback.onConnectionResult(CONNECTION_LOST, "Disconnected from device");
-                });
+                connectionCallback.onConnectionResult(resultCode, message);
             }
         });
     }
 
-    public void sendData(String data) {
-        if (!isBtConnected || mmOutputStream == null) {
-            Log.w(TAG, "Cannot send data - not connected");
-            return;
-        }
-
-        executorService.execute(() -> {
-            try {
-                mmOutputStream.write(data.getBytes());
-                mmOutputStream.flush();
-            } catch (IOException e) {
-                Log.e(TAG, "Error sending data", e);
-                disconnect();
-                if (connectionCallback != null) {
-                    mainHandler.post(() -> {
-                        connectionCallback.onConnectionLost();
-                        connectionCallback.onConnectionResult(CONNECTION_LOST, "Error sending data");
-                    });
-                }
-                startAutoReconnect();
+    private void notifyDataReceived(byte[] data) {
+        mainHandler.post(() -> {
+            if (connectionCallback != null) {
+                connectionCallback.onDataReceived(data);
             }
         });
     }
 
-    public void sendData(byte[] data) {
-        if (!isBtConnected || mmOutputStream == null) {
-            Log.w(TAG, "Cannot send data - not connected");
-            return;
-        }
-
-        executorService.execute(() -> {
-            try {
-                mmOutputStream.write(data);
-                mmOutputStream.flush();
-            } catch (IOException e) {
-                Log.e(TAG, "Error sending data", e);
-                disconnect();
-                if (connectionCallback != null) {
-                    mainHandler.post(() -> {
-                        connectionCallback.onConnectionLost();
-                        connectionCallback.onConnectionResult(CONNECTION_LOST, "Error sending data");
-                    });
-                }
-                startAutoReconnect();
+    private void notifyConnectionLost() {
+        mainHandler.post(() -> {
+            if (connectionCallback != null) {
+                connectionCallback.onConnectionLost();
             }
         });
     }
 
+    // Utility Methods
     public boolean isConnected() {
-        return isBtConnected && validateConnection();
+        return isConnected.get() && validateConnection();
     }
 
     public void shutdown() {
@@ -457,14 +690,6 @@ public class BluetoothConnectionManager {
         executorService.shutdown();
     }
 
-    private void notifyResult(int resultCode, String message, ConnectionCallback callback) {
-        mainHandler.post(() -> {
-            if (callback != null) {
-                callback.onConnectionResult(resultCode, message);
-            }
-        });
-    }
-
     public static boolean checkBluetoothPermissions(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             return ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
@@ -473,7 +698,11 @@ public class BluetoothConnectionManager {
         return true;
     }
 
-    public static void requestBluetoothPermissions(android.app.Activity activity, int requestCode) {
+    private boolean checkBluetoothPermissions() {
+        return checkBluetoothPermissions(context);
+    }
+
+    public static void requestBluetoothPermissions(@NonNull android.app.Activity activity, int requestCode) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ActivityCompat.requestPermissions(activity,
                     new String[]{Manifest.permission.BLUETOOTH_CONNECT},

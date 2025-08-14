@@ -1140,7 +1140,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         runOnUiThread(() -> {
             // Handle incoming data
             String received = new String(data);
-            Log.d(TAG, "Received: " + received);
+            Log.d("onDataReceived", "Received Data: " + received);
         });
     }
 
