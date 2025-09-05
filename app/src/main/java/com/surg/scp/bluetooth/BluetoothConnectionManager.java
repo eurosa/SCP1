@@ -35,7 +35,7 @@ public class BluetoothConnectionManager {
     // Constants
     private static final String TAG = "BluetoothConnection";
     private static final int PACKET_SIZE = 22;
-    private static final long KEEP_ALIVE_INTERVAL_MS = 3000;
+    private static final long KEEP_ALIVE_INTERVAL_MS = 1000;
     private static final int MAX_RECONNECT_ATTEMPTS = 5;
     private static final int RECONNECT_BASE_DELAY_MS = 5000;
 
