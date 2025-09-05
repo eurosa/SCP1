@@ -85,7 +85,7 @@ public class BluetoothConnectionManager {
     public int tempSet;
     public int humidSet;
     public int diffPressureSet;
-    private byte[] DigitalOUT = new byte[]{0x00, 0x00};
+    public byte[] DigitalOUT = new byte[]{0x00, 0x00};
     public int intensity1, intensity2, intensity3, intensity4;
     private int SET_TEMP, SET_HUMD, SET_AIRP, STM, SHM, STP;
     private int READ_TEMP, READ_HUMD, READ_PRES;
@@ -124,7 +124,8 @@ public class BluetoothConnectionManager {
         this.context = context.getApplicationContext();
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.executorService = Executors.newFixedThreadPool(2); // Separate threads for RX and TX
-
+// Initialize DigitalOUT array
+        this.DigitalOUT = new byte[]{0x00, 0x00};
         // Register Bluetooth state receiver
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(bluetoothStateReceiver, filter);
@@ -314,14 +315,17 @@ public class BluetoothConnectionManager {
             return;
         }
 
-        // Prepare device ID message
+        // Initialize buffer properly
+        byte[] txBuffer = new byte[22];
+        Arrays.fill(txBuffer, (byte) 0);
+
+        // Prepare device ID message (if needed separately)
         byte[] deviceIdMsg = ("$ID" + deviceId + ";").getBytes();
 
         // Prepare main controller data
         txBuffer[0] = 0x02;
         txBuffer[1] = (byte) '1';
         txBuffer[2] = (byte) 'C';
-        // ... rest of your data preparation logic ...
         txBuffer[3] = DigitalOUT[0];
         txBuffer[4] = DigitalOUT[1];
         txBuffer[5] = (byte) (intensity1 >> 8);
@@ -331,9 +335,9 @@ public class BluetoothConnectionManager {
         txBuffer[9] = (byte) (intensity3 >> 8);
         txBuffer[10] = (byte) intensity3;
         txBuffer[11] = (byte) (tempSet >> 8);
-        txBuffer[12] = (byte) (tempSet);
+        txBuffer[12] = (byte) tempSet;
         txBuffer[13] = (byte) (humidSet >> 8);
-        txBuffer[14] = (byte) (humidSet);
+        txBuffer[14] = (byte) humidSet;
         txBuffer[15] = (byte) (intensity4 >> 8);
         txBuffer[16] = (byte) intensity4;
 
@@ -342,50 +346,48 @@ public class BluetoothConnectionManager {
         SET_AIRP = diffPressureSet;
 
         if (autoManualStatus == 0) {
-            STM = READ_TEMP - (SET_TEMP * 10);
-            if (STM < 0) {
-                STM = 0;
-            }
-            if (STM > 50) {
-                STM = 50;
-            }
-            STM = STM * 20;
-            txBuffer[17] = (byte) (STM >> 8);
-            txBuffer[18] = (byte) (STM);
-
-            SHM = READ_HUMD - (SET_HUMD * 10);
-            if (SHM < 0) {
-                SHM = 0;
-            }
-            if (SHM > 100) {
-                SHM = 100;
-            }
-            SHM = SHM * 10;
-            txBuffer[19] = (byte) (SHM >> 8);
-            txBuffer[20] = (byte) (SHM);
+            // Auto mode calculations
+            STM = Math.max(0, Math.min(50, READ_TEMP - (SET_TEMP * 10))) * 20;
+            SHM = Math.max(0, Math.min(100, READ_HUMD - (SET_HUMD * 10))) * 10;
         } else {
+            // Manual mode
             STM = SET_TEMP * 10;
-            txBuffer[17] = (byte) (STM >> 8);
-            txBuffer[18] = (byte) (STM);
-
             SHM = SET_HUMD * 10;
-            txBuffer[19] = (byte) (SHM >> 8);
-            txBuffer[20] = (byte) (SHM);
         }
 
+        txBuffer[17] = (byte) (STM >> 8);
+        txBuffer[18] = (byte) STM;
+        txBuffer[19] = (byte) (SHM >> 8);
+        txBuffer[20] = (byte) SHM;
         txBuffer[21] = 0x20;
+
         try {
             synchronized (this) {
                 if (isConnected.get() && outputStream != null) {
                     outputStream.write(txBuffer);
                     outputStream.flush();
+
+                    // Better debugging with hex format
                     Log.d(TAG, "Data sent successfully");
+                    Log.d(TAG, "txBuffer as HEX: " + bytesToHex(txBuffer));
                 }
             }
         } catch (IOException e) {
             Log.e(TAG, "Error sending data", e);
             handleConnectionLost();
         }
+    }
+
+    // Helper method for hex debugging
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            sb.append(String.format("%02X", bytes[i]));
+            if (i < bytes.length - 1) {
+                sb.append(" ");
+            }
+        }
+        return sb.toString();
     }
 
     private void verifyProtocol() throws IOException {

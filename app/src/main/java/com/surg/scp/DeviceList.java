@@ -1381,6 +1381,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (v.getStateDescription().toString().contains("checked")) {
                 switch1.setThumbColorRes(R.color.red);
+                bluetoothManager.DigitalOUT[1] &= 0xFE;
                 //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
             }
         }
@@ -1388,6 +1389,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             if (v.getStateDescription().toString().contains("not checked")) {
 
                 switch1.setThumbColorRes(R.color.limeGreen);
+                bluetoothManager.DigitalOUT[1] |= 0x01;
                 //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
             }
         }
@@ -1399,6 +1401,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (v.getStateDescription().toString().contains("checked")) {
                 switch2.setThumbColorRes(R.color.red);
+                bluetoothManager.DigitalOUT[1] &= 0xFD;
                 // Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
             }
         }
@@ -1406,6 +1409,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             if (v.getStateDescription().toString().contains("not checked")) {
 
                 switch2.setThumbColorRes(R.color.limeGreen);
+                bluetoothManager.DigitalOUT[1] |= 0x02;
                 //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
             }
         }
