@@ -120,6 +120,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     ImageButton tempMinusButton;
     ImageButton tempPlusButton;
     ImageButton[] arrayOfControlButtons;
+
+    boolean isLightOneOn = false;
+    boolean isLightTwoOn = false;
+    boolean isLightThreeOn = false;
+    boolean isLightFourOn = false;
     /***************************************************************************************
      *                          End Increment and Decrement
      ****************************************************************************************/
@@ -254,6 +259,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private SwitchButton switch2;
     private ImageButton humBtnPlus;
     private ImageButton humBtnMinus;
+    private ImageButton lightFourBtn;
+    private ImageButton lightThreeBtn;
+    private ImageButton lightTwoBtn;
+    private ImageButton lightOneBtn;
     private BluetoothConnectionManager bluetoothManager;
     private static final int PERMISSION_REQUEST_CODE = 1001;
 
@@ -325,8 +334,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
          **************************************************************************************/
         switch1 = findViewById(R.id.switch1);
         switch2 = findViewById(R.id.switch2);
+        lightOneBtn = findViewById(R.id.lightOneBtn);
+        lightTwoBtn = findViewById(R.id.lightTwoBtn);
+        lightThreeBtn = findViewById(R.id.lightThreeBtn);
+        lightFourBtn = findViewById(R.id.lightFourBtn);
         switch1.setOnClickListener(this);
         switch2.setOnClickListener(this);
+        lightOneBtn.setOnClickListener(this);
+        lightTwoBtn.setOnClickListener(this);
+        lightThreeBtn.setOnClickListener(this);
+        lightFourBtn.setOnClickListener(this);
         /*************************************************************************************
          * Switch configure
          **************************************************************************************/
@@ -1372,6 +1389,14 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             humBtnPlusPressed();
         } else if (viewId == R.id.humBtnMinus) {
             humBtnMinusPressed();
+        }else if(viewId == R.id.lightOneBtn){
+          switch1Light(v);
+        }else if(viewId == R.id.lightTwoBtn){
+            switch2Light(v);
+        }else if(viewId == R.id.lightThreeBtn){
+            switch3Light(v);
+        }else if(viewId == R.id.lightFourBtn){
+            switch4Light(v);
         }
         // No default case needed since we don't need to handle other cases
     }
@@ -1395,6 +1420,74 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         }
 
     }
+
+
+
+    public void switch1Light(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (isLightOneOn) {
+                // turn OFF
+                lightOneBtn.setImageResource(R.drawable.ic_bulb_off);
+
+                bluetoothManager.DigitalOUT[1] &= 0xFB;
+                isLightOneOn = false;
+            } else {
+                // turn ON
+                lightOneBtn.setImageResource(R.drawable.ic_bulb_on);
+                bluetoothManager.DigitalOUT[1] |= 0x04;
+                isLightOneOn = true;
+            }
+        }
+    }
+
+    public void switch2Light(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (isLightTwoOn) {
+                lightTwoBtn.setImageResource(R.drawable.ic_bulb_off);
+
+                bluetoothManager.DigitalOUT[1] &= 0xF7;
+                isLightTwoOn = false;
+            } else {
+                lightTwoBtn.setImageResource(R.drawable.ic_bulb_on);
+                bluetoothManager.DigitalOUT[1] |= 0x08;
+
+                isLightTwoOn = true;
+            }
+        }
+    }
+
+    public void switch3Light(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (isLightThreeOn) {
+                lightThreeBtn.setImageResource(R.drawable.ic_bulb_off);
+
+                bluetoothManager.DigitalOUT[1] &= 0xEF;
+                isLightThreeOn = false;
+            } else {
+                lightThreeBtn.setImageResource(R.drawable.ic_bulb_on);
+
+                bluetoothManager.DigitalOUT[1] |= 0x10;
+                isLightThreeOn = true;
+            }
+        }
+    }
+
+    public void switch4Light(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (isLightFourOn) {
+                lightFourBtn.setImageResource(R.drawable.ic_bulb_off);
+
+                bluetoothManager.DigitalOUT[1] &= 0xDF;
+                isLightFourOn = false;
+            } else {
+                lightFourBtn.setImageResource(R.drawable.ic_bulb_on);
+
+                bluetoothManager.DigitalOUT[1] |= 0x20;
+                isLightFourOn = true;
+            }
+        }
+    }
+
 
 
     public void switch2(View v) {

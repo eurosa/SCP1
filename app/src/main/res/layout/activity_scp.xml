@@ -895,7 +895,7 @@
             android:id="@+id/lightOneBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_bulb_icon"
+            android:src="@drawable/ic_bulb_on"
             android:background="@color/colorBlack"
             android:layout_marginLeft="10dp"
             >
@@ -922,12 +922,6 @@
             android:valueTo="100"
             />
 
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="android:layout_marginTop=&quot;30dp&quot;" />
 
         <!--
                 <hearsilent.discreteslider.DiscreteSlider
@@ -974,7 +968,7 @@
             android:id="@+id/lightTwoBtn"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
-            android:src="@drawable/ic_bulb_icon"
+            android:src="@drawable/ic_bulb_off"
             android:background="@color/colorBlack"
             android:layout_gravity="center"
             android:layout_marginLeft="10dp"
@@ -1049,7 +1043,7 @@
             android:id="@+id/lightThreeBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_bulb_icon"
+            android:src="@drawable/ic_bulb_off"
             android:background="@color/colorBlack"
             android:layout_marginLeft="10dp"
              >
@@ -1123,7 +1117,7 @@
             android:id="@+id/lightFourBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_bulb_icon"
+            android:src="@drawable/ic_bulb_off"
             android:background="@color/colorBlack"
             android:layout_marginLeft="10dp"
              >

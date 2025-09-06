@@ -1,0 +1,35 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="42dp"
+    android:height="42dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Bulb glass (dimmed) -->
+    <path
+        android:pathData="M23.9,1.3c-7,0-12.7,5.7-12.7,12.7
+            0,3 1,5.7 2.8,7.9
+            2.7,4.5 3,5.4 3.4,7.3
+            0.2,0.7 0.4,2.3 1.1,3
+            1.6,1.6 8,2.1 10.1,0
+            1.8,-3.6 3.1,-7.7 5.2,-10.2
+            1.8,-2.2 2.8,-4.9 2.8,-8
+            0,-7-5.7,-12.7-12.7,-12.7z"
+        android:strokeWidth="1"
+        android:fillColor="#FFEEEEEE"
+        android:strokeColor="#FFAAAAAA"/>
+
+    <!-- Filament -->
+    <path
+        android:pathData="M21,24 l3,7 m3,-7 l-3,7"
+        android:strokeColor="#FF888888"
+        android:strokeWidth="1"
+        android:strokeLineCap="round"/>
+
+    <!-- Socket/Base -->
+    <path
+        android:pathData="M21,39h6c0,3.5-6,3.5-6,0z"
+        android:fillColor="#FFBBBBBB"
+        android:strokeColor="#FF777777"
+        android:strokeWidth="1"/>
+</vector>
