@@ -120,7 +120,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     ImageButton tempMinusButton;
     ImageButton tempPlusButton;
     ImageButton[] arrayOfControlButtons;
-
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
     boolean isLightOneOn = false;
     boolean isLightTwoOn = false;
     boolean isLightThreeOn = false;
@@ -700,7 +701,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
          *                          End Increment and Decrement
          *********************************************************************************************/
 
+        sharedPreferences = getSharedPreferences("LightPrefs", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
+        // restore saved states
+        restoreStates();
     }
 
     private void connectToDevice(String address, String info) {
@@ -1407,6 +1412,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             if (v.getStateDescription().toString().contains("checked")) {
                 switch1.setThumbColorRes(R.color.red);
                 bluetoothManager.DigitalOUT[1] &= 0xFE;
+
+                editor.putBoolean("switch1", true);
+                editor.apply();
                 //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
             }
         }
@@ -1415,6 +1423,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
                 switch1.setThumbColorRes(R.color.limeGreen);
                 bluetoothManager.DigitalOUT[1] |= 0x01;
+                editor.putBoolean("switch1", false);
+                editor.apply();
                 //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
             }
         }
@@ -1431,12 +1441,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
                 bluetoothManager.DigitalOUT[1] &= 0xFB;
                 isLightOneOn = false;
+                editor.putBoolean("light1", false);
             } else {
                 // turn ON
                 lightOneBtn.setImageResource(R.drawable.ic_bulb_on);
                 bluetoothManager.DigitalOUT[1] |= 0x04;
                 isLightOneOn = true;
+                editor.putBoolean("light1", true);
             }
+
+            editor.apply();
         }
     }
 
@@ -1446,13 +1460,15 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 lightTwoBtn.setImageResource(R.drawable.ic_bulb_off);
 
                 bluetoothManager.DigitalOUT[1] &= 0xF7;
+                editor.putBoolean("light2", false);
                 isLightTwoOn = false;
             } else {
                 lightTwoBtn.setImageResource(R.drawable.ic_bulb_on);
                 bluetoothManager.DigitalOUT[1] |= 0x08;
-
+                editor.putBoolean("light2", true);
                 isLightTwoOn = true;
             }
+            editor.apply();
         }
     }
 
@@ -1463,12 +1479,15 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
                 bluetoothManager.DigitalOUT[1] &= 0xEF;
                 isLightThreeOn = false;
+                editor.putBoolean("light3", false);
             } else {
                 lightThreeBtn.setImageResource(R.drawable.ic_bulb_on);
 
                 bluetoothManager.DigitalOUT[1] |= 0x10;
                 isLightThreeOn = true;
+                editor.putBoolean("light3", true);
             }
+            editor.apply();
         }
     }
 
@@ -1479,12 +1498,15 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
                 bluetoothManager.DigitalOUT[1] &= 0xDF;
                 isLightFourOn = false;
+                editor.putBoolean("light4", false);
             } else {
                 lightFourBtn.setImageResource(R.drawable.ic_bulb_on);
 
                 bluetoothManager.DigitalOUT[1] |= 0x20;
                 isLightFourOn = true;
+                editor.putBoolean("light4", true);
             }
+            editor.apply();
         }
     }
 
@@ -1495,6 +1517,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             if (v.getStateDescription().toString().contains("checked")) {
                 switch2.setThumbColorRes(R.color.red);
                 bluetoothManager.DigitalOUT[1] &= 0xFD;
+
+                editor.putBoolean("switch2", true);
+                editor.apply();
                 // Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
             }
         }
@@ -1503,11 +1528,63 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
                 switch2.setThumbColorRes(R.color.limeGreen);
                 bluetoothManager.DigitalOUT[1] |= 0x02;
+
+                editor.putBoolean("switch2", false);
+                editor.apply();
                 //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
             }
         }
 
     }
+
+
+    private void restoreStates() {
+        // restore switches
+        boolean switch1State = sharedPreferences.getBoolean("switch1", false);
+        boolean switch2State = sharedPreferences.getBoolean("switch2", false);
+
+        if (switch1State) {
+            switch1.setChecked(true);
+            switch1.setThumbColorRes(R.color.red);
+            bluetoothManager.DigitalOUT[1] &= 0xFE;
+        } else {
+            switch1.setChecked(false);
+            switch1.setThumbColorRes(R.color.limeGreen);
+            bluetoothManager.DigitalOUT[1] |= 0x01;
+        }
+
+        if (switch2State) {
+            switch2.setChecked(true);
+            switch2.setThumbColorRes(R.color.red);
+            bluetoothManager.DigitalOUT[1] &= 0xFD;
+        } else {
+            switch2.setChecked(false);
+            switch2.setThumbColorRes(R.color.limeGreen);
+            bluetoothManager.DigitalOUT[1] |= 0x02;
+        }
+
+        // restore bulbs
+        boolean light1State = sharedPreferences.getBoolean("light1", false);
+        boolean light2State = sharedPreferences.getBoolean("light2", false);
+        boolean light3State = sharedPreferences.getBoolean("light3", false);
+        boolean light4State = sharedPreferences.getBoolean("light4", false);
+
+        isLightOneOn = light1State;
+        isLightTwoOn = light2State;
+        isLightThreeOn = light3State;
+        isLightFourOn = light4State;
+
+        lightOneBtn.setImageResource(light1State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
+        lightTwoBtn.setImageResource(light2State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
+        lightThreeBtn.setImageResource(light3State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
+        lightFourBtn.setImageResource(light4State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
+
+        if (light1State) bluetoothManager.DigitalOUT[1] |= 0x04; else bluetoothManager.DigitalOUT[1] &= 0xFB;
+        if (light2State) bluetoothManager.DigitalOUT[1] |= 0x08; else bluetoothManager.DigitalOUT[1] &= 0xF7;
+        if (light3State) bluetoothManager.DigitalOUT[1] |= 0x10; else bluetoothManager.DigitalOUT[1] &= 0xEF;
+        if (light4State) bluetoothManager.DigitalOUT[1] |= 0x20; else bluetoothManager.DigitalOUT[1] &= 0xDF;
+    }
+
 
     private void updateConnectionStatus(boolean isConnected, String deviceName) {
         runOnUiThread(() -> {
