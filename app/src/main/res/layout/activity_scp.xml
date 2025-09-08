@@ -68,18 +68,19 @@
         <LinearLayout
             android:id="@+id/clkLayout"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="wrap_content"
             android:layout_below="@id/my_toolbar"
             android:layout_marginTop="0dp"
             android:orientation="horizontal"
+
             android:weightSum="2">
 
             <LinearLayout
                 android:id="@+id/textClockLayout"
-                android:layout_width="100dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="24dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -91,7 +92,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/whiteColor"
                     android:text="12:48:12"
-                    android:textSize="45sp" />
+                    android:textSize="42sp" />
 
                 <TextView
                     android:id="@+id/hk_date"
@@ -100,7 +101,6 @@
                     android:textColor="@color/whiteColor"
                     android:text="12/18/2020"
                     android:textSize="18sp" />
-
 
             </LinearLayout>
 
@@ -111,16 +111,14 @@
                 android:background="@color/darkGray"/>
             <LinearLayout
                 android:id="@+id/timevalueLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginTop="3dp"
-
-                android:gravity="center"
+                android:gravity="top|center"
                 android:orientation="vertical">
 
-                <LinearLayout
+
+            <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -143,7 +141,7 @@
                         android:layout_centerHorizontal="true"
                         android:text="00:00:00"
                         android:textColor="#FFFFFF"
-                        android:textSize="28sp"/>
+                        android:textSize="42sp"/>
                 </LinearLayout>
 
 
@@ -151,7 +149,6 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:layout_gravity="center"
                     android:layout_marginTop="3dp"
                     android:orientation="horizontal">
@@ -161,18 +158,20 @@
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_marginTop="2dp"
-                        android:background="@drawable/ic_play" />
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_play"
+                        android:contentDescription="Start" />
 
                     <ImageButton
                         android:id="@+id/resetButton"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:layout_gravity="center"
-
                         android:layout_marginTop="2dp"
-
                         android:layout_marginLeft="6dp"
-                        android:background="@drawable/ic_reset_great" />
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_reset_great"
+                        android:contentDescription="Reset" />
+
                 </LinearLayout>
 
 
@@ -867,7 +866,7 @@
         android:layout_below="@id/lightControlTitle"
 
         android:layout_width="match_parent"
-        android:layout_height="51dp"
+        android:layout_height="wrap_content"
         android:clipChildren="false"
         android:gravity="center"
 
@@ -876,15 +875,13 @@
         >
 
 
-
         <ImageButton
             android:id="@+id/lightOneBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_bulb_on"
-            android:background="@color/colorBlack"
             android:layout_marginLeft="10dp"
-            >
+            android:background="@color/colorBlack"
+            android:src="@drawable/ic_bulb_on">
 
         </ImageButton>
 
@@ -937,7 +934,7 @@
         android:id="@+id/lightControlLayout2"
         android:layout_below="@id/lightControlLayout1"
         android:layout_width="match_parent"
-        android:layout_height="51dp"
+        android:layout_height="wrap_content"
         android:clipChildren="false"
         android:gravity="center"
         android:clipToPadding="false"
@@ -946,7 +943,7 @@
         <ImageButton
             android:id="@+id/lightTwoBtn"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_bulb_off"
             android:background="@color/colorBlack"
             android:layout_gravity="center"
@@ -1011,7 +1008,7 @@
         android:id="@+id/lightControlLayout3"
         android:layout_below="@id/lightControlLayout2"
         android:layout_width="match_parent"
-        android:layout_height="51dp"
+        android:layout_height="wrap_content"
         android:clipChildren="false"
         android:gravity="center"
         android:clipToPadding="false"
@@ -1085,7 +1082,7 @@
         android:layout_below="@id/lightControlLayout3"
 
         android:layout_width="match_parent"
-        android:layout_height="51dp"
+        android:layout_height="wrap_content"
         android:clipChildren="false"
         android:gravity="center"
         android:clipToPadding="false"
