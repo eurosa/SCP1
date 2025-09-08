@@ -1,6 +1,7 @@
 package com.surg.scp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -101,10 +102,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/*import hearsilent.discreteslider.Dash;
-import hearsilent.discreteslider.DiscreteSlider;
-import hearsilent.discreteslider.Dot;
-import hearsilent.discreteslider.libs.Utils;*/
+
 
 import static android.content.ContentValues.TAG;
 
@@ -256,7 +254,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private ImageButton playPause;
     private ImageButton stopButton;
     private ImageButton resetButton;
-   // private DiscreteSlider mSlider1, mSlider2, mSlider3, mSlider4;
+
     private SwitchButton switch1;
     private SwitchButton switch2;
     private ImageButton humBtnPlus;
@@ -267,8 +265,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private ImageButton lightOneBtn;
     private BluetoothConnectionManager bluetoothManager;
     private static final int PERMISSION_REQUEST_CODE = 1001;
-    private TextView clockView;
-    private TextView clocTime;
 
 
     /***************************************************************************************
@@ -282,8 +278,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         setContentView(R.layout.activity_scp);
 //----------------------------Grant storage permission--------------------------------------------------
         setAnimation();
-        clockView = findViewById(R.id.hk_date);
-        clocTime = findViewById(R.id.hk_time);
         bluetoothManager = new BluetoothConnectionManager(this);
         /***************************************************************************************
          *   Play and pause in only one button - Android
@@ -301,22 +295,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 isPlaying = !isPlaying;
             }
         });
-
-        Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                String pattern = "dd MMM yyyy";
-                String pattern2 = "hh:mm:ss";
-                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
-                SimpleDateFormat clocTime2 = new SimpleDateFormat(pattern2, Locale.getDefault());
-                clockView.setText(sdf.format(new Date()));
-                clocTime.setText(clocTime2.format(new Date()));
-                handler.postDelayed(this, 1000); // update every second
-            }
-        };
-        handler.post(runnable);
-
         /***************************************************************************************
          *  Play and pause in only one button - Android
          ****************************************************************************************/
@@ -366,7 +344,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         lightTwoBtn.setOnClickListener(this);
         lightThreeBtn.setOnClickListener(this);
         lightFourBtn.setOnClickListener(this);
-        /**************************************************************************************
+        /*************************************************************************************
          * Switch configure
          **************************************************************************************/
         //TabLayout   tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout); // get the reference of TabLayout
@@ -727,6 +705,22 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         // restore saved states
         restoreStates();
+        TextView clockView = findViewById(R.id.hk_date);
+        TextView clocTime = findViewById(R.id.hk_time);
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                String pattern = "dd MMM yyyy";
+                String pattern2 = "hh:mm:ss";
+                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
+                SimpleDateFormat clocTime2 = new SimpleDateFormat(pattern2, Locale.getDefault());
+                clockView.setText(sdf.format(new Date()));
+                clocTime.setText(clocTime2.format(new Date()));
+                handler.postDelayed(this, 1000); // update every second
+            }
+        };
+        handler.post(runnable);
     }
 
     private void connectToDevice(String address, String info) {
@@ -892,56 +886,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
 
-   /* private void setUpView(DiscreteSlider mSlider) {
-        mSlider.setTrackWidth(Utils.convertDpToPixel(4, this));
-        mSlider.setTrackColor(0xFFD81B60);
-        mSlider.setInactiveTrackColor(0x3DD81B60);
 
-        mSlider.setThumbRadius(Utils.convertDpToPixel(6, this));
-        mSlider.setThumbColor(0xFFD81B60);
-        mSlider.setThumbPressedColor(0x1FD81B60);
-
-        mSlider.setTickMarkColor(0x3DFFFFFF);
-        mSlider.setTickMarkInactiveColor(0x1FD81B60);
-        mSlider.setTickMarkPatterns(
-                Arrays.asList(new Dot(), new Dash(Utils.convertDpToPixel(1, this))));
-
-        mSlider.setValueLabelTextColor(Color.WHITE);
-        mSlider.setValueLabelTextSize(Utils.convertSpToPixel(16, this));
-        mSlider.setValueLabelFormatter(new DiscreteSlider.ValueLabelFormatter() {
-
-            @Override
-            public String getLabel(int input) {
-                return Integer.toString(input);
-            }
-        });
-
-        mSlider.setCount(101);
-        mSlider.setMode(DiscreteSlider.MODE_NORMAL);
-        mSlider.setProgressOffset(0);
-        mSlider.setMinProgress(0);
-        mSlider.setTickMarkStep(10);
-
-
-        mSlider.setOnValueChangedListener(new DiscreteSlider.OnValueChangedListener() {
-
-            @Override
-            public void onValueChanged(int progress, boolean fromUser) {
-                super.onValueChanged(progress, fromUser);
-                Log.i("DiscreteSlider", "Progress: " + progress + ", fromUser: " + fromUser);
-            }
-
-            @Override
-            public void onValueChanged(int minProgress, int maxProgress, boolean fromUser) {
-                super.onValueChanged(minProgress, maxProgress, fromUser);
-                Log.i("DiscreteSlider",
-                        "MinProgress: " + minProgress + ", MaxProgress: " + maxProgress +
-                                ", fromUser: " + fromUser);
-            }
-        });
-
-        mSlider.setClickable(true);
-    }*/
 
     private void ScanDevicesList() {
 
@@ -1428,9 +1373,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
 
+    @SuppressLint("NewApi")
     public void switch1(View v) {
+        Log.d("switch_button", String.valueOf(v.getStateDescription()));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (v.getStateDescription().toString().contains("checked")) {
+            if (v.getStateDescription().toString().contains("ticked")) {
                 switch1.setThumbColorRes(R.color.red);
                 bluetoothManager.DigitalOUT[1] &= 0xFE;
 
@@ -1440,7 +1387,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (v.getStateDescription().toString().contains("not checked")) {
+            if (v.getStateDescription().toString().contains("not ticked")) {
 
                 switch1.setThumbColorRes(R.color.limeGreen);
                 bluetoothManager.DigitalOUT[1] |= 0x01;
@@ -1535,7 +1482,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     public void switch2(View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (v.getStateDescription().toString().contains("checked")) {
+            if (v.getStateDescription().toString().contains("ticked")) {
                 switch2.setThumbColorRes(R.color.red);
                 bluetoothManager.DigitalOUT[1] &= 0xFD;
 
@@ -1545,7 +1492,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (v.getStateDescription().toString().contains("not checked")) {
+            if (v.getStateDescription().toString().contains("not ticked")) {
 
                 switch2.setThumbColorRes(R.color.limeGreen);
                 bluetoothManager.DigitalOUT[1] |= 0x02;
