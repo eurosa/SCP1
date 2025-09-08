@@ -126,6 +126,10 @@ public class BluetoothConnectionManager {
         this.executorService = Executors.newFixedThreadPool(2); // Separate threads for RX and TX
 // Initialize DigitalOUT array
         this.DigitalOUT = new byte[]{0x00, 0x00};
+        this.intensity1 =0;
+        this.intensity2=0;
+        this.intensity3=0;
+        this.intensity4=0;
         // Register Bluetooth state receiver
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(bluetoothStateReceiver, filter);
