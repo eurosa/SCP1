@@ -92,6 +92,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
@@ -100,10 +101,10 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import hearsilent.discreteslider.Dash;
+/*import hearsilent.discreteslider.Dash;
 import hearsilent.discreteslider.DiscreteSlider;
 import hearsilent.discreteslider.Dot;
-import hearsilent.discreteslider.libs.Utils;
+import hearsilent.discreteslider.libs.Utils;*/
 
 import static android.content.ContentValues.TAG;
 
@@ -255,7 +256,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private ImageButton playPause;
     private ImageButton stopButton;
     private ImageButton resetButton;
-    private DiscreteSlider mSlider1, mSlider2, mSlider3, mSlider4;
+   // private DiscreteSlider mSlider1, mSlider2, mSlider3, mSlider4;
     private SwitchButton switch1;
     private SwitchButton switch2;
     private ImageButton humBtnPlus;
@@ -266,6 +267,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private ImageButton lightOneBtn;
     private BluetoothConnectionManager bluetoothManager;
     private static final int PERMISSION_REQUEST_CODE = 1001;
+    private TextView clockView;
+    private TextView clocTime;
 
 
     /***************************************************************************************
@@ -279,6 +282,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         setContentView(R.layout.activity_scp);
 //----------------------------Grant storage permission--------------------------------------------------
         setAnimation();
+        clockView = findViewById(R.id.hk_date);
+        clocTime = findViewById(R.id.hk_time);
         bluetoothManager = new BluetoothConnectionManager(this);
         /***************************************************************************************
          *   Play and pause in only one button - Android
@@ -296,6 +301,22 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 isPlaying = !isPlaying;
             }
         });
+
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                String pattern = "dd MMM yyyy";
+                String pattern2 = "hh:mm:ss";
+                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
+                SimpleDateFormat clocTime2 = new SimpleDateFormat(pattern2, Locale.getDefault());
+                clockView.setText(sdf.format(new Date()));
+                clocTime.setText(clocTime2.format(new Date()));
+                handler.postDelayed(this, 1000); // update every second
+            }
+        };
+        handler.post(runnable);
+
         /***************************************************************************************
          *  Play and pause in only one button - Android
          ****************************************************************************************/
@@ -345,7 +366,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         lightTwoBtn.setOnClickListener(this);
         lightThreeBtn.setOnClickListener(this);
         lightFourBtn.setOnClickListener(this);
-        /*************************************************************************************
+        /**************************************************************************************
          * Switch configure
          **************************************************************************************/
         //TabLayout   tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout); // get the reference of TabLayout
@@ -871,7 +892,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
 
-    private void setUpView(DiscreteSlider mSlider) {
+   /* private void setUpView(DiscreteSlider mSlider) {
         mSlider.setTrackWidth(Utils.convertDpToPixel(4, this));
         mSlider.setTrackColor(0xFFD81B60);
         mSlider.setInactiveTrackColor(0x3DD81B60);
@@ -920,7 +941,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         });
 
         mSlider.setClickable(true);
-    }
+    }*/
 
     private void ScanDevicesList() {
 

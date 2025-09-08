@@ -1,6 +1,7 @@
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/draw_layout"
@@ -67,7 +68,7 @@
         <LinearLayout
             android:id="@+id/clkLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="150dp"
             android:layout_below="@id/my_toolbar"
             android:layout_marginTop="0dp"
             android:orientation="horizontal"
@@ -82,28 +83,23 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <android.widget.TextClock
-                    android:id="@+id/hk_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:format12Hour="dd MMM yyyy"
-                    android:textColor="@color/whiteColor"
-                     >
 
-                </android.widget.TextClock>
-                <android.widget.TextClock
+
+                <TextView
                     android:id="@+id/hk_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:format12Hour="hh:mm:ss"
-                    android:textColor="@color/limeGreen"
-                    android:textColorHighlight="@color/limeGreen"
-                    android:textSize="28sp">
+                    android:textColor="@color/whiteColor"
+                    android:text="12:48:12"
+                    android:textSize="45sp" />
 
-                </android.widget.TextClock>
-
+                <TextView
+                    android:id="@+id/hk_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/whiteColor"
+                    android:text="12/18/2020"
+                    android:textSize="18sp" />
 
 
             </LinearLayout>
@@ -117,18 +113,18 @@
                 android:id="@+id/timevalueLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="right"
+
                 android:layout_weight="1"
                 android:layout_marginTop="3dp"
-                android:weightSum="2"
+
                 android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:layout_gravity="center"
+
                     android:orientation="vertical"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="6dp"
@@ -138,7 +134,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/elapsed_time"
-                        android:textColor="@color/whiteColor"></TextView>
+                        android:textColor="@color/whiteColor"/>
 
                     <TextView
                         android:id="@+id/timerValue"
@@ -147,7 +143,7 @@
                         android:layout_centerHorizontal="true"
                         android:text="00:00:00"
                         android:textColor="#FFFFFF"
-                        android:textSize="28sp"></TextView>
+                        android:textSize="28sp"/>
                 </LinearLayout>
 
 
@@ -155,9 +151,8 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
+
                     android:layout_gravity="center"
-                    android:layout_marginLeft="20dp"
                     android:layout_marginTop="3dp"
                     android:orientation="horizontal">
 
@@ -179,17 +174,8 @@
                         android:layout_marginLeft="6dp"
                         android:background="@drawable/ic_reset_great" />
                 </LinearLayout>
-                <!--<Button
-                android:id="@+id/stopButton"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_alignBaseline="@+id/startButton"
-                android:text="@string/stopButtonLabel"
-                android:textSize="20sp"
 
-                />-->
+
             </LinearLayout>
 
         </LinearLayout>
@@ -264,7 +250,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginRight="3dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_temp_thermometer"></ImageView>
+                        android:src="@drawable/ic_temp_thermometer"/>
 
                     <TextView
                         android:id="@+id/tempShow"
@@ -675,7 +661,7 @@
 
 
                 android:text="@string/oxygen"
-                android:textColor="@color/whiteColor"></TextView>android:layout_marginRight="2dp"
+                android:textColor="@color/whiteColor"></TextView>
 
             <TextView
                 android:id="@+id/gasFour"
@@ -909,18 +895,11 @@
             android:gravity="center"
             android:text="@string/light_1" />
 
-        <com.google.android.material.slider.Slider
-            android:id="@+id/slider1"
+        <com.surg.scp.IncrementDecrementSlider
+            android:id="@+id/customSlider"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            app:labelBehavior="withinBounds"
-            android:value="60"
-            android:stepSize="10"
-            android:valueFrom="0"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
-            android:valueTo="100"
-            />
+          />
 
 
         <!--
