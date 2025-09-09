@@ -176,6 +176,16 @@
                         android:src="@drawable/ic_reset_great"
                         android:contentDescription="Reset" />
 
+                    <ImageButton
+                        android:id="@+id/settingButton"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+
+                        android:layout_marginStart="15dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_settings"
+                        android:contentDescription="Reset" />
+
                 </LinearLayout>
 
 

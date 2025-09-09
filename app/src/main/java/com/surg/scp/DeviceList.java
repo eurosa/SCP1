@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -39,6 +40,7 @@ import android.text.Html;
 import android.transition.Slide;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
@@ -48,6 +50,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -57,6 +60,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextClock;
@@ -125,6 +129,13 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     boolean isLightTwoOn = false;
     boolean isLightThreeOn = false;
     boolean isLightFourOn = false;
+
+    // Timer variables
+    private int timeVar;
+    private int timeVarEdit;
+    private int hr, min, sec;
+    private int timeDoneFinished;
+    private int cdflag = 1;
     /***************************************************************************************
      *                          End Increment and Decrement
      ****************************************************************************************/
@@ -254,6 +265,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private ImageButton playPause;
     private ImageButton stopButton;
     private ImageButton resetButton;
+    private ImageButton settingButton;
 
     private SwitchButton switch1;
     private SwitchButton switch2;
@@ -265,7 +277,12 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private ImageButton lightOneBtn;
     private BluetoothConnectionManager bluetoothManager;
     private static final int PERMISSION_REQUEST_CODE = 1001;
+    // Timer
+    private CountDownTimer countDownTimer;
 
+    // SharedPreferences
+    private SharedPreferences sharedPreferences1;
+    private static final String PREFS_NAME = "TimerPrefs";
 
     /***************************************************************************************
      * End Stop Watch
@@ -283,18 +300,27 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
          *   Play and pause in only one button - Android
          ****************************************************************************************/
         playPause = findViewById(R.id.startButton);
+        settingButton = findViewById(R.id.settingButton);
         // Start from your activity
         //startService(new Intent(this, BluetoothService.class));
-        playPause.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                if (isPlaying) {
-                    pause();
-                } else {
-                    play();
-                }
-                isPlaying = !isPlaying;
-            }
-        });
+
+        timerValue = (TextView) findViewById(R.id.timerValue);
+        // Initialize SharedPreferences
+        sharedPreferences1 = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
+        // Initialize UI components
+        initUIComponents();
+
+        // Load saved timer values
+        loadTimerValues();
+
+        // Set up button listeners
+        setupButtonListeners();
+
+        // Initialize timer display
+        updateTimerDisplay(method5(timeVar));
+
+
         /***************************************************************************************
          *  Play and pause in only one button - Android
          ****************************************************************************************/
@@ -416,7 +442,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         actionBarDrawerToggle.syncState();
 
 
-        // to change humburger icon color
+        // to change hamburger icon color
         actionBarDrawerToggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.whiteColor));
 
 
@@ -448,55 +474,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             if (address != null) {
                 connectToDevice(address, info_address);
             }
-         /*   bluetoothManager.connect(address, info_address != null ? info_address : "", new BluetoothConnectionManager.ConnectionCallback() {
-                @Override
-                public void onConnectionResult(int resultCode, String message) {
-                    switch (resultCode) {
-                        case BluetoothConnectionManager.CONNECTION_SUCCESS:
-                            // Update UI for success
-                            updateConnectionStatus(true, message);
-                            connectionStatus.setText("Connected");
-                            Toast.makeText(DeviceList.this, message, Toast.LENGTH_SHORT).show();
-                            break;
-
-                        case BluetoothConnectionManager.PERMISSION_DENIED:
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                ActivityCompat.requestPermissions(DeviceList.this,
-                                        new String[]{Manifest.permission.BLUETOOTH_CONNECT},
-                                        PERMISSION_REQUEST_CODE);
-                            }
-
-                        case BluetoothConnectionManager.IO_EXCEPTION:
-                            updateConnectionStatus(false, null);
-                            new AlertDialog.Builder(DeviceList.this)
-                                    .setTitle("Connection Failed")
-                                    .setMessage(message)
-                                    .setPositiveButton("OK", null)
-                                    .show();
-                            // fall through
-
-                        default:
-                            // Show error message
-                            new AlertDialog.Builder(DeviceList.this)
-                                    .setTitle("Connection Failed")
-                                    .setMessage(message)
-                                    .setPositiveButton("OK", null)
-                                    .show();
-                            break;
-                    }
-                }
-
-                @Override
-                public void onDataReceived(byte[] data) {
-
-                }
-
-                @Override
-                public void onConnectionLost() {
-
-                }
-            });*/
-
         }
         //-------------------------------------To Receive device address from background==================
         //====================================Camera======================================================
@@ -570,17 +547,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         final ImageButton startButton;
 
 
-        timerValue = (TextView) findViewById(R.id.timerValue);
+
 
         resetButton = findViewById(R.id.resetButton);
+        settingButton = findViewById(R.id.settingButton);
         resetButton.setClickable(false);
-        // resetButton.setTextColor(Color.parseColor("#a6a6a6"));
-
-        startButton = findViewById(R.id.startButton);
-
-        //stopButton = (Button) findViewById (R.id.stopButton);
-        //stopButton.setClickable(false);
-        //stopButton.setTextColor(Color.parseColor("#a6a6a6"));
 
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -843,17 +814,13 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     public void play() {
 
-        // playPause.setClickable(false);
-        // playPause.setTextColor(Color.parseColor("#a6a6a6"));
         resetButton.setClickable(false);
-        // resetButton.setTextColor(Color.parseColor("#a6a6a6"));
-        //stopButton.setClickable(true);
-        //stopButton.setTextColor(Color.parseColor("#000000"));
+
         startTime = SystemClock.uptimeMillis();
         customHandler.postDelayed(updateTimerThread, 0);
 
         // Drawable icon= getApplicationContext().getResources().getDrawable(R.drawable.ic_pause);
-        playPause.setBackgroundResource(R.drawable.ic_pause);
+        playPause.setImageResource(R.drawable.ic_pause);
         //     icon.setBounds(0, 0, 0, 0); //Left,Top,Right,Bottom
         // playPause.setCompoundDrawablesWithIntrinsicBounds( null, null, icon, null);
 
@@ -868,7 +835,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         customHandler.removeCallbacks(updateTimerThread);
 
         //  Drawable icon= getApplicationContext().getResources().getDrawable(R.drawable.ic_play);
-        playPause.setBackgroundResource(R.drawable.ic_play);
+        playPause.setImageResource(R.drawable.ic_play);
         // icon.setBounds(0, 0, 0, 0); //Left,Top,Right,Bottom
         // playPause.setCompoundDrawablesWithIntrinsicBounds( null, null, icon, null);
     }
@@ -2009,10 +1976,337 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     }
 
+    private void initUIComponents() {
+
+
+
+        resetButton = findViewById(R.id.resetButton);
+        settingButton = findViewById(R.id.settingButton);
+    }
+
+    private void loadTimerValues() {
+        // Load values from SharedPreferences
+        String hour = sharedPreferences1.getString("timer_hour", "0");
+        String minute = sharedPreferences1.getString("timer_minute", "0");
+        String second = sharedPreferences1.getString("timer_second", "0");
+
+        hr = Integer.parseInt(hour);
+        min = Integer.parseInt(minute);
+        sec = Integer.parseInt(second);
+
+        timeVar = hr * 60 * 60 + min * 60 + sec;
+        timeVarEdit = timeVar;
+    }
+
+    private void saveTimerValues(int hours, int minutes, int seconds, boolean upChecked, boolean downChecked) {
+        SharedPreferences.Editor editor = sharedPreferences1.edit();
+        editor.putString("timer_hour", String.valueOf(hours));
+        editor.putString("timer_minute", String.valueOf(minutes));
+        editor.putString("timer_second", String.valueOf(seconds));
+        editor.putBoolean("upcheckbox", upChecked);
+        editor.putBoolean("downcheckbox", downChecked);
+        editor.apply();
+    }
+
+    private void setupButtonListeners() {
+        playPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+             boolean  downcheckbox =   sharedPreferences1.getBoolean("downcheckbox", false);
+                boolean  upcheckbox   =  sharedPreferences1.getBoolean("upcheckbox", false);
+                if(downcheckbox || upcheckbox){
+                    if (cdflag==1) {
+                        timerPause();
+
+                    }else{
+                        timerStart();
+
+                    }
+
+                } else{
+
+                    if (isPlaying) {
+                        pause();
+                    } else {
+                        play();
+                    }
+                    isPlaying = !isPlaying;
+                }
+
+            }
+        });
+
+        /*playPause.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                if (isPlaying) {
+                    pause();
+                } else {
+                    play();
+                }
+                isPlaying = !isPlaying;
+            }
+        });*/
+
+     /*   pauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timerPause();
+            }
+        });*/
+
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetTimer();
+            }
+        });
+
+        settingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTimerSettingsPopup();
+            }
+        });
+    }
+
+    private void showTimerSettingsPopup() {
+        // Inflate the popup layout
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.popup_timer_settings, null);
+
+        // Create the popup window
+        int width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+        int height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+        boolean focusable = true;
+        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+        // Initialize UI components from the popup view
+        final EditText timeHourValue = popupView.findViewById(R.id.timeHourValue);
+        final EditText timeMinValue = popupView.findViewById(R.id.timeMinValue);
+        final EditText timeSecValue = popupView.findViewById(R.id.timeSecValue);
+        final CheckBox upCheckBox1 = popupView.findViewById(R.id.upCheckBox1);
+        final CheckBox downCheckBox1 = popupView.findViewById(R.id.downCheckBox1);
+        Button okBtn = popupView.findViewById(R.id.okBtn);
+        Button cancelBtn = popupView.findViewById(R.id.cancelBtn);
+        Button minUpBtn = popupView.findViewById(R.id.minUpBtn);
+        Button minDownBtn = popupView.findViewById(R.id.minDownBtn);
+        Button secUpBtn = popupView.findViewById(R.id.secUpBtn);
+        Button secDownBtn = popupView.findViewById(R.id.secDownBtn);
+        Button hrUpBtn = popupView.findViewById(R.id.hrUpBtn);
+        Button hrDownBtn = popupView.findViewById(R.id.hrDownBtn);
+
+        // Load saved values
+        String hour = sharedPreferences1.getString("timer_hour", "0");
+        String minute = sharedPreferences1.getString("timer_minute", "0");
+        String second = sharedPreferences1.getString("timer_second", "0");
+        boolean upChecked = sharedPreferences1.getBoolean("upcheckbox", false);
+        boolean downChecked = sharedPreferences1.getBoolean("downcheckbox", false);
+
+        timeHourValue.setText(hour);
+        timeMinValue.setText(minute);
+        timeSecValue.setText(second);
+        upCheckBox1.setChecked(upChecked);
+        downCheckBox1.setChecked(downChecked);
+
+        // Set up button listeners for the popup
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get values from input fields
+                int hours = Integer.parseInt(timeHourValue.getText().toString());
+                int minutes = Integer.parseInt(timeMinValue.getText().toString());
+                int seconds = Integer.parseInt(timeSecValue.getText().toString());
+
+                // Save values
+                saveTimerValues(hours, minutes, seconds, upCheckBox1.isChecked(), downCheckBox1.isChecked());
+
+                // Update timer
+                timeVar = hours * 60 * 60 + minutes * 60 + seconds;
+                timeVarEdit = timeVar;
+                updateTimerDisplay(method5(timeVar));
+
+                // Dismiss popup
+                popupWindow.dismiss();
+            }
+        });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+
+        // Set up increment/decrement buttons
+        minUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int minutes = Integer.parseInt(timeMinValue.getText().toString());
+                if (minutes < 59) minutes++;
+                else minutes = 0;
+                timeMinValue.setText(String.valueOf(minutes));
+            }
+        });
+
+        minDownBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int minutes = Integer.parseInt(timeMinValue.getText().toString());
+                if (minutes > 0) minutes--;
+                else minutes = 59;
+                timeMinValue.setText(String.valueOf(minutes));
+            }
+        });
+
+        secUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int seconds = Integer.parseInt(timeSecValue.getText().toString());
+                if (seconds < 59) seconds++;
+                else seconds = 0;
+                timeSecValue.setText(String.valueOf(seconds));
+            }
+        });
+
+        secDownBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int seconds = Integer.parseInt(timeSecValue.getText().toString());
+                if (seconds > 0) seconds--;
+                else seconds = 59;
+                timeSecValue.setText(String.valueOf(seconds));
+            }
+        });
+
+        hrUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int hours = Integer.parseInt(timeHourValue.getText().toString());
+                if (hours < 99) hours++;
+                else hours = 0;
+                timeHourValue.setText(String.valueOf(hours));
+            }
+        });
+
+        hrDownBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int hours = Integer.parseInt(timeHourValue.getText().toString());
+                if (hours > 0) hours--;
+                else hours = 99;
+                timeHourValue.setText(String.valueOf(hours));
+            }
+        });
+
+        upCheckBox1.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                downCheckBox1.setChecked(false);
+            }
+        });
+
+        downCheckBox1.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                upCheckBox1.setChecked(false);
+            }
+        });
+
+        // Show the popup window
+        popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+    }
+
+    // Timer methods
+    public void startTime() {
+        if (cdflag == 1) {
+            timeVarEdit = timeVar;
+            startCountDownTimer();
+        }
+    }
+
+    public void currentStartTime() {
+        if (cdflag == 1) {
+            timeVarEdit = timeVar;
+            startCountDownTimer();
+        }
+    }
+
+    public void resetTimer() {
+        // Reset to saved values
+        loadTimerValues();
+
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+
+        updateTimerDisplay(method5(timeVar));
+    }
+
+    private void startCountDownTimer() {
+        if (countDownTimer != null) {
+            playPause.setImageResource(R.drawable.ic_pause);
+            countDownTimer.cancel();
+        }
+
+        countDownTimer = new CountDownTimer(timeVarEdit * 1000L, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                if (cdflag == 1) {
+                    timeVarEdit = (int) (millisUntilFinished / 1000);
+                    String timeText = method5(timeVarEdit);
+                    updateTimerDisplay(timeText);
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                if (timeDoneFinished != 1) {
+                    timeDone();
+                }
+            }
+        }.start();
+    }
+
+    public void timerPause() {
+        cdflag = 0;
+        if (countDownTimer != null) {
+            playPause.setImageResource(R.drawable.ic_play);
+            countDownTimer.cancel();
+        }
+    }
+
+    public void timerStart() {
+        cdflag = 1;
+        startCountDownTimer();
+    }
+
+    private void timeDone() {
+        cdflag = 0;
+        timeDoneFinished = 1;
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        updateTimerDisplay("00:00:00");
+    }
+
+    private String method5(int secs) {
+        int hours = secs / 3600;
+        int minutes = (secs % 3600) / 60;
+        int seconds = secs % 60;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    private void updateTimerDisplay(String timeText) {
+        timerValue.setText(timeText);
+    }
+
+
 
     @Override
     public void onBackPressed() {
-// TODO Auto-generated method stub
+
+        super.onBackPressed();
         AlertDialog.Builder builder = new AlertDialog.Builder(DeviceList.this);
         // builder.setCancelable(false);
         builder.setTitle("Rate Us if u like this");
