@@ -30,14 +30,19 @@
             android:theme="@style/MyMaterialTheme.Base"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:titleTextColor="#FFFFFF">
-
+            <ImageView
+                android:id="@+id/dspl_logo"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/dspl_logo"
+                app:tint="@color/whiteColor" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:orientation="horizontal"
                 android:gravity="center"
-                android:padding="4dp">
+                android:padding="1dp">
 
                 <TextView
                     android:id="@+id/toolbar_title"
@@ -58,12 +63,6 @@
 
         </androidx.appcompat.widget.Toolbar>
 
-       <!-- <com.google.android.material.tabs.TabLayout
-            android:id="@+id/simpleTabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        </com.google.android.material.tabs.TabLayout>-->
 
         <LinearLayout
             android:id="@+id/clkLayout"
@@ -72,7 +71,6 @@
             android:layout_below="@id/my_toolbar"
             android:layout_marginTop="0dp"
             android:orientation="horizontal"
-
             android:weightSum="2">
 
             <LinearLayout
@@ -80,25 +78,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="3dp"
                 android:gravity="center"
                 android:orientation="vertical">
-
-
-
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/time_date_title"
+                    android:textColor="@color/whiteColor"/>
                 <TextView
                     android:id="@+id/hk_time"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/whiteColor"
                     android:text="12:48:12"
-                    android:textSize="42sp" />
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textSize="48sp" />
 
                 <TextView
                     android:id="@+id/hk_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/whiteColor"
+                    android:layout_marginTop="1dp"
                     android:text="12/18/2020"
                     android:textSize="18sp" />
 
@@ -119,13 +122,12 @@
 
 
             <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-
                     android:orientation="vertical"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="6dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="1dp"
                      >
 
                     <TextView
@@ -136,12 +138,13 @@
 
                     <TextView
                         android:id="@+id/timerValue"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
                         android:text="00:00:00"
                         android:textColor="#FFFFFF"
-                        android:textSize="42sp"/>
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:textSize="48sp"/>
                 </LinearLayout>
 
 
@@ -150,14 +153,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="3dp"
+                    android:layout_marginTop="1dp"
+                    android:layout_marginBottom="10dp"
                     android:orientation="horizontal">
 
                     <ImageButton
                         android:id="@+id/startButton"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:layout_marginTop="2dp"
+
                         android:background="@android:color/transparent"
                         android:src="@drawable/ic_play"
                         android:contentDescription="Start" />
@@ -166,8 +170,8 @@
                         android:id="@+id/resetButton"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginLeft="6dp"
+
+                        android:layout_marginStart="15dp"
                         android:background="@android:color/transparent"
                         android:src="@drawable/ic_reset_great"
                         android:contentDescription="Reset" />
@@ -182,22 +186,10 @@
             android:id="@+id/lio_d"
             android:layout_width="match_parent"
             android:layout_gravity="center"
-            android:layout_height="1dp"
+            android:layout_height="3dp"
             android:layout_below="@id/clkLayout"
             android:background="@color/darkGray"/>
-<!--<LinearLayout
-    android:id="@+id/lineLayout"
-    android:layout_width="match_parent"
-    android:layout_height="6dp"
-    android:layout_below="@id/clkLayout"
-    android:orientation="horizontal"
 
-    android:background="@color/blueColor">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </TextView>
-    </LinearLayout>-->
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
@@ -212,9 +204,9 @@
         <LinearLayout
             android:id="@+id/LinearLayout02"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/_86dp"
             android:weightSum="2"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="1dp"
             android:background="@color/whiteColor"
             android:orientation="horizontal">
 
@@ -363,9 +355,9 @@
     <LinearLayout
         android:id="@+id/LinearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/_86dp"
         android:layout_below="@+id/LinearLayout02"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="3dp"
         android:background="@color/whiteColor"
         android:orientation="horizontal"
         android:weightSum="2">
@@ -398,7 +390,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginRight="3dp"
+                    android:layout_marginEnd="3dp"
                     android:src="@drawable/ic_humidity_icon" />
 
                 <TextView
@@ -489,8 +481,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_marginLeft="1dp"
-                            android:layout_marginRight="6dp"
+                            android:layout_marginStart="1dp"
+                            android:layout_marginEnd="6dp"
                             android:text="@string/percent_sign"
                             android:textColor="@color/colorBlack"
                             android:textSize="24sp" />
@@ -502,7 +494,7 @@
                     android:layout_width="51dp"
                     android:layout_height="51dp"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
                     android:background="@drawable/mybutton_plus"
                     android:src="@drawable/ic_plus" />
 
@@ -516,9 +508,9 @@
     <LinearLayout
         android:id="@+id/LinearLayout3"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/_86dp"
         android:layout_below="@+id/LinearLayout"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="3dp"
         android:background="@color/whiteColor"
         android:orientation="horizontal"
         android:weightSum="2">
@@ -642,90 +634,66 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:weightSum="6"
+        android:weightSum="3"
         android:layout_below="@+id/gasAlarmTitleLayout">
 
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="right"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/gasOne"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="24dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/gasOne"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:text="@string/oxygen"
+                    android:layout_gravity="center"
+                    android:textColor="@color/whiteColor"/>
 
+                <TextView
+                    android:id="@+id/gasOneStatusIcon"
+                    android:layout_width="80dp"
+                    android:layout_height="33dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/mybutton"
+                    android:gravity="center"
+                    android:text="@string/normal"
+                    android:textColor="@color/colorBlack" />
 
-                android:text="@string/oxygen"
-                android:textColor="@color/whiteColor"></TextView>
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/gasFour"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginRight="2dp"
-                android:text="@string/air_4_bar"
-                android:textColor="@color/whiteColor"></TextView>
-        </LinearLayout>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/gasTwo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:text="@string/air_4_bar"
+                    android:layout_gravity="center"
+                    android:textColor="@color/whiteColor"/>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+                <TextView
+                    android:id="@+id/gasTwoStatusIcon"
+                    android:layout_width="80dp"
+                    android:layout_height="33dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/mybutton"
+                    android:gravity="center"
+                    android:text="@string/normal"
+                    android:textColor="@color/colorBlack" />
 
-            <TextView
-                android:id="@+id/gasOneStatusIcon"
-                android:layout_width="80dp"
-                android:layout_height="33dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/mybutton"
-                android:gravity="center"
-                android:text="@string/normal"
-                android:textColor="@color/colorBlack" />
-
-            <TextView
-                android:id="@+id/gasFourStatusIcon"
-                android:layout_width="80dp"
-                android:layout_height="33dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/mybutton"
-                android:gravity="center"
-                android:text="@string/normal"
-                android:textColor="@color/colorBlack"
-
-                />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="right"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/gasTwo"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-
-                android:text="@string/nitrous_oxide"
-                android:layout_marginRight="2dp"
-                android:textColor="@color/whiteColor" />
-
-            <TextView
-                android:id="@+id/gasFive"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:layout_marginTop="30dp"
-                android:text="@string/air_7_bar"
-                android:layout_marginRight="2dp"
-                android:textColor="@color/whiteColor" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -733,98 +701,120 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="center"
             android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/gasThree"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:text="@string/nitrous_oxide"
+                    android:layout_gravity="center"
+                    android:textColor="@color/whiteColor"/>
 
-            <TextView
-                android:id="@+id/gasTwoStatusIcon"
-                android:layout_width="80dp"
-                android:layout_height="33dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:textColor="@color/colorBlack"
-                android:gravity="center"
-                android:text="@string/normal"
-                android:background="@drawable/mybutton"
+                <TextView
+                    android:id="@+id/gasThreeStatusIcon"
+                    android:layout_width="80dp"
+                    android:layout_height="33dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="15dp"
+                    android:background="@drawable/mybutton"
+                    android:gravity="center"
+                    android:text="@string/normal"
+                    android:textColor="@color/colorBlack" />
 
-                >
-            </TextView>
-            <TextView
-                android:id="@+id/gasFiveStatusIcon"
-                android:layout_width="80dp"
-                android:layout_height="33dp"
-                android:layout_marginTop="10dp"
-                android:textColor="@color/colorBlack"
-                android:gravity="center"
-                android:text="@string/normal"
-                android:background="@drawable/mybutton"
+            </LinearLayout>
 
-                >
-            </TextView>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/gasFour"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:text="@string/air_7_bar"
+                    android:layout_gravity="center"
+                    android:textColor="@color/whiteColor"/>
 
+                <TextView
+                    android:id="@+id/gasFourStatusIcon"
+                    android:layout_width="80dp"
+                    android:layout_height="33dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:background="@drawable/mybutton"
+                    android:gravity="center"
+                    android:text="@string/normal"
+                    android:textColor="@color/colorBlack" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/gasThree"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="24dp"
-            android:textColor="@color/whiteColor"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/gasFive"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_height="24dp"
+                    android:text="@string/carbon_dioxide"
+                    android:textColor="@color/whiteColor"/>
 
-            android:layout_marginRight="2dp"
-            android:text="@string/carbon_dioxide">
-        </TextView>
+                <TextView
+                    android:id="@+id/gasFiveStatusIcon"
+                    android:layout_width="80dp"
+                    android:layout_height="33dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="24dp"
+                    android:background="@drawable/mybutton"
+                    android:gravity="center"
+                    android:text="@string/normal"
+                    android:textColor="@color/colorBlack" />
 
-        <TextView
-            android:id="@+id/gasSix"
-            android:layout_width="wrap_content"
-            android:layout_height="24dp"
-            android:textColor="@color/whiteColor"
-            android:layout_marginTop="30dp"
-            android:layout_marginRight="2dp"
-            android:text="@string/vacuum">
-        </TextView>
+            </LinearLayout>
 
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/gasSix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:text="@string/vacuum"
+                    android:layout_gravity="center"
+                    android:textColor="@color/whiteColor"/>
 
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:orientation="vertical">
-            <TextView
-                android:id="@+id/gasThreeStatusIcon"
-                android:layout_width="80dp"
-                android:layout_height="33dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:textColor="@color/colorBlack"
-                android:gravity="center"
-                android:text="@string/normal"
-                android:background="@drawable/mybutton"
-                >
-            </TextView>
-    <TextView
-        android:id="@+id/gasSixStatusIcon"
-        android:layout_width="80dp"
-        android:layout_height="33dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/mybutton"
-        android:textColor="@color/colorBlack"
-        android:gravity="center"
-        android:text="@string/normal"
-        >
-    </TextView>
+                <TextView
+                    android:id="@+id/gasSixStatusIcon"
+                    android:layout_width="80dp"
+                    android:layout_height="33dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/mybutton"
+                    android:gravity="center"
+                    android:text="@string/normal"
+                    android:textColor="@color/colorBlack" />
 
-</LinearLayout>
+            </LinearLayout>
 
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -834,7 +824,7 @@
         android:id="@+id/lio"
         android:layout_width="match_parent"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="3dp"
         android:layout_height="1dp"
         android:layout_below="@id/firstRowGasLayout"
         android:background="@color/darkGray"/>
@@ -850,7 +840,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:gravity="center"
-          android:layout_marginTop="4dp"
+          android:layout_marginTop="1dp"
           android:textColor="@color/whiteColor"
           android:text="@string/light_control_title"
           android:textSize="18sp">
@@ -879,7 +869,7 @@
             android:id="@+id/lightOneBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:background="@color/colorBlack"
             android:src="@drawable/ic_bulb_on">
 
@@ -893,40 +883,12 @@
             android:text="@string/light_1" />
 
         <com.surg.scp.IncrementDecrementSlider
-            android:id="@+id/customSlider"
+            android:id="@+id/customSlider1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
           />
 
 
-        <!--
-                <hearsilent.discreteslider.DiscreteSlider
-                    android:id="@+id/discreteSlider1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:paddingTop="42dp"
-                    app:ds_count="21"
-                    app:ds_inactiveTrackColor="#3DD81B60"
-                    app:ds_maxProgress="10"
-                    app:ds_minProgress="5"
-                    app:ds_mode="range"
-                    app:ds_progressOffset="10"
-                    app:ds_thumbColor="@color/colorAccent"
-                    app:ds_thumbPressedColor="#1FD81B60"
-                    app:ds_thumbRadius="6dp"
-                    app:ds_tickMarkColor="#3DFFFFFF"
-                    app:ds_tickMarkDashLength="1dp"
-                    app:ds_tickMarkInactiveColor="#1FD81B60"
-                    app:ds_tickMarkPatterns="dot,dash"
-                    app:ds_trackColor="@color/colorAccent"
-                    app:ds_trackWidth="4dp"
-                    app:ds_valueLabelMode="showOnPressHold"
-                    app:ds_valueLabelTextColor="#FFF"
-                    app:ds_valueLabelTextSize="16sp" />-->
 
     </LinearLayout>
 
@@ -947,7 +909,7 @@
             android:src="@drawable/ic_bulb_off"
             android:background="@color/colorBlack"
             android:layout_gravity="center"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
              >
 
         </ImageButton>
@@ -959,47 +921,13 @@
             android:gravity="center"
             android:text="@string/light_2"/>
 
-        <com.google.android.material.slider.Slider
-            android:id="@+id/slider2"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_gravity="center"
-            app:labelBehavior="withinBounds"
-            android:value="60"
-            android:stepSize="10"
-            android:valueFrom="0"
-            android:valueTo="100"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
-            />
-
-        <!--<hearsilent.discreteslider.DiscreteSlider
-            android:id="@+id/discreteSlider2"
+        <com.surg.scp.IncrementDecrementSlider
+            android:id="@+id/customSlider2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="42dp"
-            app:ds_count="21"
-            app:ds_inactiveTrackColor="#3DD81B60"
-            app:ds_maxProgress="10"
-            app:ds_minProgress="5"
-            app:ds_mode="range"
-            app:ds_progressOffset="10"
-            app:ds_thumbColor="@color/colorAccent"
-            app:ds_thumbPressedColor="#1FD81B60"
-            app:ds_thumbRadius="6dp"
-            app:ds_tickMarkColor="#3DFFFFFF"
-            app:ds_tickMarkDashLength="1dp"
-            app:ds_tickMarkInactiveColor="#1FD81B60"
-            app:ds_tickMarkPatterns="dot,dash"
-            app:ds_trackColor="@color/colorAccent"
-            app:ds_trackWidth="4dp"
-            app:ds_valueLabelMode="showOnPressHold"
-            app:ds_valueLabelTextColor="#FFF"
-            app:ds_valueLabelTextSize="16sp" />-->
+            />
+
+
 
     </LinearLayout>
 
@@ -1032,47 +960,12 @@
             android:textColor="@color/whiteColor"
             android:text="@string/light_3"/>
 
-        <com.google.android.material.slider.Slider
-            android:id="@+id/slider3"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_gravity="center"
-            app:labelBehavior="withinBounds"
-            android:value="60"
-            android:stepSize="10"
-            android:valueFrom="0"
-            android:valueTo="100"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
-            />
-
-       <!-- <hearsilent.discreteslider.DiscreteSlider
-            android:id="@+id/discreteSlider3"
+        <com.surg.scp.IncrementDecrementSlider
+            android:id="@+id/customSlider3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="42dp"
-            app:ds_count="21"
-            app:ds_inactiveTrackColor="#3DD81B60"
-            app:ds_maxProgress="10"
-            app:ds_minProgress="5"
-            app:ds_mode="range"
-            app:ds_progressOffset="10"
-            app:ds_thumbColor="@color/colorAccent"
-            app:ds_thumbPressedColor="#1FD81B60"
-            app:ds_thumbRadius="6dp"
-            app:ds_tickMarkColor="#3DFFFFFF"
-            app:ds_tickMarkDashLength="1dp"
-            app:ds_tickMarkInactiveColor="#1FD81B60"
-            app:ds_tickMarkPatterns="dot,dash"
-            app:ds_trackColor="@color/colorAccent"
-            app:ds_trackWidth="4dp"
-            app:ds_valueLabelMode="showOnPressHold"
-            app:ds_valueLabelTextColor="#FFF"
-            app:ds_valueLabelTextSize="16sp" />-->
+            />
+
 
     </LinearLayout>
 
@@ -1095,7 +988,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_bulb_off"
             android:background="@color/colorBlack"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
              >
 
         </ImageButton>
@@ -1106,47 +999,13 @@
             android:textColor="@color/whiteColor"
             android:text="@string/light_4" />
 
-        <com.google.android.material.slider.Slider
-            android:id="@+id/slider4"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_gravity="center"
-            app:labelBehavior="withinBounds"
-            android:value="60"
-            android:stepSize="10"
-            android:valueFrom="0"
-            android:valueTo="100"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
-            />
-
-       <!-- <hearsilent.discreteslider.DiscreteSlider
-            android:id="@+id/discreteSlider4"
+        <com.surg.scp.IncrementDecrementSlider
+            android:id="@+id/customSlider4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="42dp"
-            app:ds_count="21"
-            app:ds_inactiveTrackColor="#3DD81B60"
-            app:ds_maxProgress="10"
-            app:ds_minProgress="5"
-            app:ds_mode="range"
-            app:ds_progressOffset="10"
-            app:ds_thumbColor="@color/colorAccent"
-            app:ds_thumbPressedColor="#1FD81B60"
-            app:ds_thumbRadius="6dp"
-            app:ds_tickMarkColor="#3DFFFFFF"
-            app:ds_tickMarkDashLength="1dp"
-            app:ds_tickMarkInactiveColor="#1FD81B60"
-            app:ds_tickMarkPatterns="dot,dash"
-            app:ds_trackColor="@color/colorAccent"
-            app:ds_trackWidth="4dp"
-            app:ds_valueLabelMode="showOnPressHold"
-            app:ds_valueLabelTextColor="#FFF"
-            app:ds_valueLabelTextSize="16sp" />-->
+            />
+
+
 
     </LinearLayout>
 
@@ -1159,8 +1018,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/lightControlLayout4"
         android:background="@color/colorBlack"
-        android:layout_marginTop="10dp"
-        android:layout_margin="6dp"
+        android:layout_margin="1dp"
         android:gravity="center"
         android:orientation="horizontal">
 
