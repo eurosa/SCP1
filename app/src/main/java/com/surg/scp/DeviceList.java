@@ -131,11 +131,20 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     boolean isLightFourOn = false;
 
     // Timer variables
+
+
+
+    // Timer variables
     private int timeVar;
     private int timeVarEdit;
     private int hr, min, sec;
     private int timeDoneFinished;
-    private int cdflag = 1;
+    private int cdflag = 0; // 0 = paused, 1 = running
+    private boolean isCountUp = false;
+    private int maxTimeInSeconds = 0;
+    private int currentTimeInSeconds = 0;
+    private int pausedTimeInSeconds  = 0;
+
     /***************************************************************************************
      *                          End Increment and Decrement
      ****************************************************************************************/
@@ -279,7 +288,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private static final int PERMISSION_REQUEST_CODE = 1001;
     // Timer
     private CountDownTimer countDownTimer;
-
+    private CountUpTimer countUpTimer;
     // SharedPreferences
     private SharedPreferences sharedPreferences1;
     private static final String PREFS_NAME = "TimerPrefs";
@@ -555,13 +564,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                resetButton.setClickable(false);
-                // resetButton.setTextColor(Color.parseColor("#8e8e8e"));
-                timerValue.setText(String.format("%02d", 00) + ":"
-                        + String.format("%02d", 00) + ":"
-                        + String.format("%02d", 00));
-                startTime = SystemClock.uptimeMillis();
-                timeSwapBuff = 0;
+                resetElapsedTimer();
             }
         });
         /*
@@ -746,6 +749,17 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
      *                              End Increment and Decrement
      *************************************************************************************************/
 
+    public void resetElapsedTimer(){
+
+       // resetButton.setClickable(false);
+        // resetButton.setTextColor(Color.parseColor("#8e8e8e"));
+        timerValue.setText(String.format("%02d", 00) + ":"
+                + String.format("%02d", 00) + ":"
+                + String.format("%02d", 00));
+        startTime = SystemClock.uptimeMillis();
+        timeSwapBuff = 0;
+
+    }
 
     private Runnable updateTimerThread = new Runnable() {
         public void run() {
@@ -814,7 +828,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     public void play() {
 
-        resetButton.setClickable(false);
+       // resetButton.setClickable(false);
 
         startTime = SystemClock.uptimeMillis();
         customHandler.postDelayed(updateTimerThread, 0);
@@ -829,7 +843,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     public void pause() {
 
 
-        resetButton.setClickable(true);
+       // resetButton.setClickable(true);
         // resetButton.setTextColor(Color.parseColor("#000000"));
         timeSwapBuff += timeInMilliseconds;
         customHandler.removeCallbacks(updateTimerThread);
@@ -1989,6 +2003,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         String hour = sharedPreferences1.getString("timer_hour", "0");
         String minute = sharedPreferences1.getString("timer_minute", "0");
         String second = sharedPreferences1.getString("timer_second", "0");
+        boolean upChecked = sharedPreferences1.getBoolean("upcheckbox", false);
+        boolean downChecked = sharedPreferences1.getBoolean("downcheckbox", true); // Default to count down
 
         hr = Integer.parseInt(hour);
         min = Integer.parseInt(minute);
@@ -1996,6 +2012,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         timeVar = hr * 60 * 60 + min * 60 + sec;
         timeVarEdit = timeVar;
+        maxTimeInSeconds = timeVar;
+
+        isCountUp = upChecked;
     }
 
     private void saveTimerValues(int hours, int minutes, int seconds, boolean upChecked, boolean downChecked) {
@@ -2006,6 +2025,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         editor.putBoolean("upcheckbox", upChecked);
         editor.putBoolean("downcheckbox", downChecked);
         editor.apply();
+
+        isCountUp = upChecked;
+        // Reset paused time when settings change
+        pausedTimeInSeconds = 0;
     }
 
     private void setupButtonListeners() {
@@ -2013,26 +2036,28 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             @Override
             public void onClick(View v) {
 
-
-
              boolean  downcheckbox =   sharedPreferences1.getBoolean("downcheckbox", false);
                 boolean  upcheckbox   =  sharedPreferences1.getBoolean("upcheckbox", false);
                 if(downcheckbox || upcheckbox){
+                   // pause();
+                  //  resetTimer();
                     if (cdflag==1) {
                         timerPause();
-
                     }else{
                         timerStart();
-
+                       // resetElapsedTimer();
                     }
 
                 } else{
+
 
                     if (isPlaying) {
                         pause();
                     } else {
                         play();
+                        resetTimer();
                     }
+
                     isPlaying = !isPlaying;
                 }
 
@@ -2218,10 +2243,15 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
     // Timer methods
-    public void startTime() {
-        if (cdflag == 1) {
-            timeVarEdit = timeVar;
-            startCountDownTimer();
+    // Timer methods
+   /* public void startTime() {
+        if (cdflag == 0) {
+            if (isCountUp) {
+                startCountUpTimer();
+            } else {
+                startCountDownTimer();
+            }
+            cdflag = 1;
         }
     }
 
@@ -2230,22 +2260,28 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             timeVarEdit = timeVar;
             startCountDownTimer();
         }
-    }
+    }*/
 
     public void resetTimer() {
+        // Stop any running timers
+        timerPause();
+
         // Reset to saved values
         loadTimerValues();
 
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
+        // Reset paused time
+        pausedTimeInSeconds = 0;
 
-        updateTimerDisplay(method5(timeVar));
+        if (isCountUp) {
+            currentTimeInSeconds = 0;
+            updateTimerDisplay(method5(currentTimeInSeconds));
+        } else {
+            updateTimerDisplay(method5(timeVar));
+        }
     }
 
     private void startCountDownTimer() {
         if (countDownTimer != null) {
-            playPause.setImageResource(R.drawable.ic_pause);
             countDownTimer.cancel();
         }
 
@@ -2268,26 +2304,93 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         }.start();
     }
 
+    private void startCountUpTimer() {
+        Log.d("checkbox 0", String.valueOf(maxTimeInSeconds));
+        if (countUpTimer != null) {
+            countUpTimer.cancel();
+        }
+        Log.d("checkbox 123", String.valueOf(maxTimeInSeconds));
+
+        // Calculate the remaining time based on paused time
+        long remainingTime = (maxTimeInSeconds - pausedTimeInSeconds) * 1000L;
+
+        countUpTimer = new CountUpTimer(remainingTime, 1000) {
+            @Override
+            public void onTick(long millisElapsed) {
+                Log.d("checkbox 1", String.valueOf(maxTimeInSeconds));
+                if (cdflag == 1) {
+                    Log.d("checkbox 2", String.valueOf(maxTimeInSeconds));
+                    // Add the paused time to the elapsed time
+                    currentTimeInSeconds = pausedTimeInSeconds + (int) (millisElapsed / 1000);
+                    String timeText = method5(currentTimeInSeconds);
+                    updateTimerDisplay(timeText);
+
+                    // Check if we've reached the maximum time
+                    if (currentTimeInSeconds >= maxTimeInSeconds) {
+                        timeDone();
+                    }
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                timeDone();
+            }
+        };
+
+        // Start the timer
+        countUpTimer.start();
+
+        Log.d("CountUpTimer", "CountUpTimer started from: " + pausedTimeInSeconds + " seconds");
+    }
+
+
+
     public void timerPause() {
         cdflag = 0;
         if (countDownTimer != null) {
-            playPause.setImageResource(R.drawable.ic_play);
             countDownTimer.cancel();
+            playPause.setImageResource(R.drawable.ic_play);
+        }
+        if (countUpTimer != null) {
+            playPause.setImageResource(R.drawable.ic_play);
+            countUpTimer.cancel();
+            pausedTimeInSeconds = currentTimeInSeconds;
         }
     }
 
     public void timerStart() {
-        cdflag = 1;
-        startCountDownTimer();
-    }
 
+        boolean upChecked = sharedPreferences1.getBoolean("upcheckbox", false);
+        boolean downChecked = sharedPreferences1.getBoolean("downcheckbox", false);
+        playPause.setImageResource(R.drawable.ic_pause);
+        if (cdflag == 0) {
+            cdflag = 1;
+
+            if (upChecked) {
+                Log.d("checkbox", String.valueOf(upChecked));
+                startCountUpTimer();
+            } else if(downChecked) {
+                startCountDownTimer();
+            }
+        }
+    }
     private void timeDone() {
         cdflag = 0;
         timeDoneFinished = 1;
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
-        updateTimerDisplay("00:00:00");
+        if (countUpTimer != null) {
+            countUpTimer.cancel();
+        }
+
+        if (isCountUp) {
+            updateTimerDisplay(method5(maxTimeInSeconds));
+        } else {
+            updateTimerDisplay("00:00:00");
+        }
+        playPause.setImageResource(R.drawable.ic_play);
     }
 
     private String method5(int secs) {
@@ -2350,6 +2453,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         alert.show();
         //super.onBackPressed();
     }
+
+
 
 
     // Fetch the stored data in onResume()
@@ -2430,7 +2535,82 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         }
     };
+    // Custom CountUpTimer class
+    public abstract class CountUpTimer {
+        private final long interval;
+        private final long duration;
+        private long startTime;
+        private boolean isRunning;
+        private Thread timerThread;
 
+        public CountUpTimer(long duration, long interval) {
+            this.duration = duration;
+            this.interval = interval;
+        }
+
+        public abstract void onTick(long millisElapsed);
+        public abstract void onFinish();
+
+        public synchronized final void cancel() {
+            isRunning = false;
+            if (timerThread != null) {
+                timerThread.interrupt();
+            }
+        }
+
+        public synchronized final void start() {
+            if (isRunning) {
+                return; // Already running
+            }
+
+            startTime = System.currentTimeMillis();
+            isRunning = true;
+
+            timerThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (isRunning && !Thread.currentThread().isInterrupted()) {
+                        long elapsed = System.currentTimeMillis() - startTime;
+
+                        if (elapsed >= duration) {
+                            isRunning = false;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    onFinish();
+                                }
+                            });
+                            break;
+                        }
+
+                        final long currentElapsed = elapsed;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                onTick(currentElapsed);
+                            }
+                        });
+
+                        try {
+                            Thread.sleep(interval);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                }
+            });
+
+            timerThread.start();
+        }
+
+        // Add this method to get the remaining time
+        public long getRemainingTime() {
+            if (!isRunning) return duration;
+            long elapsed = System.currentTimeMillis() - startTime;
+            return Math.max(0, duration - elapsed);
+        }
+    }
 }
 
 
