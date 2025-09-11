@@ -43,6 +43,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
@@ -291,103 +292,19 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
      * End Stop Watch
      ****************************************************************************************/
 
-    //screenshot
+    // Handler for UI updates
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
+
+    // Executor for background tasks
+    private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scp);
-//----------------------------Grant storage permission--------------------------------------------------
-        setAnimation();
-        bluetoothManager = new BluetoothConnectionManager(this);
-        /***************************************************************************************
-         *   Play and pause in only one button - Android
-         ****************************************************************************************/
-        playPause = findViewById(R.id.startButton);
-        settingButton = findViewById(R.id.settingButton);
-        // Start from your activity
-        //startService(new Intent(this, BluetoothService.class));
 
-        timerValue = (TextView) findViewById(R.id.timerValue);
-        // Initialize SharedPreferences
-        sharedPreferences1 = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-
-        // Initialize UI components
-        initUIComponents();
-
-        // Load saved timer values
-        loadTimerValues();
-
-        // Set up button listeners
-        setupButtonListeners();
-
-        // Initialize timer display
-        updateDisplayForCurrentMode();
-
-        /***************************************************************************************
-         *  Play and pause in only one button - Android
-         ****************************************************************************************/
-        /*********************************************************************************
-         * Initialize Database
-         *
-         * *******************************************************************************/
-        dataModel = new DataModel();
-        dbHandler = new DatabaseHandler(this);
-        dbHandler.getQmsUtilityById("1", dataModel);
-        /*********************************************************************************
-         * Initialize Database
-         *
-         * *******************************************************************************/
-        /************************************************************************************
-         *
-         * Discrete Slider
-         *
-         *************************************************************************************/
-        connectionStatusIcon = findViewById(R.id.connectionStatusIcon);
-        // mSlider1 = findViewById(R.id.discreteSlider1);
-        // mSlider2 = findViewById(R.id.discreteSlider2);
-        // mSlider3 = findViewById(R.id.discreteSlider3);
-        // mSlider4 = findViewById(R.id.discreteSlider4);
-        // setUpView(mSlider1);
-        // setUpView(mSlider2);
-        // setUpView(mSlider3);
-        // setUpView(mSlider4);
-
-        /************************************************************************************
-         *
-         * Discrete Slider
-         *
-         *************************************************************************************/
-        /*************************************************************************************
-         * Switch configure
-         **************************************************************************************/
-        switch1 = findViewById(R.id.switch1);
-        switch2 = findViewById(R.id.switch2);
-        lightOneBtn = findViewById(R.id.lightOneBtn);
-        lightTwoBtn = findViewById(R.id.lightTwoBtn);
-        lightThreeBtn = findViewById(R.id.lightThreeBtn);
-        lightFourBtn = findViewById(R.id.lightFourBtn);
-        switch1.setOnClickListener(this);
-        switch2.setOnClickListener(this);
-        lightOneBtn.setOnClickListener(this);
-        lightTwoBtn.setOnClickListener(this);
-        lightThreeBtn.setOnClickListener(this);
-        lightFourBtn.setOnClickListener(this);
-        /*************************************************************************************
-         * Switch configure
-         **************************************************************************************/
-        //TabLayout   tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout); // get the reference of TabLayout
-        //TabLayout.Tab firstTab = tabLayout.newTab(); // Create a new Tab names
-        //firstTab.setText("First Tab"); // set the Text for the first Tab
-        //firstTab.setIcon(R.drawable.ic_left_arrow); // set an icon for the first tab
-        //tabLayout.addTab(firstTab); // add  the tab to the TabLayout
-        //https://abhiandroid.com/materialdesign/tablayout-example-android-studio.html
-
-        connectionStatus = findViewById(R.id.connectionStatus);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        //this.registerReceiver(mReceiver, filter);
+        // Initialize UI components first to prevent ANR
+        initializeUIComponents();
         //------------------------------------------------------------------------------------------------
         //=========================Adding Toolbar in android layout=======================================
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -455,326 +372,67 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // to make the Navigation drawer icon always appear on the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);  // ← Important!
-        /***************************************************************************************
-         * Navigation Drawer Layout
-         *
-         ***************************************************************************************/
+        // Run heavy operations in background
+        backgroundExecutor.execute(() -> {
+            // Perform background initialization
+            initializeBackgroundComponents();
 
-        Typeface tf = Typeface.createFromAsset(getApplicationContext().getAssets(), "DSEG7Classic-Bold.ttf");
-        //   display.setTypeface(tf);
-
-
-        //============================Keyboard====================================================//
-
-
-        Intent newint = getIntent();
-        address = newint.getStringExtra(DeviceList.EXTRA_ADDRESS); //receive the address of the bluetooth device
-        info_address = newint.getStringExtra(DeviceList.EXTRA_INFO);
-        if (address != null) {
-            if (address != null) {
-                connectToDevice(address, info_address);
-            }
-        }
-        //-------------------------------------To Receive device address from background==================
-        //====================================Camera======================================================
-
-        boolean isInstantApp = InstantApps.getPackageManagerCompat(this).isInstantApp();
-        Log.d(LOG_TAG, "are we instant?" + isInstantApp);
-
-
-        //if the device has bluetooth
-        myBluetooth = BluetoothAdapter.getDefaultAdapter();
-
-        if (myBluetooth == null) {
-            //Show a Mensag. That the device has no bluetooth adapter
-            Toast.makeText(getApplicationContext(), "Bluetooth Device Not Available", Toast.LENGTH_LONG).show();
-
-            //finish apk
-            finish();
-        } else if (!myBluetooth.isEnabled()) {
-            //Ask to the user turn the bluetooth on
-            Intent turnBTon = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            startActivityForResult(turnBTon, 1);
-        }
-
-
-        //Camera screenshot
-        final boolean hasWritePermission = RuntimePermissionUtil.checkPermissonGranted(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        //  imageView = findViewById(R.id.imageView2);
-
-
-//----------------------------------screen_shot xml view-----------------------------------------
-        //Camera screenshot
-
-        //=================================FileExposed============================
-        /*
-         *
-         *
-         * android.os.FileUriExposedException: file:///storage/emulated/0/test.txt exposed beyond app through Intent.getData()
-         * solved using this
-         * */
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-        builder.detectFileUriExposure();
-        //=======================================================================
-
-        // ************************************ Floating Action Button ********************************************************
-    /*    FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
+            // Update UI on main thread
+            uiHandler.post(this::initializeUIAfterBackground);
         });
-    */
+    }
 
-/**************************************************************************************
- * Start Stop Watch
- ***************************************************************************************/
-        final ImageButton startButton;
+    private void initializeUIComponents() {
+        // Initialize all UI components here
+        setAnimation();
 
-        resetButton = findViewById(R.id.resetButton);
+        // Find all views
+        connectionStatusIcon = findViewById(R.id.connectionStatusIcon);
+        playPause = findViewById(R.id.startButton);
         settingButton = findViewById(R.id.settingButton);
-        resetButton.setClickable(false);
-
-        resetButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                resetElapsedTimer();
-            }
-        });
-
-        /**************************************************************************************
-         * End Stop Watch
-         ***************************************************************************************/
-
-        /*final TextClock textClock = new TextClock(this);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.setMargins(40, 40, 40, 40);
-        textClock.setLayoutParams(layoutParams);
-
-
-        textClock.setFormat12Hour("hh:mm:ss a");
-
-        RelativeLayout relativeLayout = findViewById(R.id.clkLayout);
-        if (relativeLayout != null) {
-            relativeLayout.addView(textClock);
-        }*/
-
-
-        /********************************************************************************************
-         *                          Start Increment and Decrement
-         *********************************************************************************************/
+        timerValue = findViewById(R.id.timerValue);
         setTempDisplay = findViewById(R.id.setTemp);
         setHumDisplay = findViewById(R.id.setHum);
         tempMinusButton = findViewById(R.id.tempBtnMinus);
         tempPlusButton = findViewById(R.id.tempBtnPlus);
-
         humBtnPlus = findViewById(R.id.humBtnPlus);
         humBtnMinus = findViewById(R.id.humBtnMinus);
+        switch1 = findViewById(R.id.switch1);
+        switch2 = findViewById(R.id.switch2);
+        lightOneBtn = findViewById(R.id.lightOneBtn);
+        lightTwoBtn = findViewById(R.id.lightTwoBtn);
+        lightThreeBtn = findViewById(R.id.lightThreeBtn);
+        lightFourBtn = findViewById(R.id.lightFourBtn);
+        connectionStatus = findViewById(R.id.connectionStatus);
+        resetButton = findViewById(R.id.resetButton);
 
-        tempMinusButton.setOnClickListener(this);
-        tempPlusButton.setOnClickListener(this);
-        humBtnMinus.setOnClickListener(this);
-        humBtnPlus.setOnClickListener(this);
+        // Setup toolbar
+        Toolbar myToolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
 
-        arrayOfControlButtons = new ImageButton[]{tempPlusButton, tempMinusButton, humBtnPlus, humBtnMinus}; // this could be a large set of buttons
+        // Setup navigation drawer
+        drawerLayout = findViewById(R.id.draw_layout);
+        mNavigationView = findViewById(R.id.nav_view);
 
-        updateDisplay(); // initial setting of display
+        // Setup button listeners
+        setupButtonListeners();
+    }
 
-        for (ImageButton b : arrayOfControlButtons) {
-            b.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(final View v) {
-                    final Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (v.isPressed()) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        int id = v.getId();
-                                        if (id == R.id.tempBtnPlus) {
-                                            currentDisplayValue = currentDisplayValue + 10;
-                                        } else if (id == R.id.tempBtnMinus) {
-                                            currentDisplayValue = currentDisplayValue - 10;
-                                        } else if (id == R.id.humBtnPlus) {
-                                            currentHumValue = currentHumValue + 10;
-                                        } else if (id == R.id.humBtnMinus) {
-                                            currentHumValue = currentHumValue - 10;
-                                        }
-                                        updateHumDisplay();
-                                        updateDisplay();
-                                    }
-                                });
-                            } else {
-                                timer.cancel();
-                            }
-                        }
-                    }, 100, 200);
-                    return true;
-                }
-            });
-        }
-
-
-        /********************************************************************************************
-         *                          End Increment and Decrement
-         *********************************************************************************************/
-
+    private void initializeBackgroundComponents() {
+        // Initialize components that might take time
+        bluetoothManager = new BluetoothConnectionManager(this);
+        sharedPreferences1 = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         sharedPreferences = getSharedPreferences("LightPrefs", MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
-        // restore saved states
-        restoreStates();
-        TextView clockView = findViewById(R.id.hk_date);
-        TextView clocTime = findViewById(R.id.hk_time);
-        Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                String pattern = "dd MMM yyyy";
-                String pattern2 = "hh:mm:ss";
-                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
-                SimpleDateFormat clocTime2 = new SimpleDateFormat(pattern2, Locale.getDefault());
-                clockView.setText(sdf.format(new Date()));
-                clocTime.setText(clocTime2.format(new Date()));
-                handler.postDelayed(this, 1000); // update every second
-            }
-        };
-        handler.post(runnable);
+        // Initialize database handler
+        dataModel = new DataModel();
+        dbHandler = new DatabaseHandler(this);
+        dbHandler.getQmsUtilityById("1", dataModel);
+
+        // Check Bluetooth availability
+        myBluetooth = BluetoothAdapter.getDefaultAdapter();
     }
-
-    private void connectToDevice(String address, String info) {
-        if (!BluetoothConnectionManager.checkBluetoothPermissions(this)) {
-            BluetoothConnectionManager.requestBluetoothPermissions(this, 1001);
-            return;
-        }
-
-        bluetoothManager.connect(address, info, this);
-    }
-
-    /*************************************************************************************************
-     *                              Start Increment and Decrement
-     *************************************************************************************************/
-    // ON-CLICKS (referred to from XML)
-    public void tempBtnMinusPressed() {
-        currentDisplayValue--;
-        updateDisplay();
-    }
-
-    public void tempBtnPlusPressed() {
-        currentDisplayValue++;
-        updateDisplay();
-    }
-
-    // ON-CLICKS (referred to from XML)
-    public void humBtnMinusPressed() {
-        currentHumValue--;
-        updateHumDisplay();
-    }
-
-    public void humBtnPlusPressed() {
-        currentHumValue++;
-        updateHumDisplay();
-    }
-
-    // INTERNAL
-    private void updateDisplay() {
-        setTempDisplay.setText(currentDisplayValue.toString());
-    }
-
-    private void updateHumDisplay() {
-        setHumDisplay.setText(currentHumValue.toString());
-    }
-
-    /*************************************************************************************************
-     *                              End Increment and Decrement
-     *************************************************************************************************/
-
-    public void resetElapsedTimer() {
-        resetAllTimerStates();
-        timerValue.setText("00:00:00");
-        startTime = SystemClock.uptimeMillis();
-        resetButton.setClickable(false);
-    }
-
-    private Runnable updateTimerThread = new Runnable() {
-        public void run() {
-            if (isPlaying) {
-                timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
-                updatedTime = timeSwapBuff + timeInMilliseconds;
-
-                int seconds = (int) (updatedTime / 1000);
-                int minutes = seconds / 60;
-                int hours = seconds / 3600;
-                seconds = seconds % 60;
-
-                String string = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-                timerValue.setText(string);
-
-                if (isPlaying) {
-                    customHandler.postDelayed(this, 0);
-                }
-            }
-        }
-    };
-
-    private void sendData() {
-        if (btSocket != null) {
-            try {
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        handler.postDelayed(this, 100);
-                    }
-                }, 100);
-                String digitNo = dataModel.getDigitNo();
-                dataModel.getTypeNo();
-                dataModel.getDevId();
-                dataModel.getSoundType();
-                String displayText = display.getText().toString();
-                if (displayText.length() == 2) {
-                    displayText = "0" + displayText;
-                    digitNo = "3";
-                }
-                String displayData = fixedLengthString(displayText, 4);
-
-                String data = "$" + dataModel.getDevId() + digitNo + dataModel.getSound_id() + displayData + ";";
-                btSocket.getOutputStream().write(data.getBytes());
-                Log.d("Display_Digit", data);
-            } catch (IOException e) {
-                msg("Error");
-            }
-        }
-    }
-
-    private String fixedLengthString(String textData, int length) {
-        String stringData = null;
-        return stringData;
-    }
-
-    public void playStopwatch() {
-        startTime = SystemClock.uptimeMillis();
-        customHandler.postDelayed(updateTimerThread, 0);
-        playPause.setImageResource(R.drawable.ic_pause);
-        resetButton.setClickable(false);
-    }
-
-    public void pauseStopwatch() {
-        timeSwapBuff += timeInMilliseconds;
-        customHandler.removeCallbacks(updateTimerThread);
-        playPause.setImageResource(R.drawable.ic_play);
-        resetButton.setClickable(true);
-    }
-
     public void setAnimation() {
         if (Build.VERSION.SDK_INT > 20) {
             Slide slide = new Slide();
@@ -785,174 +443,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             getWindow().setEnterTransition(slide);
         }
     }
-
-    private void ScanDevicesList() {
-        Intent intent = new Intent(this, ScanActivity.class);
-        if (Build.VERSION.SDK_INT > 20) {
-            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this);
-            startActivity(intent, options.toBundle());
-        } else {
-            startActivity(intent);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (address != null) {
-                    connectToDevice(address, info_address);
-                }
-            }
-        }
-    }
-
-    private void pairedDevicesList() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        pairedDevices = myBluetooth.getBondedDevices();
-        ArrayList list = new ArrayList();
-
-        if (pairedDevices.size() > 0) {
-            for (BluetoothDevice bt : pairedDevices) {
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                list.add(bt.getName() + "\n" + bt.getAddress());
-            }
-        } else {
-            Toast.makeText(getApplicationContext(), "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
-        }
-
-        Dialog dialog = new Dialog(this);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select a paired device for connecting");
-
-        LinearLayout parent = new LinearLayout(DeviceList.this);
-        parent.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        parent.setOrientation(LinearLayout.VERTICAL);
-
-        ListView modeList = new ListView(this);
-        setListViewHeightBasedOnItems(modeList);
-
-        final ArrayAdapter modeAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
-        modeList.setAdapter(modeAdapter);
-        modeList.setOnItemClickListener(myListClickListener);
-        builder.setView(modeList);
-        dialog = builder.create();
-        dialog.show();
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, 600);
-    }
-
-    private void pairedDevicesListOriginal() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        pairedDevices = myBluetooth.getBondedDevices();
-        ArrayList list = new ArrayList();
-
-        if (pairedDevices.size() > 0) {
-            for (BluetoothDevice bt : pairedDevices) {
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                list.add(bt.getName() + "\n" + bt.getAddress());
-            }
-        } else {
-            Toast.makeText(getApplicationContext(), "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
-        }
-
-        final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
-        devicelist.setAdapter(adapter);
-        devicelist.setOnItemClickListener(myListClickListener);
-    }
-
-    @Override
-    public void onConnectionResult(int resultCode, String message) {
-        runOnUiThread(() -> {
-            switch (resultCode) {
-                case BluetoothConnectionManager.CONNECTION_SUCCESS:
-                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_connected);
-                    Toast.makeText(this,message, Toast.LENGTH_SHORT).show();
-                    break;
-                case BluetoothConnectionManager.CONNECTION_FAILED:
-                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
-                    Toast.makeText(this, "Bluetooth connection failed "+message, Toast.LENGTH_LONG).show();
-                    break;
-                case BluetoothConnectionManager.IO_EXCEPTION:
-                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
-                    Toast.makeText(this, "IO_EXCEPTION "+message, Toast.LENGTH_LONG).show();
-                    break;
-                case BluetoothConnectionManager.CONNECTION_LOST:
-                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
-                    Toast.makeText(this, "Connection Lost "+message, Toast.LENGTH_LONG).show();
-                    break;
-                case BluetoothConnectionManager.PERMISSION_DENIED:
-                    connectionStatus.setText("Permission denied");
-                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
-                    Toast.makeText(this, "Bluetooth permission required "+message, Toast.LENGTH_LONG).show();
-                    break;
-                case BluetoothConnectionManager.BLUETOOTH_DISABLED:
-                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
-                    Toast.makeText(this, "Bluetooth Disabled "+message, Toast.LENGTH_LONG).show();
-                    break;
-            }
-        });
-    }
-
-    @Override
-    public void onDataReceived(byte[] data) {
-        runOnUiThread(() -> {
-            String received = new String(data);
-            Log.d("onDataReceived", "Received Data: " + received);
-        });
-    }
-
-    @Override
-    public void onConnectionLost() {
-        runOnUiThread(() -> {
-            connectionStatus.setText("Connection lost");
-            connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
-            Toast.makeText(this, "Connection lost, attempting to reconnect...", Toast.LENGTH_SHORT).show();
-        });
-    }
-
-    private AdapterView.OnItemClickListener myListClickListener = new AdapterView.OnItemClickListener() {
-        public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
-            String info = ((TextView) v).getText().toString();
-            String address = info.substring(info.length() - 17);
-            if (address != null) {
-                connectToDevice(address, info);
-            }
-        }
-    };
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.nav_exit) {
-            exitApplication();
-        } else if (id == R.id.action_share) {
-            shareApp();
-        } else if (id == R.id.action_about) {
-            Intent intent = new Intent(this, AboutActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.action_searchList) {
-            ScanDevicesList();
-        } else if (id == R.id.action_pairedList) {
-            pairedDevicesList();
-        } else if (id == R.id.action_disconnect) {
-            bluetoothManager.disconnect();
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_device_list, menu);
@@ -980,259 +470,18 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    public void shareApp() {
-        try {
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My application name");
-            String shareMessage = "\nLet me recommend you this application\n\n";
-            shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=" + getPackageName() + "\n\n";
-            shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
-            startActivity(Intent.createChooser(shareIntent, "choose one"));
-        } catch (Exception e) {
-        }
-    }
-
-    public void exitApplication() {
-        final AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setMessage("Are you sure you want to exit application?");
-        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                finish();
+    private void Disconnect() {
+        if (btSocket != null) {
+            try {
+                btSocket.close();
+                Toast.makeText(DeviceList.this, "Bluetooth device has been disconnected", Toast.LENGTH_LONG).show();
+            } catch (IOException e) {
+             //   msg("Error");
             }
-        });
-        adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(DeviceList.this, "Cancel", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            }
-        });
-        adb.setNeutralButton("Rate", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                final String appPackageName = getPackageName();
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
-                } catch (ActivityNotFoundException anfe) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + getPackageName())));
-                }
-            }
-        });
-        AlertDialog alert = adb.create();
-        alert.show();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onClick(View v) {
-        int viewId = v.getId();
-
-        if (viewId == R.id.switch1) {
-            switch1(v);
-        } else if (viewId == R.id.switch2) {
-            switch2(v);
-        } else if (viewId == R.id.tempBtnPlus) {
-            tempBtnPlusPressed();
-        } else if (viewId == R.id.tempBtnMinus) {
-            tempBtnMinusPressed();
-        } else if (viewId == R.id.humBtnPlus) {
-            humBtnPlusPressed();
-        } else if (viewId == R.id.humBtnMinus) {
-            humBtnMinusPressed();
-        } else if(viewId == R.id.lightOneBtn){
-            switch1Light(v);
-        } else if(viewId == R.id.lightTwoBtn){
-            switch2Light(v);
-        } else if(viewId == R.id.lightThreeBtn){
-            switch3Light(v);
-        } else if(viewId == R.id.lightFourBtn){
-            switch4Light(v);
-        }
-    }
-
-    @SuppressLint("NewApi")
-    public void switch1(View v) {
-        Log.d("switch_button", String.valueOf(v.getStateDescription()));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (v.getStateDescription().toString().contains("checked")) {
-                switch1.setThumbColorRes(R.color.red);
-                bluetoothManager.DigitalOUT[1] &= 0xFE;
-
-                editor.putBoolean("switch1", true);
-                editor.apply();
-                //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
-            }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (v.getStateDescription().toString().contains("not checked")) {
-
-                switch1.setThumbColorRes(R.color.limeGreen);
-                bluetoothManager.DigitalOUT[1] |= 0x01;
-                editor.putBoolean("switch1", false);
-                editor.apply();
-                //Toast.makeText(getApplicationContext(), "" + v.getStateDescription(), Toast.LENGTH_SHORT).show();
-            }
-        }
-
-    }
-
-    public void switch1Light(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (isLightOneOn) {
-                lightOneBtn.setImageResource(R.drawable.ic_bulb_off);
-                bluetoothManager.DigitalOUT[1] &= 0xFB;
-                isLightOneOn = false;
-                editor.putBoolean("light1", false);
-            } else {
-                lightOneBtn.setImageResource(R.drawable.ic_bulb_on);
-                bluetoothManager.DigitalOUT[1] |= 0x04;
-                isLightOneOn = true;
-                editor.putBoolean("light1", true);
-            }
-            editor.apply();
-        }
-    }
-
-    public void switch2Light(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (isLightTwoOn) {
-                lightTwoBtn.setImageResource(R.drawable.ic_bulb_off);
-                bluetoothManager.DigitalOUT[1] &= 0xF7;
-                editor.putBoolean("light2", false);
-                isLightTwoOn = false;
-            } else {
-                lightTwoBtn.setImageResource(R.drawable.ic_bulb_on);
-                bluetoothManager.DigitalOUT[1] |= 0x08;
-                editor.putBoolean("light2", true);
-                isLightTwoOn = true;
-            }
-            editor.apply();
-        }
-    }
-
-    public void switch3Light(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (isLightThreeOn) {
-                lightThreeBtn.setImageResource(R.drawable.ic_bulb_off);
-                bluetoothManager.DigitalOUT[1] &= 0xEF;
-                isLightThreeOn = false;
-                editor.putBoolean("light3", false);
-            } else {
-                lightThreeBtn.setImageResource(R.drawable.ic_bulb_on);
-                bluetoothManager.DigitalOUT[1] |= 0x10;
-                isLightThreeOn = true;
-                editor.putBoolean("light3", true);
-            }
-            editor.apply();
-        }
-    }
-
-    public void switch4Light(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (isLightFourOn) {
-                lightFourBtn.setImageResource(R.drawable.ic_bulb_off);
-                bluetoothManager.DigitalOUT[1] &= 0xDF;
-                isLightFourOn = false;
-                editor.putBoolean("light4", false);
-            } else {
-                lightFourBtn.setImageResource(R.drawable.ic_bulb_on);
-                bluetoothManager.DigitalOUT[1] |= 0x20;
-                isLightFourOn = true;
-                editor.putBoolean("light4", true);
-            }
-            editor.apply();
-        }
-    }
-
-    public void switch2(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (v.getStateDescription().toString().contains("checked")) {
-                switch2.setThumbColorRes(R.color.red);
-                bluetoothManager.DigitalOUT[1] &= 0xFD;
-                editor.putBoolean("switch2", true);
-                editor.apply();
-            }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (v.getStateDescription().toString().contains("not checked")) {
-                switch2.setThumbColorRes(R.color.limeGreen);
-                bluetoothManager.DigitalOUT[1] |= 0x02;
-                editor.putBoolean("switch2", false);
-                editor.apply();
-            }
-        }
-    }
-
-    private void restoreStates() {
-        boolean switch1State = sharedPreferences.getBoolean("switch1", false);
-        boolean switch2State = sharedPreferences.getBoolean("switch2", false);
-
-        if (switch1State) {
-            switch1.setChecked(true);
-            switch1.setThumbColorRes(R.color.red);
-            bluetoothManager.DigitalOUT[1] &= 0xFE;
         } else {
-            switch1.setChecked(false);
-            switch1.setThumbColorRes(R.color.limeGreen);
-            bluetoothManager.DigitalOUT[1] |= 0x01;
+            Toast.makeText(DeviceList.this, "No device connected", Toast.LENGTH_LONG).show();
         }
-
-        if (switch2State) {
-            switch2.setChecked(true);
-            switch2.setThumbColorRes(R.color.red);
-            bluetoothManager.DigitalOUT[1] &= 0xFD;
-        } else {
-            switch2.setChecked(false);
-            switch2.setThumbColorRes(R.color.limeGreen);
-            bluetoothManager.DigitalOUT[1] |= 0x02;
-        }
-
-        boolean light1State = sharedPreferences.getBoolean("light1", false);
-        boolean light2State = sharedPreferences.getBoolean("light2", false);
-        boolean light3State = sharedPreferences.getBoolean("light3", false);
-        boolean light4State = sharedPreferences.getBoolean("light4", false);
-
-        isLightOneOn = light1State;
-        isLightTwoOn = light2State;
-        isLightThreeOn = light3State;
-        isLightFourOn = light4State;
-
-        lightOneBtn.setImageResource(light1State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
-        lightTwoBtn.setImageResource(light2State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
-        lightThreeBtn.setImageResource(light3State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
-        lightFourBtn.setImageResource(light4State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
-
-        if (light1State) bluetoothManager.DigitalOUT[1] |= 0x04; else bluetoothManager.DigitalOUT[1] &= 0xFB;
-        if (light2State) bluetoothManager.DigitalOUT[1] |= 0x08; else bluetoothManager.DigitalOUT[1] &= 0xF7;
-        if (light3State) bluetoothManager.DigitalOUT[1] |= 0x10; else bluetoothManager.DigitalOUT[1] &= 0xEF;
-        if (light4State) bluetoothManager.DigitalOUT[1] |= 0x20; else bluetoothManager.DigitalOUT[1] &= 0xDF;
     }
-
-    private void updateConnectionStatus(boolean isConnected, String deviceName) {
-        runOnUiThread(() -> {
-            if (isConnected) {
-                connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_connected);
-            } else {
-                connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
-            }
-        });
-    }
-
-    private void initUIComponents() {
-        resetButton = findViewById(R.id.resetButton);
-        settingButton = findViewById(R.id.settingButton);
-    }
-
     private void loadTimerValues() {
         String hour = sharedPreferences1.getString("timer_hour", "0");
         String minute = sharedPreferences1.getString("timer_minute", "0");
@@ -1281,89 +530,88 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 break;
         }
     }
+    private String method5(int secs) {
+        int hours = secs / 3600;
+        int minutes = (secs % 3600) / 60;
+        int seconds = secs % 60;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+    private void restoreStates() {
+        boolean switch1State = sharedPreferences.getBoolean("switch1", false);
+        boolean switch2State = sharedPreferences.getBoolean("switch2", false);
 
-    private void saveTimerValues(int hours, int minutes, int seconds, boolean upChecked, boolean downChecked) {
-        SharedPreferences.Editor editor = sharedPreferences1.edit();
-        editor.putString("timer_hour", String.valueOf(hours));
-        editor.putString("timer_minute", String.valueOf(minutes));
-        editor.putString("timer_second", String.valueOf(seconds));
-        editor.putBoolean("upcheckbox", upChecked);
-        editor.putBoolean("downcheckbox", downChecked);
-        editor.apply();
-
-        if (upChecked) {
-            currentTimerMode = MODE_COUNT_UP;
-            isCountUp = true;
-        } else if (downChecked) {
-            currentTimerMode = MODE_COUNT_DOWN;
-            isCountUp = false;
+        if (switch1State) {
+            switch1.setChecked(true);
+            switch1.setThumbColorRes(R.color.red);
+            bluetoothManager.DigitalOUT[1] &= 0xFE;
         } else {
-            currentTimerMode = MODE_STOPWATCH;
+            switch1.setChecked(false);
+            switch1.setThumbColorRes(R.color.limeGreen);
+            bluetoothManager.DigitalOUT[1] |= 0x01;
         }
 
-        timeVar = hours * 60 * 60 + minutes * 60 + seconds;
-        timeVarEdit = timeVar;
-        maxTimeInSeconds = timeVar;
+        if (switch2State) {
+            switch2.setChecked(true);
+            switch2.setThumbColorRes(R.color.red);
+            bluetoothManager.DigitalOUT[1] &= 0xFD;
+        } else {
+            switch2.setChecked(false);
+            switch2.setThumbColorRes(R.color.limeGreen);
+            bluetoothManager.DigitalOUT[1] |= 0x02;
+        }
 
-        pausedTimeInSeconds = 0;
-        pausedCountDownTimeInSeconds = 0;
+        boolean light1State = sharedPreferences.getBoolean("light1", false);
+        boolean light2State = sharedPreferences.getBoolean("light2", false);
+        boolean light3State = sharedPreferences.getBoolean("light3", false);
+        boolean light4State = sharedPreferences.getBoolean("light4", false);
 
+        isLightOneOn = light1State;
+        isLightTwoOn = light2State;
+        isLightThreeOn = light3State;
+        isLightFourOn = light4State;
+
+        lightOneBtn.setImageResource(light1State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
+        lightTwoBtn.setImageResource(light2State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
+        lightThreeBtn.setImageResource(light3State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
+        lightFourBtn.setImageResource(light4State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
+
+        if (light1State) bluetoothManager.DigitalOUT[1] |= 0x04; else bluetoothManager.DigitalOUT[1] &= 0xFB;
+        if (light2State) bluetoothManager.DigitalOUT[1] |= 0x08; else bluetoothManager.DigitalOUT[1] &= 0xF7;
+        if (light3State) bluetoothManager.DigitalOUT[1] |= 0x10; else bluetoothManager.DigitalOUT[1] &= 0xEF;
+        if (light4State) bluetoothManager.DigitalOUT[1] |= 0x20; else bluetoothManager.DigitalOUT[1] &= 0xDF;
+    }
+    private void initializeUIAfterBackground() {
+        // Load saved timer values
+        loadTimerValues();
+
+        // Update UI with loaded values
         updateDisplayForCurrentMode();
-    }
+        updateDisplay();
+        updateHumDisplay();
+        restoreStates();
 
-    private void setupButtonListeners() {
-        playPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentTimerMode == MODE_STOPWATCH) {
-                    handleStopwatchPlayPause();
-                } else {
-                    handleCountTimerPlayPause();
-                }
-            }
-        });
+        // Setup navigation listener
+        mNavigationView.setNavigationItemSelectedListener(this);
 
-        resetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resetTimer();
-            }
-        });
+        // Handle intent data
+        Intent newint = getIntent();
+        address = newint.getStringExtra(DeviceList.EXTRA_ADDRESS);
+        info_address = newint.getStringExtra(DeviceList.EXTRA_INFO);
 
-        settingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showTimerSettingsPopup();
-            }
-        });
-    }
-
-    private void handleStopwatchPlayPause() {
-        if (isPlaying) {
-            pauseStopwatch();
-            isPlaying = false;
-            resetButton.setClickable(true);
-        } else {
-            playStopwatch();
-            isPlaying = true;
-            resetButton.setClickable(false);
+        if (address != null) {
+            connectToDevice(address, info_address);
         }
-    }
 
-    private void handleCountTimerPlayPause() {
-        if (isTimerRunning) {
-            timerPause();
-        } else {
-            timerStart();
-        }
+        // Setup clock
+        setupClock();
     }
 
     private void showTimerSettingsPopup() {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_timer_settings, null);
 
-        int width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-        int height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+        int width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        int height = ViewGroup.LayoutParams.WRAP_CONTENT;
         boolean focusable = true;
         final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
 
@@ -1495,124 +743,41 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
     }
 
-    private void startCountDownTimer() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-            countDownTimer = null;
+    private void handleCountTimerPlayPause() {
+        if (isTimerRunning) {
+            timerPause();
+        } else {
+            timerStart();
+        }
+    }
+    private void saveTimerValues(int hours, int minutes, int seconds, boolean upChecked, boolean downChecked) {
+        SharedPreferences.Editor editor = sharedPreferences1.edit();
+        editor.putString("timer_hour", String.valueOf(hours));
+        editor.putString("timer_minute", String.valueOf(minutes));
+        editor.putString("timer_second", String.valueOf(seconds));
+        editor.putBoolean("upcheckbox", upChecked);
+        editor.putBoolean("downcheckbox", downChecked);
+        editor.apply();
+
+        if (upChecked) {
+            currentTimerMode = MODE_COUNT_UP;
+            isCountUp = true;
+        } else if (downChecked) {
+            currentTimerMode = MODE_COUNT_DOWN;
+            isCountUp = false;
+        } else {
+            currentTimerMode = MODE_STOPWATCH;
         }
 
-        // Use current time or start from beginning if reset
-        long startTimeMillis = (pausedCountDownTimeInSeconds > 0) ?
-                pausedCountDownTimeInSeconds * 1000L :
-                timeVarEdit * 1000L;
+        timeVar = hours * 60 * 60 + minutes * 60 + seconds;
+        timeVarEdit = timeVar;
+        maxTimeInSeconds = timeVar;
 
-        countDownTimer = new CountDownTimer(startTimeMillis, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                if (cdflag == 1 && isTimerRunning) {
-                    timeVarEdit = (int) (millisUntilFinished / 1000);
-                    updateTimerDisplay(method5(timeVarEdit));
-                    pausedCountDownTimeInSeconds = timeVarEdit;
-                }
-            }
-
-            @Override
-            public void onFinish() {
-                timeDone();
-            }
-        }.start();
-    }
-
-    private void startCountUpTimer() {
-        if (countUpTimer != null) {
-            countUpTimer.cancel();
-            countUpTimer = null;
-        }
-
-        // Calculate the time to count up to (from current position to max)
-        long timeToCount = (maxTimeInSeconds - currentTimeInSeconds) * 1000L;
-
-        countUpTimer = new CountUpTimer(timeToCount, 1000) {
-            @Override
-            public void onTick(long millisElapsed) {
-                if (cdflag == 1 && isTimerRunning) {
-                    int elapsedSeconds = (int) (millisElapsed / 1000);
-                    int totalSeconds = currentTimeInSeconds + elapsedSeconds;
-
-                    // Update display
-                    updateTimerDisplay(method5(totalSeconds));
-
-                    // Check if we've reached the maximum time
-                    if (totalSeconds >= maxTimeInSeconds) {
-                        timeDone();
-                    }
-                }
-            }
-
-            @Override
-            public void onFinish() {
-                timeDone();
-            }
-        };
-
-        countUpTimer.start();
-    }
-    private void resetAllTimerStates() {
-        cdflag = 0;
-        isTimerRunning = false;
-        isPlaying = false;
         pausedTimeInSeconds = 0;
         pausedCountDownTimeInSeconds = 0;
-        currentTimeInSeconds = 0;
-        timeSwapBuff = 0;
-        timeInMilliseconds = 0L;
-        updatedTime = 0L;
 
-        // Cancel and nullify all timers
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-            countDownTimer = null;
-        }
-        if (countUpTimer != null) {
-            countUpTimer.cancel();
-            countUpTimer = null;
-        }
-        customHandler.removeCallbacks(updateTimerThread);
-
-        // Reset UI
-        playPause.setImageResource(R.drawable.ic_play);
+        updateDisplayForCurrentMode();
     }
-    public void resetTimer() {
-        // First, completely reset all timer states
-        resetAllTimerStates();
-
-        // Now handle mode-specific reset
-        switch (currentTimerMode) {
-            case MODE_STOPWATCH:
-                // For stopwatch, reset to 00:00:00
-                timerValue.setText("00:00:00");
-                startTime = SystemClock.uptimeMillis();
-                break;
-
-            case MODE_COUNT_UP:
-                // For count up, reset to 00:00:00
-                currentTimeInSeconds = 0;
-                timeVarEdit = 0;
-                updateTimerDisplay(method5(0));
-                break;
-
-            case MODE_COUNT_DOWN:
-                // For count down, reset to the full configured time
-                timeVarEdit = timeVar;
-                updateTimerDisplay(method5(timeVar));
-                break;
-        }
-
-        // Make sure UI reflects reset state
-        playPause.setImageResource(R.drawable.ic_play);
-        resetButton.setClickable(false);
-    }
-
     public void timerPause() {
         cdflag = 0;
         isTimerRunning = false;
@@ -1628,7 +793,22 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             countUpTimer.cancel();
         }
     }
+    private void timeDone() {
+        resetAllTimerStates();
 
+        if (currentTimerMode == MODE_COUNT_UP) {
+            updateTimerDisplay(method5(maxTimeInSeconds));
+        } else if (currentTimerMode == MODE_COUNT_DOWN) {
+            updateTimerDisplay("00:00:00");
+        }
+
+        playPause.setImageResource(R.drawable.ic_play);
+        resetButton.setClickable(true);
+
+        // Optional: Add a completion sound or vibration
+        // Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // vibrator.vibrate(500);
+    }
     public void timerStart() {
         if (cdflag == 0) {
             cdflag = 1;
@@ -1656,53 +836,56 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    private void timeDone() {
-        resetAllTimerStates();
-
-        if (currentTimerMode == MODE_COUNT_UP) {
-            updateTimerDisplay(method5(maxTimeInSeconds));
-        } else if (currentTimerMode == MODE_COUNT_DOWN) {
-            updateTimerDisplay("00:00:00");
+    private void startCountUpTimer() {
+        if (countUpTimer != null) {
+            countUpTimer.cancel();
+            countUpTimer = null;
         }
 
-        playPause.setImageResource(R.drawable.ic_play);
-        resetButton.setClickable(true);
+        // Calculate the time to count up to (from current position to max)
+        long timeToCount = (maxTimeInSeconds - currentTimeInSeconds) * 1000L;
 
-        // Optional: Add a completion sound or vibration
-        // Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // vibrator.vibrate(500);
-    }
-
-    private String method5(int secs) {
-        int hours = secs / 3600;
-        int minutes = (secs % 3600) / 60;
-        int seconds = secs % 60;
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
-    }
-
-    private void updateTimerDisplay(String timeText) {
-        timerValue.setText(timeText);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        AlertDialog.Builder builder = new AlertDialog.Builder(DeviceList.this);
-        builder.setMessage("Do you want to Exit?");
-        builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
+        countUpTimer = new  CountUpTimer(timeToCount, 1000) {
             @Override
+            public void onTick(long millisElapsed) {
+                if (cdflag == 1 && isTimerRunning) {
+                    int elapsedSeconds = (int) (millisElapsed / 1000);
+                    int totalSeconds = currentTimeInSeconds + elapsedSeconds;
+
+                    // Update display
+                    updateTimerDisplay(method5(totalSeconds));
+
+                    // Check if we've reached the maximum time
+                    if (totalSeconds >= maxTimeInSeconds) {
+                        timeDone();
+                    }
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                timeDone();
+            }
+        };
+
+        countUpTimer.start();
+    }
+    public void exitApplication() {
+        final AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setMessage("Are you sure you want to exit application?");
+        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
                 finish();
             }
         });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
+        adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(DeviceList.this, "i wanna stay on this", Toast.LENGTH_LONG).show();
-                dialog.cancel();
+                Toast.makeText(DeviceList.this, "Cancel", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             }
         });
-        builder.setNeutralButton("Rate", new DialogInterface.OnClickListener() {
+        adb.setNeutralButton("Rate", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final String appPackageName = getPackageName();
@@ -1713,57 +896,54 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 }
             }
         });
-        AlertDialog alert = builder.create();
+        AlertDialog alert = adb.create();
         alert.show();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-       
-        resetAllTimerStates(); // Clean up all timers
-    }
-
-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //The BroadcastReceiver that listens for bluetooth broadcasts
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-            if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-                if (ActivityCompat.checkSelfPermission(DeviceList.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                String deviceName = device != null ? device.getName() : "Bluetooth device";
-            } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-            }
-
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                Toast.makeText(getApplicationContext(),""+"Device found",Toast.LENGTH_LONG).show();
-            } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                Toast.makeText(getApplicationContext(),""+"Device Searching",Toast.LENGTH_LONG).show();
-            } else if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED.equals(action)) {
-                Toast.makeText(getApplicationContext(),""+"Device disconnected",Toast.LENGTH_LONG).show();
-            } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-                connectionStatus.setText("No bluetooth device connected");
-                connectionStatus.setTextColor(ContextCompat.getColor(context, R.color.redColor));
-            }
+        if (id == R.id.nav_exit) {
+            exitApplication();
+        } else if (id == R.id.action_share) {
+            shareApp();
+        } else if (id == R.id.action_about) {
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.action_searchList) {
+            ScanDevicesList();
+        } else if (id == R.id.action_pairedList) {
+            pairedDevicesList();
+        } else if (id == R.id.action_disconnect) {
+            bluetoothManager.disconnect();
         }
-    };
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+    private void ScanDevicesList() {
+        Intent intent = new Intent(this, ScanActivity.class);
+        if (Build.VERSION.SDK_INT > 20) {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this);
+            startActivity(intent, options.toBundle());
+        } else {
+            startActivity(intent);
+        }
+    }
+    public void shareApp() {
+        try {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My application name");
+            String shareMessage = "\nLet me recommend you this application\n\n";
+            shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=" + getPackageName() + "\n\n";
+            shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+            startActivity(Intent.createChooser(shareIntent, "choose one"));
+        } catch (Exception e) {
+        }
+    }
+
 
     // Custom CountUpTimer class
     public abstract class CountUpTimer {
@@ -1828,12 +1008,391 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             return elapsedTime;
         }
     }
+    private void handleStopwatchPlayPause() {
+        if (isPlaying) {
+            pauseStopwatch();
+            isPlaying = false;
+            resetButton.setClickable(true);
+        } else {
+            playStopwatch();
+            isPlaying = true;
+            resetButton.setClickable(false);
+        }
+    }
+    private void setupButtonListeners() {
+        // Initialize the array first
+        arrayOfControlButtons = new ImageButton[] {
+                tempMinusButton,
+                tempPlusButton,
+                humBtnMinus,
+                humBtnPlus
+                // Add any other buttons that should have long press functionality
+        };
 
-    // fast way to call Toast
-    private void msg(String s) {
-        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+        // Set up all button listeners
+        tempMinusButton.setOnClickListener(this);
+        tempPlusButton.setOnClickListener(this);
+        humBtnMinus.setOnClickListener(this);
+        humBtnPlus.setOnClickListener(this);
+        switch1.setOnClickListener(this);
+        switch2.setOnClickListener(this);
+        lightOneBtn.setOnClickListener(this);
+        lightTwoBtn.setOnClickListener(this);
+        lightThreeBtn.setOnClickListener(this);
+        lightFourBtn.setOnClickListener(this);
+
+        // Timer buttons
+        playPause.setOnClickListener(v -> {
+            if (currentTimerMode == MODE_STOPWATCH) {
+                handleStopwatchPlayPause();
+            } else {
+                handleCountTimerPlayPause();
+            }
+        });
+
+        resetButton.setOnClickListener(v -> resetTimer());
+        settingButton.setOnClickListener(v -> showTimerSettingsPopup());
+
+        // Check if array is not null before iterating
+        if (arrayOfControlButtons != null) {
+            for (ImageButton b : arrayOfControlButtons) {
+                b.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(final View v) {
+                        startAutoRepeat(v);
+                        return true;
+                    }
+                });
+
+                b.setOnTouchListener((v, event) -> {
+                    if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                        stopAutoRepeat();
+                    }
+                    return false;
+                });
+            }
+        }
+    }
+    private void resetAllTimerStates() {
+        cdflag = 0;
+        isTimerRunning = false;
+        isPlaying = false;
+        pausedTimeInSeconds = 0;
+        pausedCountDownTimeInSeconds = 0;
+        currentTimeInSeconds = 0;
+        timeSwapBuff = 0;
+        timeInMilliseconds = 0L;
+        updatedTime = 0L;
+
+        // Cancel and nullify all timers
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+            countDownTimer = null;
+        }
+        if (countUpTimer != null) {
+            countUpTimer.cancel();
+            countUpTimer = null;
+        }
+        customHandler.removeCallbacks(updateTimerThread);
+
+        // Reset UI
+        playPause.setImageResource(R.drawable.ic_play);
+    }
+    public void resetTimer() {
+        // First, completely reset all timer states
+        resetAllTimerStates();
+
+        // Now handle mode-specific reset
+        switch (currentTimerMode) {
+            case MODE_STOPWATCH:
+                // For stopwatch, reset to 00:00:00
+                timerValue.setText("00:00:00");
+                startTime = SystemClock.uptimeMillis();
+                break;
+
+            case MODE_COUNT_UP:
+                // For count up, reset to 00:00:00
+                currentTimeInSeconds = 0;
+                timeVarEdit = 0;
+                updateTimerDisplay(method5(0));
+                break;
+
+            case MODE_COUNT_DOWN:
+                // For count down, reset to the full configured time
+                timeVarEdit = timeVar;
+                updateTimerDisplay(method5(timeVar));
+                break;
+        }
+
+        // Make sure UI reflects reset state
+        playPause.setImageResource(R.drawable.ic_play);
+        resetButton.setClickable(false);
+    }
+    private void updateTimerDisplay(String timeText) {
+        timerValue.setText(timeText);
+    }
+    private void startAutoRepeat(View v) {
+        stopAutoRepeat(); // Stop any existing auto-repeat
+
+        autoRepeatTimer = new Timer();
+        autoRepeatTask = new TimerTask() {
+            @Override
+            public void run() {
+                uiHandler.post(() -> {
+                    int id = v.getId();
+                    if (id == R.id.tempBtnPlus) {
+                        currentDisplayValue = Math.min(DisplayValueMax3, currentDisplayValue + 1);
+                    } else if (id == R.id.tempBtnMinus) {
+                        currentDisplayValue = Math.max(DisplayValueMin, currentDisplayValue - 1);
+                    } else if (id == R.id.humBtnPlus) {
+                        currentHumValue = Math.min(DisplayValueMax3, currentHumValue + 1);
+                    } else if (id == R.id.humBtnMinus) {
+                        currentHumValue = Math.max(DisplayValueMin, currentHumValue - 1);
+                    }
+                    updateHumDisplay();
+                    updateDisplay();
+                });
+            }
+        };
+
+        autoRepeatTimer.scheduleAtFixedRate(autoRepeatTask, 500, 100); // Start after 500ms, repeat every 100ms
     }
 
+    private void stopAutoRepeat() {
+        if (autoRepeatTimer != null) {
+            autoRepeatTimer.cancel();
+            autoRepeatTimer = null;
+        }
+        if (autoRepeatTask != null) {
+            autoRepeatTask.cancel();
+            autoRepeatTask = null;
+        }
+    }
+
+    private void setupClock() {
+        TextView clockView = findViewById(R.id.hk_date);
+        TextView clocTime = findViewById(R.id.hk_time);
+
+        // Use a single handler for both date and time updates
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                String pattern = "dd MMM yyyy";
+                String pattern2 = "hh:mm:ss";
+                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
+                SimpleDateFormat clocTime2 = new SimpleDateFormat(pattern2, Locale.getDefault());
+                clockView.setText(sdf.format(new Date()));
+                clocTime.setText(clocTime2.format(new Date()));
+                handler.postDelayed(this, 1000); // update every second
+            }
+        };
+        handler.post(runnable);
+    }
+
+    // Add these class variables for auto-repeat functionality
+    private Timer autoRepeatTimer;
+    private TimerTask autoRepeatTask;
+
+    /*************************************************************************************************
+     *                              Start Increment and Decrement
+     *************************************************************************************************/
+    // ON-CLICKS (referred to from XML)
+    public void tempBtnMinusPressed() {
+        currentDisplayValue = Math.max(DisplayValueMin, currentDisplayValue - 1);
+        updateDisplay();
+    }
+
+    public void tempBtnPlusPressed() {
+        currentDisplayValue = Math.min(DisplayValueMax3, currentDisplayValue + 1);
+        updateDisplay();
+    }
+
+    // ON-CLICKS (referred to from XML)
+    public void humBtnMinusPressed() {
+        currentHumValue = Math.max(DisplayValueMin, currentHumValue - 1);
+        updateHumDisplay();
+    }
+
+    public void humBtnPlusPressed() {
+        currentHumValue = Math.min(DisplayValueMax3, currentHumValue + 1);
+        updateHumDisplay();
+    }
+
+    // INTERNAL
+    private void updateDisplay() {
+        setTempDisplay.setText(currentDisplayValue.toString());
+    }
+
+    private void updateHumDisplay() {
+        setHumDisplay.setText(currentHumValue.toString());
+    }
+
+    /*************************************************************************************************
+     *                              End Increment and Decrement
+     *************************************************************************************************/
+
+    // Timer methods optimized for performance
+    private Runnable updateTimerThread = new Runnable() {
+        public void run() {
+            if (isPlaying) {
+                timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
+                updatedTime = timeSwapBuff + timeInMilliseconds;
+
+                int seconds = (int) (updatedTime / 1000);
+                int minutes = seconds / 60;
+                int hours = seconds / 3600;
+                seconds = seconds % 60;
+
+                // Only update UI if the text has changed
+                String newString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+                if (!newString.equals(timerValue.getText().toString())) {
+                    timerValue.setText(newString);
+                }
+
+                if (isPlaying) {
+                    customHandler.postDelayed(this, 100); // Reduced frequency from 0ms to 100ms
+                }
+            }
+        }
+    };
+
+    public void playStopwatch() {
+        startTime = SystemClock.uptimeMillis();
+        customHandler.postDelayed(updateTimerThread, 0);
+        playPause.setImageResource(R.drawable.ic_pause);
+        resetButton.setClickable(false);
+    }
+
+    public void pauseStopwatch() {
+        timeSwapBuff += timeInMilliseconds;
+        customHandler.removeCallbacks(updateTimerThread);
+        playPause.setImageResource(R.drawable.ic_play);
+        resetButton.setClickable(true);
+    }
+
+    // Optimized Bluetooth connection method
+    private void connectToDevice(String address, String info) {
+        if (!BluetoothConnectionManager.checkBluetoothPermissions(this)) {
+            BluetoothConnectionManager.requestBluetoothPermissions(this, 1001);
+            return;
+        }
+
+        // Show progress in a non-blocking way
+        uiHandler.post(() -> {
+            if (progress == null) {
+                progress = new ProgressDialog(this);
+                progress.setMessage("Connecting...");
+                progress.setCancelable(false);
+            }
+            progress.show();
+        });
+
+        // Run connection in background
+        backgroundExecutor.execute(() -> {
+            bluetoothManager.connect(address, info, this);
+
+            // Dismiss progress on UI thread
+            uiHandler.post(() -> {
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                }
+            });
+        });
+    }
+
+    @Override
+    public void onConnectionResult(int resultCode, String message) {
+        uiHandler.post(() -> {
+            switch (resultCode) {
+                case BluetoothConnectionManager.CONNECTION_SUCCESS:
+                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_connected);
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                    break;
+                case BluetoothConnectionManager.CONNECTION_FAILED:
+                    connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                    Toast.makeText(this, "Bluetooth connection failed " + message, Toast.LENGTH_LONG).show();
+                    break;
+                // Handle other cases...
+            }
+        });
+    }
+
+    @Override
+    public void onDataReceived(byte[] data) {
+        uiHandler.post(() -> {
+            String received = new String(data);
+            Log.d("onDataReceived", "Received Data: " + received);
+            // Process data without blocking UI
+        });
+    }
+
+    @Override
+    public void onConnectionLost() {
+        uiHandler.post(() -> {
+            connectionStatus.setText("Connection lost");
+            connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+            Toast.makeText(this, "Connection lost, attempting to reconnect...", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    // Optimized paired devices list
+    private void pairedDevicesList() {
+        backgroundExecutor.execute(() -> {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
+            pairedDevices = myBluetooth.getBondedDevices();
+            ArrayList<String> list = new ArrayList<>();
+
+            if (pairedDevices.size() > 0) {
+                for (BluetoothDevice bt : pairedDevices) {
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    list.add(bt.getName() + "\n" + bt.getAddress());
+                }
+            }
+
+            // Update UI on main thread
+            uiHandler.post(() -> {
+                if (list.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                Dialog dialog = new Dialog(this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Select a paired device for connecting");
+
+                LinearLayout parent = new LinearLayout(DeviceList.this);
+                parent.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                parent.setOrientation(LinearLayout.VERTICAL);
+
+                ListView modeList = new ListView(this);
+                setListViewHeightBasedOnItems(modeList);
+
+                final ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+                modeList.setAdapter(modeAdapter);
+                modeList.setOnItemClickListener(myListClickListener);
+                builder.setView(modeList);
+                dialog = builder.create();
+                dialog.show();
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, 600);
+            });
+        });
+    }
+
+    private AdapterView.OnItemClickListener myListClickListener = new AdapterView.OnItemClickListener() {
+        public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
+            String info = ((TextView) v).getText().toString();
+            String address = info.substring(info.length() - 17);
+            if (address != null) {
+                connectToDevice(address, info);
+            }
+        }
+    };
     public static boolean setListViewHeightBasedOnItems(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter != null) {
@@ -1856,16 +1415,232 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    private void Disconnect() {
-        if (btSocket != null) {
-            try {
-                btSocket.close();
-                Toast.makeText(DeviceList.this, "Bluetooth device has been disconnected", Toast.LENGTH_LONG).show();
-            } catch (IOException e) {
-                msg("Error");
-            }
-        } else {
-            Toast.makeText(DeviceList.this, "No device connected", Toast.LENGTH_LONG).show();
+    // Optimized timer methods
+    private void startCountDownTimer() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
         }
+
+        long startTimeMillis = (pausedCountDownTimeInSeconds > 0) ?
+                pausedCountDownTimeInSeconds * 1000L :
+                timeVarEdit * 1000L;
+
+        countDownTimer = new CountDownTimer(startTimeMillis, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                if (cdflag == 1 && isTimerRunning) {
+                    timeVarEdit = (int) (millisUntilFinished / 1000);
+                    // Update UI efficiently
+                    String newTime = method5(timeVarEdit);
+                    if (!newTime.equals(timerValue.getText().toString())) {
+                        uiHandler.post(() -> timerValue.setText(newTime));
+                    }
+                    pausedCountDownTimeInSeconds = timeVarEdit;
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                uiHandler.post(() -> timeDone());
+            }
+        }.start();
+    }
+
+    // Memory management improvements
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Clean up handlers and executors
+        if (customHandler != null) {
+            customHandler.removeCallbacksAndMessages(null);
+        }
+
+        if (uiHandler != null) {
+            uiHandler.removeCallbacksAndMessages(null);
+        }
+
+        if (backgroundExecutor != null) {
+            backgroundExecutor.shutdownNow();
+        }
+
+        // Clean up Bluetooth
+        if (bluetoothManager != null) {
+            bluetoothManager.shutdown();
+        }
+
+        // Clean up timers
+        stopAutoRepeat();
+        resetAllTimerStates();
+    }
+
+    // Additional optimizations for UI responsiveness
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+
+        if (id == R.id.switch1) {
+            switch1(v);
+        } else if (id == R.id.switch2) {
+            switch2(v);
+        } else if (id == R.id.tempBtnPlus) {
+            tempBtnPlusPressed();
+        } else if (id == R.id.tempBtnMinus) {
+            tempBtnMinusPressed();
+        } else if (id == R.id.humBtnPlus) {
+            humBtnPlusPressed();
+        } else if (id == R.id.humBtnMinus) {
+            humBtnMinusPressed();
+        } else if (id == R.id.lightOneBtn) {
+            switch1Light(v);
+        } else if (id == R.id.lightTwoBtn) {
+            switch2Light(v);
+        } else if (id == R.id.lightThreeBtn) {
+            switch3Light(v);
+        } else if (id == R.id.lightFourBtn) {
+            switch4Light(v);
+        }
+    }
+    public void switch1Light(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (isLightOneOn) {
+                lightOneBtn.setImageResource(R.drawable.ic_bulb_off);
+                bluetoothManager.DigitalOUT[1] &= 0xFB;
+                isLightOneOn = false;
+                editor.putBoolean("light1", false);
+            } else {
+                lightOneBtn.setImageResource(R.drawable.ic_bulb_on);
+                bluetoothManager.DigitalOUT[1] |= 0x04;
+                isLightOneOn = true;
+                editor.putBoolean("light1", true);
+            }
+            editor.apply();
+        }
+    }
+
+    public void switch2Light(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (isLightTwoOn) {
+                lightTwoBtn.setImageResource(R.drawable.ic_bulb_off);
+                bluetoothManager.DigitalOUT[1] &= 0xF7;
+                editor.putBoolean("light2", false);
+                isLightTwoOn = false;
+            } else {
+                lightTwoBtn.setImageResource(R.drawable.ic_bulb_on);
+                bluetoothManager.DigitalOUT[1] |= 0x08;
+                editor.putBoolean("light2", true);
+                isLightTwoOn = true;
+            }
+            editor.apply();
+        }
+    }
+
+    public void switch3Light(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (isLightThreeOn) {
+                lightThreeBtn.setImageResource(R.drawable.ic_bulb_off);
+                bluetoothManager.DigitalOUT[1] &= 0xEF;
+                isLightThreeOn = false;
+                editor.putBoolean("light3", false);
+            } else {
+                lightThreeBtn.setImageResource(R.drawable.ic_bulb_on);
+                bluetoothManager.DigitalOUT[1] |= 0x10;
+                isLightThreeOn = true;
+                editor.putBoolean("light3", true);
+            }
+            editor.apply();
+        }
+    }
+
+    public void switch4Light(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (isLightFourOn) {
+                lightFourBtn.setImageResource(R.drawable.ic_bulb_off);
+                bluetoothManager.DigitalOUT[1] &= 0xDF;
+                isLightFourOn = false;
+                editor.putBoolean("light4", false);
+            } else {
+                lightFourBtn.setImageResource(R.drawable.ic_bulb_on);
+                bluetoothManager.DigitalOUT[1] |= 0x20;
+                isLightFourOn = true;
+                editor.putBoolean("light4", true);
+            }
+            editor.apply();
+        }
+    }
+    // Optimized switch methods
+    @SuppressLint("NewApi")
+    public void switch1(View v) {
+        boolean isChecked = switch1.isChecked();
+
+        if (isChecked) {
+            switch1.setThumbColorRes(R.color.red);
+            bluetoothManager.DigitalOUT[1] &= 0xFE;
+            editor.putBoolean("switch1", true);
+        } else {
+            switch1.setThumbColorRes(R.color.limeGreen);
+            bluetoothManager.DigitalOUT[1] |= 0x01;
+            editor.putBoolean("switch1", false);
+        }
+        editor.apply();
+
+        // Send data in background
+        backgroundExecutor.execute(() -> bluetoothManager.sendControllerData());
+    }
+
+
+    public void switch2(View v) {
+        boolean isChecked = switch2.isChecked();
+
+        if (isChecked) {
+            switch2.setThumbColorRes(R.color.red);
+            bluetoothManager.DigitalOUT[1] &= 0xFD;
+            editor.putBoolean("switch2", true);
+        } else {
+            switch2.setThumbColorRes(R.color.limeGreen);
+            bluetoothManager.DigitalOUT[1] |= 0x02;
+            editor.putBoolean("switch2", false);
+        }
+        editor.apply();
+
+        // Send data in background
+        backgroundExecutor.execute(() -> bluetoothManager.sendControllerData());
+    }
+    // Similar optimizations for other switch methods...
+
+    // Memory-efficient bitmap handling if needed
+    private Bitmap decodeSampledBitmapFromResource(String path, int reqWidth, int reqHeight) {
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(path, options);
+    }
+
+    private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 }
