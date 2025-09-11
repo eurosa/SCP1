@@ -1155,7 +1155,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         };
 
-        autoRepeatTimer.scheduleAtFixedRate(autoRepeatTask, 500, 100); // Start after 500ms, repeat every 100ms
+        autoRepeatTimer.schedule(autoRepeatTask, 500, 100); // Start after 500ms, repeat every 100ms
     }
 
     private void stopAutoRepeat() {
@@ -1184,10 +1184,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 SimpleDateFormat clocTime2 = new SimpleDateFormat(pattern2, Locale.getDefault());
                 clockView.setText(sdf.format(new Date()));
                 clocTime.setText(clocTime2.format(new Date()));
-                handler.postDelayed(this, 1000); // update every second
+                customHandler.postDelayed(this, 1000); // update every second
             }
         };
-        handler.post(runnable);
+        customHandler.post(runnable);
     }
 
     // Add these class variables for auto-repeat functionality
@@ -1251,7 +1251,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 }
 
                 if (isPlaying) {
-                    customHandler.postDelayed(this, 100); // Reduced frequency from 0ms to 100ms
+                    customHandler.postDelayed(this, 1000); // Reduced frequency from 0ms to 100ms
                 }
             }
         }
