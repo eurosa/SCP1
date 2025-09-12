@@ -297,6 +297,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     // Executor for background tasks
     private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+    private IncrementDecrementSlider customSlider1,customSlider2,customSlider3,customSlider4;
+    private int myVariable1,myVariable2,myVariable3,myVariable4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -380,6 +382,41 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             // Update UI on main thread
             uiHandler.post(this::initializeUIAfterBackground);
         });
+
+
+        customSlider1 = findViewById(R.id.customSlider1);
+        customSlider2 = findViewById(R.id.customSlider2);
+        customSlider3 = findViewById(R.id.customSlider3);
+        customSlider4 = findViewById(R.id.customSlider4);
+
+        // Listen to slider changes
+        customSlider1.getSlider().addOnChangeListener((slider, value, fromUser) -> {
+            bluetoothManager.intensity1 = (int) value;
+            // Do something with myVariable
+            Log.d("MainActivity", "myVariable = " + bluetoothManager.intensity1);
+        });
+        // Listen to slider changes
+        customSlider2.getSlider().addOnChangeListener((slider, value, fromUser) -> {
+            bluetoothManager.intensity2 = (int) value;
+            // Do something with myVariable
+            Log.d("MainActivity", "myVariable = " + bluetoothManager.intensity2);
+        });
+        customSlider3.getSlider().addOnChangeListener((slider, value, fromUser) -> {
+            bluetoothManager.intensity3 = (int) value;
+            // Do something with myVariable
+            Log.d("MainActivity", "myVariable = " + bluetoothManager.intensity3);
+        });
+        customSlider4.getSlider().addOnChangeListener((slider, value, fromUser) -> {
+            bluetoothManager.intensity4 = (int) value;
+            // Do something with myVariable
+            Log.d("MainActivity", "myVariable = " + bluetoothManager.intensity4);
+        });
+
+
+        // Example: set initial value
+
+ 
+
     }
 
     private void initializeUIComponents() {
