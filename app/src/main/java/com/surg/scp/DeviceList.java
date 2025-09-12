@@ -310,6 +310,13 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         customSlider2 = findViewById(R.id.customSlider2);
         customSlider3 = findViewById(R.id.customSlider3);
         customSlider4 = findViewById(R.id.customSlider4);
+
+        customSlider1.configureSteps(10, 100f, 0f);
+        customSlider2.configureSteps(10, 100f, 0f);
+        customSlider3.configureSteps(10, 100f, 0f);
+        customSlider4.configureSteps(10, 100f, 0f);
+
+
         SharedPreferences prefs = getSharedPreferences("MyIntensityPrefs", MODE_PRIVATE);
 
         int saved1 = prefs.getInt("intensity1", 0); // default 0 if not saved
@@ -317,7 +324,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         int saved3 = prefs.getInt("intensity3", 0);
         int saved4 = prefs.getInt("intensity4", 0);
 
- 
+
 
         // Initialize UI components first to prevent ANR
         initializeUIComponents();

@@ -19,6 +19,13 @@ public class IncrementDecrementSlider extends LinearLayout {
         super(context);
         init(context);
     }
+    public void configureSteps(int steps, float stepSize, float startValue) {
+        float valueTo = startValue + (steps * stepSize);
+        slider.setValueFrom(startValue);
+        slider.setValueTo(valueTo);
+        slider.setStepSize(stepSize);
+        slider.setValue(startValue);
+    }
 
     public IncrementDecrementSlider(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
