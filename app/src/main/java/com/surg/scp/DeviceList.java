@@ -116,8 +116,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     /***************************************************************************************
      *                           Start Increment and Decrement
      ****************************************************************************************/
-    TextView setTempDisplay;
-    TextView setHumDisplay;
+
     ImageButton tempMinusButton;
     ImageButton tempPlusButton;
     ImageButton[] arrayOfControlButtons;
@@ -299,11 +298,20 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
     private IncrementDecrementSlider customSlider1,customSlider2,customSlider3,customSlider4;
     private int myVariable1,myVariable2,myVariable3,myVariable4;
+    private TextView temperatureTextView, humidityTextView, pressureTextView, tempSetTextView,humidSetTextView,pressureSetTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scp);
+
+        temperatureTextView = findViewById(R.id.temperatureTextView);
+        humidityTextView = findViewById(R.id.humidityTextView);
+        pressureTextView = findViewById(R.id.pressureTextView);
+        tempSetTextView = findViewById(R.id.tempSetTextView);
+        humidSetTextView = findViewById(R.id.humidSetTextView);
+        pressureSetTextView = findViewById(R.id.pressureSetTextView);
+
         // Initialize components that might take time
         bluetoothManager = new BluetoothConnectionManager(this);
         customSlider1 = findViewById(R.id.customSlider1);
@@ -466,8 +474,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         playPause = findViewById(R.id.startButton);
         settingButton = findViewById(R.id.settingButton);
         timerValue = findViewById(R.id.timerValue);
-        setTempDisplay = findViewById(R.id.setTemp);
-        setHumDisplay = findViewById(R.id.setHum);
+
         tempMinusButton = findViewById(R.id.tempBtnMinus);
         tempPlusButton = findViewById(R.id.tempBtnPlus);
         humBtnPlus = findViewById(R.id.humBtnPlus);
@@ -1295,11 +1302,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     // INTERNAL
     private void updateDisplay() {
-        setTempDisplay.setText(currentDisplayValue.toString());
+        tempSetTextView.setText(currentDisplayValue.toString());
     }
 
     private void updateHumDisplay() {
-        setHumDisplay.setText(currentHumValue.toString());
+        humidSetTextView.setText(currentHumValue.toString());
     }
 
     /*************************************************************************************************
@@ -1407,6 +1414,26 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             connectionStatus.setText("Connection lost");
             connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
             Toast.makeText(this, "Connection lost, attempting to reconnect...", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    public void onSensorDataUpdated(int temperature, int humidity, int pressure) {
+        // Update UI with sensor values
+        runOnUiThread(() -> {
+            temperatureTextView.setText(String.valueOf(temperature));
+            humidityTextView.setText(String.valueOf(humidity));
+            pressureTextView.setText(String.valueOf(pressure));
+        });
+    }
+
+    @Override
+    public void onSettingsUpdated(int tempSet, int humidSet, int pressureSet) {
+        // Update UI with settings values
+        runOnUiThread(() -> {
+            tempSetTextView.setText(String.valueOf(tempSet));
+            humidSetTextView.setText(String.valueOf(humidSet));
+            pressureSetTextView.setText(String.valueOf(pressureSet));
         });
     }
 

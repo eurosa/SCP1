@@ -864,6 +864,16 @@ public class DeviceList_O extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    @Override
+    public void onSensorDataUpdated(int temperature, int humidity, int pressure) {
+
+    }
+
+    @Override
+    public void onSettingsUpdated(int tempSet, int humidSet, int pressureSet) {
+
+    }
+
     private AdapterView.OnItemClickListener myListClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
             String info = ((TextView) v).getText().toString();

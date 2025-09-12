@@ -89,6 +89,11 @@ public class BluetoothConnectionManager {
     public int intensity1, intensity2, intensity3, intensity4;
     private int SET_TEMP, SET_HUMD, SET_AIRP, STM, SHM, STP;
     private int READ_TEMP, READ_HUMD, READ_PRES;
+
+    // Add these near your other state variables
+    private int serialtimeout = 0;
+    private int  DISP_TEMP,  DISP_HUMD,  DISP_PRES;
+
     public byte buzzerHexGas1, buzzerHexGas2, buzzerHexGas3, buzzerHexGas4;
     public byte buzzerHexGas5, buzzerHexGas6, buzzerHexGas7, buzzerHexGas8;
     public int autoManualStatus;
@@ -112,13 +117,13 @@ public class BluetoothConnectionManager {
         }
     };
 
-    public interface ConnectionCallback {
+   /* public interface ConnectionCallback {
         void onConnectionResult(int resultCode, String message);
 
         void onDataReceived(byte[] data);
 
         void onConnectionLost();
-    }
+    }*/
 
     public BluetoothConnectionManager(Context context) {
         this.context = context.getApplicationContext();
@@ -502,6 +507,128 @@ public class BluetoothConnectionManager {
         // Process raw bytes here
         Log.d(TAG, "Received " + length + " bytes: " + bytesToHex(Arrays.copyOf(buffer, length)));
         // ... your packet processing logic ...
+        if (length >= 22) {
+            // Copy the received data to Rxbuf (assuming you have a class-level Rxbuf array)
+            System.arraycopy(buffer, 0, rxBuffer, 0, 22);
+
+            // Process the data based on the packet type
+            processSerialPort1();
+        }
+    }
+
+    private void processSerialPort1() {
+        // First condition block: Rxbuf[2] == 'C' (Data response)
+        if (rxBuffer[0] == 0x02) {
+            if (rxBuffer[1] == (byte)'1') {
+                if (rxBuffer[2] == (byte)'C') {
+                    if (rxBuffer[21] == 0x20) {
+                        serialtimeout = 0;
+
+                       // Log.d(TAG, "Last Address: " + rxBuffer[21]);
+                      //  Log.d(TAG, "Last Address: " + rxBuffer[5]);
+                       // Log.d(TAG, "Last Address: " + rxBuffer[6]);
+
+                        // Process sensor data
+                        byte[] analogTMPR = new byte[]{rxBuffer[5], rxBuffer[6]};
+                        byte[] analogHUMD = new byte[]{rxBuffer[7], rxBuffer[8]};
+                        byte[] analogAIRP = new byte[]{rxBuffer[9], rxBuffer[10]};
+
+                        int tempValue = bytesToShort(analogTMPR[1], analogTMPR[0]);
+                        READ_TEMP = tempValue;                  // Temp value from adc 0 to 1000
+                        DISP_TEMP = tempValue / 10;             // value from 0 to 100
+                        if (DISP_TEMP > 99) { DISP_TEMP = 99; }
+                        Log.d(TAG, "Temperature Read Value: " + DISP_TEMP);
+
+                        tempValue = bytesToShort(analogHUMD[1], analogHUMD[0]);
+                        READ_HUMD = tempValue;                  // Humd value from adc 0 to 1000
+                        DISP_HUMD = tempValue / 10;
+                        if (DISP_HUMD > 99) { DISP_HUMD = 99; }
+
+                        tempValue = bytesToShort(analogAIRP[1], analogAIRP[0]);
+                        Log.d(TAG, "Differential Pressure:" + tempValue);
+                        READ_PRES = tempValue;                  // Press value from adc 0 to 500
+                        DISP_PRES = tempValue;
+                        Log.d(TAG, "Differential Pressure:" + tempValue + " Different:" + DISP_PRES);
+                        if (DISP_PRES < 0) { DISP_PRES = 0; }
+
+                        // Update UI or notify listeners
+                        notifySensorDataUpdated(DISP_TEMP, DISP_HUMD, DISP_PRES);
+                    }
+                }
+            }
+        }
+
+        // Second condition block: Rxbuf[2] == 'W' (Settings response)
+        if (rxBuffer[0] == 0x02) {
+            if (rxBuffer[1] == (byte)'1') {
+                if (rxBuffer[2] == (byte)'W') {
+                    if (rxBuffer[11] == 0x20) {
+                        serialtimeout = 0;
+
+                        Log.d(TAG, "Last Address: " + rxBuffer[21]+" "+SET_TEMP);
+                        Log.d(TAG, "Last Address: " + rxBuffer[5]+" "+SET_HUMD);
+                        Log.d(TAG, "Last Address: " + rxBuffer[6]+" "+SET_AIRP);
+
+                        // Process settings data
+                        byte[] analogTMPR = new byte[]{rxBuffer[5], rxBuffer[6]};
+                        byte[] analogHUMD = new byte[]{rxBuffer[7], rxBuffer[8]};
+                        byte[] analogAIRP = new byte[]{rxBuffer[9], rxBuffer[10]};
+
+                        int tempValue = bytesToShort(analogTMPR[1], analogTMPR[0]);
+                        SET_TEMP = tempValue / 10;
+
+                        tempValue = bytesToShort(analogHUMD[1], analogHUMD[0]);
+                        SET_HUMD = tempValue / 10;
+
+                        tempValue = bytesToShort(analogAIRP[1], analogAIRP[0]);
+                        SET_AIRP = tempValue;
+
+
+
+
+                        // Update UI with settings
+                        notifySettingsUpdated(SET_TEMP, SET_HUMD, SET_AIRP);
+                    }
+                }
+            }
+        }
+    }
+    // Helper method to convert two bytes to short
+    private short bytesToShort(byte high, byte low) {
+        return (short) (((high & 0xFF) << 8) | (low & 0xFF));
+    }
+
+
+    // Add these callback methods to your interface and implementation
+    public interface ConnectionCallback {
+        void onConnectionResult(int resultCode, String message);
+        void onDataReceived(byte[] data);
+        void onConnectionLost();
+        void onSensorDataUpdated(int temperature, int humidity, int pressure);
+        void onSettingsUpdated(int tempSet, int humidSet, int pressureSet);
+
+
+
+
+
+
+    }
+
+    // Helper methods to notify callbacks
+    private void notifySensorDataUpdated(int temperature, int humidity, int pressure) {
+        mainHandler.post(() -> {
+            if (connectionCallback != null) {
+                connectionCallback.onSensorDataUpdated(temperature, humidity, pressure);
+            }
+        });
+    }
+
+    private void notifySettingsUpdated(int tempSet, int humidSet, int pressureSet) {
+        mainHandler.post(() -> {
+            if (connectionCallback != null) {
+                connectionCallback.onSettingsUpdated(tempSet, humidSet, pressureSet);
+            }
+        });
     }
     // Data Reception
   /* private void startListeningThread() {

@@ -254,7 +254,7 @@
                         android:src="@drawable/ic_temp_thermometer"/>
 
                     <TextView
-                        android:id="@+id/tempShow"
+                        android:id="@+id/temperatureTextView"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:text="00"
@@ -322,7 +322,7 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/setTemp"
+                                android:id="@+id/tempSetTextView"
                                 android:layout_width="42dp"
                                 android:layout_height="wrap_content"
                                 android:text="00"
@@ -404,7 +404,7 @@
                     android:src="@drawable/ic_humidity_icon" />
 
                 <TextView
-                    android:id="@+id/humShow"
+                    android:id="@+id/humidityTextView"
                     android:layout_width="55dp"
                     android:layout_height="60dp"
                     android:gravity="center"
@@ -475,7 +475,7 @@
                     android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/setHum"
+                            android:id="@+id/humidSetTextView"
                             android:layout_width="42dp"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="3dp"
@@ -561,7 +561,7 @@
                     android:src="@drawable/ic_diff_pressure" />
 
                 <TextView
-                    android:id="@+id/pressureShow"
+                    android:id="@+id/pressureTextView"
                     android:layout_width="70dp"
                     android:layout_height="60dp"
                     android:gravity="center"
@@ -606,7 +606,7 @@
 
 
             <TextView
-                android:id="@+id/difPresStatus"
+                android:id="@+id/pressureSetTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
