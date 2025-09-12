@@ -304,6 +304,20 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scp);
+        // Initialize components that might take time
+        bluetoothManager = new BluetoothConnectionManager(this);
+        customSlider1 = findViewById(R.id.customSlider1);
+        customSlider2 = findViewById(R.id.customSlider2);
+        customSlider3 = findViewById(R.id.customSlider3);
+        customSlider4 = findViewById(R.id.customSlider4);
+        SharedPreferences prefs = getSharedPreferences("MyIntensityPrefs", MODE_PRIVATE);
+
+        int saved1 = prefs.getInt("intensity1", 0); // default 0 if not saved
+        int saved2 = prefs.getInt("intensity2", 0);
+        int saved3 = prefs.getInt("intensity3", 0);
+        int saved4 = prefs.getInt("intensity4", 0);
+
+ 
 
         // Initialize UI components first to prevent ANR
         initializeUIComponents();
@@ -384,33 +398,50 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         });
 
 
-        customSlider1 = findViewById(R.id.customSlider1);
-        customSlider2 = findViewById(R.id.customSlider2);
-        customSlider3 = findViewById(R.id.customSlider3);
-        customSlider4 = findViewById(R.id.customSlider4);
+// also update bluetoothManager at startup
+        bluetoothManager.intensity1 = saved1;
+        bluetoothManager.intensity2 = saved2;
+        bluetoothManager.intensity3 = saved3;
+        bluetoothManager.intensity4 = saved4;
+        customSlider1.setValue(saved1);
+        customSlider2.setValue(saved2);
+        customSlider3.setValue(saved3);
+        customSlider4.setValue(saved4);
 
-        // Listen to slider changes
+        SharedPreferences.Editor editor = prefs.edit();
+
+// customSlider1
         customSlider1.getSlider().addOnChangeListener((slider, value, fromUser) -> {
             bluetoothManager.intensity1 = (int) value;
-            // Do something with myVariable
+            editor.putInt("intensity1", bluetoothManager.intensity1);
+            editor.apply();
             Log.d("MainActivity", "myVariable = " + bluetoothManager.intensity1);
         });
-        // Listen to slider changes
+
+// customSlider2
         customSlider2.getSlider().addOnChangeListener((slider, value, fromUser) -> {
             bluetoothManager.intensity2 = (int) value;
-            // Do something with myVariable
+            editor.putInt("intensity2", bluetoothManager.intensity2);
+            editor.apply();
             Log.d("MainActivity", "myVariable = " + bluetoothManager.intensity2);
         });
+
+// customSlider3
         customSlider3.getSlider().addOnChangeListener((slider, value, fromUser) -> {
             bluetoothManager.intensity3 = (int) value;
-            // Do something with myVariable
+            editor.putInt("intensity3", bluetoothManager.intensity3);
+            editor.apply();
             Log.d("MainActivity", "myVariable = " + bluetoothManager.intensity3);
         });
+
+// customSlider4
         customSlider4.getSlider().addOnChangeListener((slider, value, fromUser) -> {
             bluetoothManager.intensity4 = (int) value;
-            // Do something with myVariable
+            editor.putInt("intensity4", bluetoothManager.intensity4);
+            editor.apply();
             Log.d("MainActivity", "myVariable = " + bluetoothManager.intensity4);
         });
+
 
 
         // Example: set initial value
@@ -456,8 +487,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
     private void initializeBackgroundComponents() {
-        // Initialize components that might take time
-        bluetoothManager = new BluetoothConnectionManager(this);
+
         sharedPreferences1 = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         sharedPreferences = getSharedPreferences("LightPrefs", MODE_PRIVATE);
         editor = sharedPreferences.edit();
