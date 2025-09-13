@@ -524,34 +524,30 @@ public class BluetoothConnectionManager {
                     if (rxBuffer[21] == 0x20) {
                         serialtimeout = 0;
 
-                       // Log.d(TAG, "Last Address: " + rxBuffer[21]);
-                      //  Log.d(TAG, "Last Address: " + rxBuffer[5]);
-                       // Log.d(TAG, "Last Address: " + rxBuffer[6]);
+                        // Combine bytes directly (little-endian)
+                      //  int tempValue = ((rxBuffer[6] & 0xFF) << 8) | (rxBuffer[5] & 0xFF);
+                        int tempValue = (short) (((rxBuffer[5] & 0xFF) << 8) | (rxBuffer[6] & 0xFF));
 
-                        // Process sensor data
-                        byte[] analogTMPR = new byte[]{rxBuffer[5], rxBuffer[6]};
-                        byte[] analogHUMD = new byte[]{rxBuffer[7], rxBuffer[8]};
-                        byte[] analogAIRP = new byte[]{rxBuffer[9], rxBuffer[10]};
-
-                        int tempValue = bytesToShort(analogTMPR[1], analogTMPR[0]);
-                        READ_TEMP = tempValue;                  // Temp value from adc 0 to 1000
-                        DISP_TEMP = tempValue / 10;             // value from 0 to 100
-                        if (DISP_TEMP > 99) { DISP_TEMP = 99; }
+                        READ_TEMP = tempValue;
+                        DISP_TEMP = tempValue / 10;
+                        if (DISP_TEMP > 99) DISP_TEMP = 99;
                         Log.d(TAG, "Temperature Read Value: " + DISP_TEMP);
 
-                        tempValue = bytesToShort(analogHUMD[1], analogHUMD[0]);
-                        READ_HUMD = tempValue;                  // Humd value from adc 0 to 1000
+                        tempValue = (short) (((rxBuffer[7] & 0xFF) << 8) | (rxBuffer[8] & 0xFF));
+
+                       // tempValue = ((rxBuffer[8] & 0xFF) << 8) | (rxBuffer[7] & 0xFF);
+                        READ_HUMD = tempValue;
                         DISP_HUMD = tempValue / 10;
-                        if (DISP_HUMD > 99) { DISP_HUMD = 99; }
+                        if (DISP_HUMD > 99) DISP_HUMD = 99;
 
-                        tempValue = bytesToShort(analogAIRP[1], analogAIRP[0]);
-                        Log.d(TAG, "Differential Pressure:" + tempValue);
-                        READ_PRES = tempValue;                  // Press value from adc 0 to 500
+                        tempValue = (short) (((rxBuffer[9] & 0xFF) << 8) | (rxBuffer[10] & 0xFF));
+
+                        //tempValue = ((rxBuffer[10] & 0xFF) << 8) | (rxBuffer[9] & 0xFF);
+                        READ_PRES = tempValue;
                         DISP_PRES = tempValue;
-                        Log.d(TAG, "Differential Pressure:" + tempValue + " Different:" + DISP_PRES);
-                        if (DISP_PRES < 0) { DISP_PRES = 0; }
+                        if (DISP_PRES < 0) DISP_PRES = 0;
+                        Log.d(TAG, "Differential Pressure: " + DISP_PRES);
 
-                        // Update UI or notify listeners
                         notifySensorDataUpdated(DISP_TEMP, DISP_HUMD, DISP_PRES);
                     }
                 }
@@ -565,34 +561,22 @@ public class BluetoothConnectionManager {
                     if (rxBuffer[11] == 0x20) {
                         serialtimeout = 0;
 
-                        Log.d(TAG, "Last Address: " + rxBuffer[21]+" "+SET_TEMP);
-                        Log.d(TAG, "Last Address: " + rxBuffer[5]+" "+SET_HUMD);
-                        Log.d(TAG, "Last Address: " + rxBuffer[6]+" "+SET_AIRP);
-
-                        // Process settings data
-                        byte[] analogTMPR = new byte[]{rxBuffer[5], rxBuffer[6]};
-                        byte[] analogHUMD = new byte[]{rxBuffer[7], rxBuffer[8]};
-                        byte[] analogAIRP = new byte[]{rxBuffer[9], rxBuffer[10]};
-
-                        int tempValue = bytesToShort(analogTMPR[1], analogTMPR[0]);
+                        int tempValue = ((rxBuffer[6] & 0xFF) << 8) | (rxBuffer[5] & 0xFF);
                         SET_TEMP = tempValue / 10;
 
-                        tempValue = bytesToShort(analogHUMD[1], analogHUMD[0]);
+                        tempValue = ((rxBuffer[8] & 0xFF) << 8) | (rxBuffer[7] & 0xFF);
                         SET_HUMD = tempValue / 10;
 
-                        tempValue = bytesToShort(analogAIRP[1], analogAIRP[0]);
+                        tempValue = ((rxBuffer[10] & 0xFF) << 8) | (rxBuffer[9] & 0xFF);
                         SET_AIRP = tempValue;
 
-
-
-
-                        // Update UI with settings
                         notifySettingsUpdated(SET_TEMP, SET_HUMD, SET_AIRP);
                     }
                 }
             }
         }
     }
+
     // Helper method to convert two bytes to short
     private short bytesToShort(byte high, byte low) {
         return (short) (((high & 0xFF) << 8) | (low & 0xFF));
