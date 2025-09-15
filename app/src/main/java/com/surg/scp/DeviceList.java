@@ -301,6 +301,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private int myVariable1,myVariable2,myVariable3,myVariable4;
     private TextView temperatureTextView, humidityTextView, pressureTextView, tempSetTextView,humidSetTextView,pressureSetTextView;
     public TextView gasOneStatus, gasTwoStatus, gasThreeStatus,gasFourStatus,gasFiveStatus,gasSixStatus,gasSevenStatus;
+    private LinearLayout rightPart3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -312,6 +314,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         tempSetTextView = findViewById(R.id.tempSetTextView);
         humidSetTextView = findViewById(R.id.humidSetTextView);
         gasSevenStatus = findViewById(R.id.gasSevenStatus);
+        rightPart3 = findViewById(R.id.rightPart3);
 
         gasOneStatus = findViewById(R.id.gasOneStatus);
         gasTwoStatus = findViewById(R.id.gasTwoStatus);
@@ -1463,22 +1466,23 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         });
     }
 
+    /*
     private void checkdigitalinputs() {
         bluetoothManager.ac = 0;
 
         // Gas One
         if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[0]) == bluetoothManager.DigitalMASK[0]) {
             bluetoothManager.ac++;
-            gasOneStatus.setBackgroundColor(Color.RED);
+            gasOneStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasOneStatus.setText("HIGH");
             gasOneStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[1]) == bluetoothManager.DigitalMASK[1]) {
             bluetoothManager.ac++;
-            gasOneStatus.setBackgroundColor(Color.RED);
+            gasOneStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasOneStatus.setText("LOW");
             gasOneStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else {
-            gasOneStatus.setBackgroundColor(0xFF32CD32);
+            gasOneStatus.setBackgroundResource(R.drawable.mybutton);
             gasOneStatus.setText("OK");
             if (gasOneStatus.getVisibility() == View.GONE) {
                 gasOneStatus.setVisibility(View.VISIBLE);
@@ -1488,16 +1492,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Gas Two
         if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[2]) == bluetoothManager.DigitalMASK[2]) {
             bluetoothManager.ac++;
-            gasTwoStatus.setBackgroundColor(Color.RED);
+            gasTwoStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasTwoStatus.setText("HIGH");
             gasTwoStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[3]) == bluetoothManager.DigitalMASK[3]) {
             bluetoothManager.ac++;
-            gasTwoStatus.setBackgroundColor(Color.RED);
+            gasTwoStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasTwoStatus.setText("LOW");
             gasTwoStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else {
-            gasTwoStatus.setBackgroundColor(ContextCompat.getColor(this, R.color.limeGreen));
+            gasTwoStatus.setBackgroundResource(R.drawable.mybutton);
             gasTwoStatus.setText("OK");
             if (gasTwoStatus.getVisibility() == View.GONE) {
                 gasTwoStatus.setVisibility(View.VISIBLE);
@@ -1507,16 +1511,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Gas Three
         if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[4]) == bluetoothManager.DigitalMASK[4]) {
             bluetoothManager.ac++;
-            gasThreeStatus.setBackgroundColor(Color.RED);
+            gasThreeStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasThreeStatus.setText("HIGH");
             gasThreeStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[5]) == bluetoothManager.DigitalMASK[5]) {
             bluetoothManager.ac++;
-            gasThreeStatus.setBackgroundColor(Color.RED);
+            gasThreeStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasThreeStatus.setText("LOW");
             gasThreeStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else {
-            gasThreeStatus.setBackgroundColor(0xFF32CD32);
+            gasThreeStatus.setBackgroundResource(R.drawable.mybutton);
             gasThreeStatus.setText("OK");
             if (gasThreeStatus.getVisibility() == View.GONE) {
                 gasThreeStatus.setVisibility(View.VISIBLE);
@@ -1526,16 +1530,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Gas Four
         if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[6]) == bluetoothManager.DigitalMASK[6]) {
             bluetoothManager.ac++;
-            gasFourStatus.setBackgroundColor(Color.RED);
+            gasFourStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasFourStatus.setText("HIGH");
             gasFourStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[7]) == bluetoothManager.DigitalMASK[7]) {
             bluetoothManager.ac++;
-            gasFourStatus.setBackgroundColor(Color.RED);
+            gasFourStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasFourStatus.setText("LOW");
             gasFourStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else {
-            gasFourStatus.setBackgroundColor(0xFF32CD32);
+            gasFourStatus.setBackgroundResource(R.drawable.mybutton);
             gasFourStatus.setText("OK");
             if (gasFourStatus.getVisibility() == View.GONE) {
                 gasFourStatus.setVisibility(View.VISIBLE);
@@ -1545,16 +1549,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Gas Five
         if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[0]) == bluetoothManager.DigitalMASK[0]) {
             bluetoothManager.ac++;
-            gasFiveStatus.setBackgroundColor(Color.RED);
+            gasFiveStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasFiveStatus.setText("HIGH");
             gasFiveStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[1]) == bluetoothManager.DigitalMASK[1]) {
             bluetoothManager.ac++;
-            gasFiveStatus.setBackgroundColor(Color.RED);
+            gasFiveStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasFiveStatus.setText("LOW");
             gasFiveStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else {
-            gasFiveStatus.setBackgroundColor(0xFF32CD32);
+            gasFiveStatus.setBackgroundResource(R.drawable.mybutton);
             gasFiveStatus.setText("OK");
             if (gasFiveStatus.getVisibility() == View.GONE) {
                 gasFiveStatus.setVisibility(View.VISIBLE);
@@ -1564,16 +1568,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Gas Six
         if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[2]) == bluetoothManager.DigitalMASK[2]) {
             bluetoothManager.ac++;
-            gasSixStatus.setBackgroundColor(Color.RED);
+            gasSixStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasSixStatus.setText("HIGH");
             gasSixStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[3]) == bluetoothManager.DigitalMASK[3]) {
             bluetoothManager.ac++;
-            gasSixStatus.setBackgroundColor(Color.RED);
+            gasSixStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasSixStatus.setText("LOW");
             gasSixStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else {
-            gasSixStatus.setBackgroundColor(0xFF32CD32);
+            gasSixStatus.setBackgroundResource(R.drawable.mybutton);
             gasSixStatus.setText("OK");
             if (gasSixStatus.getVisibility() == View.GONE) {
                 gasSixStatus.setVisibility(View.VISIBLE);
@@ -1583,11 +1587,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // HEPA Filter (Gas Seven)
         if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[4]) == bluetoothManager.DigitalMASK[4]) {
             bluetoothManager.ac++;
-            gasSevenStatus.setBackgroundColor(Color.RED);
+            gasSevenStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasSevenStatus.setText("CHOKE");
             gasSevenStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
         } else {
-            gasSevenStatus.setBackgroundColor(0xFF32CD32);
+            gasSevenStatus.setBackgroundResource(R.drawable.mybutton);
             gasSevenStatus.setText("HEALTHY");
             if (gasSevenStatus.getVisibility() == View.GONE) {
                 gasSevenStatus.setVisibility(View.VISIBLE);
@@ -1599,9 +1603,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             bluetoothManager.DigitalOUT[0] |= 0x01; // buzzer on
             bluetoothManager.Muteflag = 0;           // Unmute
 
-          /*  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
-            speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
-            dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);*/
+         //  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
+         //   speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
+          //  dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
         }
 
         if (bluetoothManager.ac2 == 1) {
@@ -1609,23 +1613,189 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             bluetoothManager.DigitalOUT[0] |= 0x01; // buzzer on
             bluetoothManager.Muteflag = 0;           // Unmute
 
-          /*  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
-            speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
-            dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);*/
+          //  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
+         //   speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
+           // dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
         }
 
         if (bluetoothManager.ac == 0 && bluetoothManager.ac2 == 0) {
             bluetoothManager.DigitalOUT[0] &= 0xFE; // buzzer off
             bluetoothManager.Muteflag = 0;           // Unmute
 
-           /* dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
-            speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
-            dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);*/
+           // dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
+            //speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
+           // dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
         }
 
         bluetoothManager.pac = bluetoothManager.ac;
     }
 
+     */
+
+    private void checkdigitalinputs() {
+        bluetoothManager.ac = 0;
+
+        // Gas One
+        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[0]) == bluetoothManager.DigitalMASK[0]) {
+            bluetoothManager.ac++;
+            gasOneStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasOneStatus.setText("HIGH");
+            gasOneStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[1]) == bluetoothManager.DigitalMASK[1]) {
+            bluetoothManager.ac++;
+            gasOneStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasOneStatus.setText("LOW");
+            gasOneStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else {
+            gasOneStatus.setBackgroundResource(R.drawable.mybutton);
+            gasOneStatus.setText("OK");
+            if (gasOneStatus.getVisibility() == View.INVISIBLE) {
+                gasOneStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Gas Two
+        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[2]) == bluetoothManager.DigitalMASK[2]) {
+            bluetoothManager.ac++;
+            gasTwoStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasTwoStatus.setText("HIGH");
+            gasTwoStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[3]) == bluetoothManager.DigitalMASK[3]) {
+            bluetoothManager.ac++;
+            gasTwoStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasTwoStatus.setText("LOW");
+            gasTwoStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else {
+            gasTwoStatus.setBackgroundResource(R.drawable.mybutton);
+            gasTwoStatus.setText("OK");
+            if (gasTwoStatus.getVisibility() == View.INVISIBLE) {
+                gasTwoStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Gas Three
+        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[4]) == bluetoothManager.DigitalMASK[4]) {
+            bluetoothManager.ac++;
+            gasThreeStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasThreeStatus.setText("HIGH");
+            gasThreeStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[5]) == bluetoothManager.DigitalMASK[5]) {
+            bluetoothManager.ac++;
+            gasThreeStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasThreeStatus.setText("LOW");
+            gasThreeStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else {
+            gasThreeStatus.setBackgroundResource(R.drawable.mybutton);
+            gasThreeStatus.setText("OK");
+            if (gasThreeStatus.getVisibility() == View.INVISIBLE) {
+                gasThreeStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Gas Four
+        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[6]) == bluetoothManager.DigitalMASK[6]) {
+            bluetoothManager.ac++;
+            gasFourStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasFourStatus.setText("HIGH");
+            gasFourStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[7]) == bluetoothManager.DigitalMASK[7]) {
+            bluetoothManager.ac++;
+            gasFourStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasFourStatus.setText("LOW");
+            gasFourStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else {
+            gasFourStatus.setBackgroundResource(R.drawable.mybutton);
+            gasFourStatus.setText("OK");
+            if (gasFourStatus.getVisibility() == View.INVISIBLE) {
+                gasFourStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Gas Five
+        if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[0]) == bluetoothManager.DigitalMASK[0]) {
+            bluetoothManager.ac++;
+            gasFiveStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasFiveStatus.setText("HIGH");
+            gasFiveStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[1]) == bluetoothManager.DigitalMASK[1]) {
+            bluetoothManager.ac++;
+            gasFiveStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasFiveStatus.setText("LOW");
+            gasFiveStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else {
+            gasFiveStatus.setBackgroundResource(R.drawable.mybutton);
+            gasFiveStatus.setText("OK");
+            if (gasFiveStatus.getVisibility() == View.INVISIBLE) {
+                gasFiveStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Gas Six
+        if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[2]) == bluetoothManager.DigitalMASK[2]) {
+            bluetoothManager.ac++;
+            gasSixStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasSixStatus.setText("HIGH");
+            gasSixStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[3]) == bluetoothManager.DigitalMASK[3]) {
+            bluetoothManager.ac++;
+            gasSixStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasSixStatus.setText("LOW");
+            gasSixStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else {
+            gasSixStatus.setBackgroundResource(R.drawable.mybutton);
+            gasSixStatus.setText("OK");
+            if (gasSixStatus.getVisibility() == View.INVISIBLE) {
+                gasSixStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // HEPA Filter (Gas Seven)
+        if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[4]) == bluetoothManager.DigitalMASK[4]) {
+            bluetoothManager.ac++;
+            rightPart3.setBackgroundResource(R.drawable.mybutton_red);
+           // gasSevenStatus.setBackgroundResource(R.drawable.mybutton_red);
+            gasSevenStatus.setText("CHOKE");
+            rightPart3.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
+        } else {
+          //  gasSevenStatus.setBackgroundResource(R.drawable.mybutton);
+            rightPart3.setBackgroundResource(R.drawable.mybutton);
+            gasSevenStatus.setText("HEALTHY");
+            if (rightPart3.getVisibility() == View.INVISIBLE) {
+                rightPart3.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Buzzer control logic
+        if (bluetoothManager.ac > bluetoothManager.pac) {
+            bluetoothManager.DigitalOUT[0] |= 0x01; // buzzer on
+            bluetoothManager.Muteflag = 0;           // Unmute
+
+            //  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
+            //   speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
+            //  dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
+        }
+
+        if (bluetoothManager.ac2 == 1) {
+            bluetoothManager.ac2 = 2;
+            bluetoothManager.DigitalOUT[0] |= 0x01; // buzzer on
+            bluetoothManager.Muteflag = 0;           // Unmute
+
+            //  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
+            //   speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
+            // dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
+        }
+
+        if (bluetoothManager.ac == 0 && bluetoothManager.ac2 == 0) {
+            bluetoothManager.DigitalOUT[0] &= 0xFE; // buzzer off
+            bluetoothManager.Muteflag = 0;           // Unmute
+
+            // dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
+            //speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
+            // dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
+        }
+
+        bluetoothManager.pac = bluetoothManager.ac;
+    }
     @Override
     public void onSettingsUpdated(int tempSet, int humidSet, int pressureSet) {
         // Update UI with settings values

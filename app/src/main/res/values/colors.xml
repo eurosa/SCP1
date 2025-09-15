@@ -28,4 +28,7 @@
     <color name="solidDarkColor">#7f7f7f</color>
     <color name="solidBlueColor">#00004c</color>
     <color name="silverColor">#C0C0C0</color>
+    <color name="custom_green">#66CC00</color>
+    <color name="royal_blue">#FF3399FF</color>
+    <color name="custom_yellow">#FFFF66</color>
 </resources>
