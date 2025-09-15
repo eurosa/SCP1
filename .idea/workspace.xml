@@ -106,14 +106,7 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dcfbe793-51c3-4cf6-af46-b956e7d3f469" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/mybutton_red.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_scp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_scp.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" afterDir="false" />
-    </list>
+    <list default="true" id="dcfbe793-51c3-4cf6-af46-b956e7d3f469" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -122,7 +115,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=PhysicalDevice, isTemplate=false, identifier=serial=00069345E000047)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=PhysicalDevice, isTemplate=false, identifier=serial=RZ8N824YCWJ)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -676,7 +669,7 @@
       <option name="project" value="LOCAL" />
       <updated>1626256050906</updated>
     </task>
-    <option name="localTasksCounter" value="91" />
+    <option name="localTasksCounter" value="92" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
