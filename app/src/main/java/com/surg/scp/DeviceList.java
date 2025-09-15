@@ -188,7 +188,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     final int DisplayValueMax2 = 999;
     final int DisplayValueMax3 = 9999;
     //+++++++++++++++++++++++++ Auto Repeat increment and decrement ++++++++++++++++++++++++++
-
+    private static final String PREFS_DISPLAY_VALUE = "display_value";
+    private static final String PREFS_HUM_VALUE = "hum_value";
     Button On, Off, Discnt, Abt;
 
     //widgets
@@ -243,7 +244,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private DatabaseHandler dbHandler;
     private DataModel dataModel;
     private boolean success = false;
-    private TextView connectionStatus;
+    private ImageView connectionStatus;
     private String infoBLE = null;
     private String addressBLE = null;
     private String name = null;
@@ -299,7 +300,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private IncrementDecrementSlider customSlider1,customSlider2,customSlider3,customSlider4;
     private int myVariable1,myVariable2,myVariable3,myVariable4;
     private TextView temperatureTextView, humidityTextView, pressureTextView, tempSetTextView,humidSetTextView,pressureSetTextView;
-
+    public TextView gasOneStatus, gasTwoStatus, gasThreeStatus,gasFourStatus,gasFiveStatus,gasSixStatus,gasSevenStatus;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -310,7 +311,14 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         pressureTextView = findViewById(R.id.pressureTextView);
         tempSetTextView = findViewById(R.id.tempSetTextView);
         humidSetTextView = findViewById(R.id.humidSetTextView);
-        pressureSetTextView = findViewById(R.id.pressureSetTextView);
+        gasSevenStatus = findViewById(R.id.gasSevenStatus);
+
+        gasOneStatus = findViewById(R.id.gasOneStatus);
+        gasTwoStatus = findViewById(R.id.gasTwoStatus);
+        gasThreeStatus = findViewById(R.id.gasThreeStatus);
+        gasFourStatus = findViewById(R.id.gasFourStatus);
+        gasFiveStatus = findViewById(R.id.gasFiveStatus);
+        gasSixStatus = findViewById(R.id.gasSixStatus);
 
         // Initialize components that might take time
         bluetoothManager = new BluetoothConnectionManager(this);
@@ -331,8 +339,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         int saved2 = prefs.getInt("intensity2", 0);
         int saved3 = prefs.getInt("intensity3", 0);
         int saved4 = prefs.getInt("intensity4", 0);
-
-
+        currentDisplayValue = prefs.getInt(PREFS_DISPLAY_VALUE, 0);
+        currentHumValue = prefs.getInt(PREFS_HUM_VALUE, 0);
+        bluetoothManager.tempSet =currentDisplayValue;
+        bluetoothManager.humidSet =currentHumValue;
 
         // Initialize UI components first to prevent ANR
         initializeUIComponents();
@@ -470,7 +480,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         setAnimation();
 
         // Find all views
-        connectionStatusIcon = findViewById(R.id.connectionStatusIcon);
+        connectionStatusIcon = findViewById(R.id.connectionStatus);
         playPause = findViewById(R.id.startButton);
         settingButton = findViewById(R.id.settingButton);
         timerValue = findViewById(R.id.timerValue);
@@ -485,7 +495,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         lightTwoBtn = findViewById(R.id.lightTwoBtn);
         lightThreeBtn = findViewById(R.id.lightThreeBtn);
         lightFourBtn = findViewById(R.id.lightFourBtn);
-        connectionStatus = findViewById(R.id.connectionStatus);
+
         resetButton = findViewById(R.id.resetButton);
 
         // Setup toolbar
@@ -523,6 +533,13 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             getWindow().setExitTransition(slide);
             getWindow().setEnterTransition(slide);
         }
+    }
+
+    private void saveCurrentValues() {
+        SharedPreferences.Editor editor = getSharedPreferences("MyIntensityPrefs", MODE_PRIVATE).edit();
+        editor.putInt(PREFS_DISPLAY_VALUE, currentDisplayValue);
+        editor.putInt(PREFS_HUM_VALUE, currentHumValue);
+        editor.apply();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -1223,12 +1240,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                     int id = v.getId();
                     if (id == R.id.tempBtnPlus) {
                         currentDisplayValue = Math.min(DisplayValueMax3, currentDisplayValue + 1);
+
                     } else if (id == R.id.tempBtnMinus) {
                         currentDisplayValue = Math.max(DisplayValueMin, currentDisplayValue - 1);
+
                     } else if (id == R.id.humBtnPlus) {
                         currentHumValue = Math.min(DisplayValueMax3, currentHumValue + 1);
+
                     } else if (id == R.id.humBtnMinus) {
                         currentHumValue = Math.max(DisplayValueMin, currentHumValue - 1);
+
                     }
                     updateHumDisplay();
                     updateDisplay();
@@ -1281,23 +1302,31 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     // ON-CLICKS (referred to from XML)
     public void tempBtnMinusPressed() {
         currentDisplayValue = Math.max(DisplayValueMin, currentDisplayValue - 1);
+        bluetoothManager.tempSet =currentDisplayValue;
         updateDisplay();
+        saveCurrentValues(); // Save after change
     }
 
     public void tempBtnPlusPressed() {
         currentDisplayValue = Math.min(DisplayValueMax3, currentDisplayValue + 1);
+        bluetoothManager.tempSet =currentDisplayValue;
         updateDisplay();
+        saveCurrentValues(); // Save after change
     }
 
     // ON-CLICKS (referred to from XML)
     public void humBtnMinusPressed() {
         currentHumValue = Math.max(DisplayValueMin, currentHumValue - 1);
+        bluetoothManager.humidSet =currentHumValue;
         updateHumDisplay();
+        saveCurrentValues(); // Save after change
     }
 
     public void humBtnPlusPressed() {
         currentHumValue = Math.min(DisplayValueMax3, currentHumValue + 1);
+        bluetoothManager.humidSet =currentHumValue;
         updateHumDisplay();
+        saveCurrentValues(); // Save after change
     }
 
     // INTERNAL
@@ -1398,7 +1427,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         });
     }
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveCurrentValues();
+    }
     @Override
     public void onDataReceived(byte[] data) {
         uiHandler.post(() -> {
@@ -1411,7 +1444,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     @Override
     public void onConnectionLost() {
         uiHandler.post(() -> {
-            connectionStatus.setText("Connection lost");
+           // connectionStatus.setText("Connection lost");
             connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
             Toast.makeText(this, "Connection lost, attempting to reconnect...", Toast.LENGTH_SHORT).show();
         });
@@ -1424,7 +1457,173 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             temperatureTextView.setText(String.valueOf(temperature));
             humidityTextView.setText(String.valueOf(humidity));
             pressureTextView.setText(String.valueOf(pressure));
+
+            checkdigitalinputs();
+
         });
+    }
+
+    private void checkdigitalinputs() {
+        bluetoothManager.ac = 0;
+
+        // Gas One
+        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[0]) == bluetoothManager.DigitalMASK[0]) {
+            bluetoothManager.ac++;
+            gasOneStatus.setBackgroundColor(Color.RED);
+            gasOneStatus.setText("HIGH");
+            gasOneStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[1]) == bluetoothManager.DigitalMASK[1]) {
+            bluetoothManager.ac++;
+            gasOneStatus.setBackgroundColor(Color.RED);
+            gasOneStatus.setText("LOW");
+            gasOneStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else {
+            gasOneStatus.setBackgroundColor(0xFF32CD32);
+            gasOneStatus.setText("OK");
+            if (gasOneStatus.getVisibility() == View.GONE) {
+                gasOneStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Gas Two
+        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[2]) == bluetoothManager.DigitalMASK[2]) {
+            bluetoothManager.ac++;
+            gasTwoStatus.setBackgroundColor(Color.RED);
+            gasTwoStatus.setText("HIGH");
+            gasTwoStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[3]) == bluetoothManager.DigitalMASK[3]) {
+            bluetoothManager.ac++;
+            gasTwoStatus.setBackgroundColor(Color.RED);
+            gasTwoStatus.setText("LOW");
+            gasTwoStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else {
+            gasTwoStatus.setBackgroundColor(ContextCompat.getColor(this, R.color.limeGreen));
+            gasTwoStatus.setText("OK");
+            if (gasTwoStatus.getVisibility() == View.GONE) {
+                gasTwoStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Gas Three
+        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[4]) == bluetoothManager.DigitalMASK[4]) {
+            bluetoothManager.ac++;
+            gasThreeStatus.setBackgroundColor(Color.RED);
+            gasThreeStatus.setText("HIGH");
+            gasThreeStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[5]) == bluetoothManager.DigitalMASK[5]) {
+            bluetoothManager.ac++;
+            gasThreeStatus.setBackgroundColor(Color.RED);
+            gasThreeStatus.setText("LOW");
+            gasThreeStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else {
+            gasThreeStatus.setBackgroundColor(0xFF32CD32);
+            gasThreeStatus.setText("OK");
+            if (gasThreeStatus.getVisibility() == View.GONE) {
+                gasThreeStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Gas Four
+        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[6]) == bluetoothManager.DigitalMASK[6]) {
+            bluetoothManager.ac++;
+            gasFourStatus.setBackgroundColor(Color.RED);
+            gasFourStatus.setText("HIGH");
+            gasFourStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[7]) == bluetoothManager.DigitalMASK[7]) {
+            bluetoothManager.ac++;
+            gasFourStatus.setBackgroundColor(Color.RED);
+            gasFourStatus.setText("LOW");
+            gasFourStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else {
+            gasFourStatus.setBackgroundColor(0xFF32CD32);
+            gasFourStatus.setText("OK");
+            if (gasFourStatus.getVisibility() == View.GONE) {
+                gasFourStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Gas Five
+        if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[0]) == bluetoothManager.DigitalMASK[0]) {
+            bluetoothManager.ac++;
+            gasFiveStatus.setBackgroundColor(Color.RED);
+            gasFiveStatus.setText("HIGH");
+            gasFiveStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[1]) == bluetoothManager.DigitalMASK[1]) {
+            bluetoothManager.ac++;
+            gasFiveStatus.setBackgroundColor(Color.RED);
+            gasFiveStatus.setText("LOW");
+            gasFiveStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else {
+            gasFiveStatus.setBackgroundColor(0xFF32CD32);
+            gasFiveStatus.setText("OK");
+            if (gasFiveStatus.getVisibility() == View.GONE) {
+                gasFiveStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Gas Six
+        if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[2]) == bluetoothManager.DigitalMASK[2]) {
+            bluetoothManager.ac++;
+            gasSixStatus.setBackgroundColor(Color.RED);
+            gasSixStatus.setText("HIGH");
+            gasSixStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[3]) == bluetoothManager.DigitalMASK[3]) {
+            bluetoothManager.ac++;
+            gasSixStatus.setBackgroundColor(Color.RED);
+            gasSixStatus.setText("LOW");
+            gasSixStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else {
+            gasSixStatus.setBackgroundColor(0xFF32CD32);
+            gasSixStatus.setText("OK");
+            if (gasSixStatus.getVisibility() == View.GONE) {
+                gasSixStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // HEPA Filter (Gas Seven)
+        if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[4]) == bluetoothManager.DigitalMASK[4]) {
+            bluetoothManager.ac++;
+            gasSevenStatus.setBackgroundColor(Color.RED);
+            gasSevenStatus.setText("CHOKE");
+            gasSevenStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
+        } else {
+            gasSevenStatus.setBackgroundColor(0xFF32CD32);
+            gasSevenStatus.setText("HEALTHY");
+            if (gasSevenStatus.getVisibility() == View.GONE) {
+                gasSevenStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // Buzzer control logic
+        if (bluetoothManager.ac > bluetoothManager.pac) {
+            bluetoothManager.DigitalOUT[0] |= 0x01; // buzzer on
+            bluetoothManager.Muteflag = 0;           // Unmute
+
+          /*  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
+            speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
+            dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);*/
+        }
+
+        if (bluetoothManager.ac2 == 1) {
+            bluetoothManager.ac2 = 2;
+            bluetoothManager.DigitalOUT[0] |= 0x01; // buzzer on
+            bluetoothManager.Muteflag = 0;           // Unmute
+
+          /*  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
+            speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
+            dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);*/
+        }
+
+        if (bluetoothManager.ac == 0 && bluetoothManager.ac2 == 0) {
+            bluetoothManager.DigitalOUT[0] &= 0xFE; // buzzer off
+            bluetoothManager.Muteflag = 0;           // Unmute
+
+           /* dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
+            speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
+            dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);*/
+        }
+
+        bluetoothManager.pac = bluetoothManager.ac;
     }
 
     @Override
@@ -1551,7 +1750,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        saveCurrentValues();
         // Clean up handlers and executors
         if (customHandler != null) {
             customHandler.removeCallbacksAndMessages(null);

@@ -38,6 +38,14 @@ public class BluetoothConnectionManager {
     private static final long KEEP_ALIVE_INTERVAL_MS = 1000;
     private static final int MAX_RECONNECT_ATTEMPTS = 5;
     private static final int RECONNECT_BASE_DELAY_MS = 5000;
+    public int sec;
+
+    public static byte[] AnalogTMPR = new byte[] { 0x00, 0x00 };
+    public static byte[] AnalogHUMD = new byte[] { 0x00, 0x00 };
+    public static byte[] AnalogAIRP = new byte[] { 0x00, 0x00 };
+    public static byte[] DigitalMASK = new byte[] { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80 };
+
+    public static byte[] DigitalIN = new byte[] { 0x00, 0x00 };
 
     // UUIDs for SPP (Serial Port Profile)
     private static final UUID[] SPP_UUIDS = {
@@ -60,6 +68,8 @@ public class BluetoothConnectionManager {
     private final Context context;
     private final Handler mainHandler;
     private final ExecutorService executorService;
+    public int Muteflag;
+    public int speakerStatus;
 
     // Bluetooth components
     private BluetoothSocket btSocket;
@@ -78,10 +88,13 @@ public class BluetoothConnectionManager {
     // Data buffers
     private final byte[] rxBuffer = new byte[PACKET_SIZE];
     private final byte[] txBuffer = new byte[PACKET_SIZE];
-    private final byte[] digitalMask = new byte[]{0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80};
+    public boolean toggle;
 
     // Controller state
     public int deviceId;
+    public int ac;
+    public int pac;
+    public int ac2;
     public int tempSet;
     public int humidSet;
     public int diffPressureSet;
@@ -117,6 +130,7 @@ public class BluetoothConnectionManager {
         }
     };
 
+
    /* public interface ConnectionCallback {
         void onConnectionResult(int resultCode, String message);
 
@@ -131,10 +145,24 @@ public class BluetoothConnectionManager {
         this.executorService = Executors.newFixedThreadPool(2); // Separate threads for RX and TX
 // Initialize DigitalOUT array
         this.DigitalOUT = new byte[]{0x00, 0x00};
+
+        this.DigitalIN =new byte[]{0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80};
+        this.DigitalMASK = new byte[] { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80 };
+        this.AnalogTMPR = new byte[] { 0x00, 0x00 };
+        this.AnalogHUMD = new byte[] { 0x00, 0x00 };
+        this.AnalogAIRP = new byte[] { 0x00, 0x00 };
         this.intensity1 =0;
         this.intensity2=0;
         this.intensity3=0;
         this.intensity4=0;
+        this.tempSet=0;
+        this.humidSet=0;
+        this.ac =0;
+        this.ac2=0;
+        this.toggle = true;
+        this.pac =0;
+        this.Muteflag =0;
+        this.speakerStatus =0;
         // Register Bluetooth state receiver
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(bluetoothStateReceiver, filter);
@@ -321,9 +349,10 @@ public class BluetoothConnectionManager {
     public void sendControllerData() {
         if (!isConnected.get()) {
             Log.w(TAG, "Not connected - cannot send data");
+
             return;
         }
-
+        Log.d("TEMP_DATA", tempSet+" "+humidSet);
         // Initialize buffer properly
         byte[] txBuffer = new byte[22];
         Arrays.fill(txBuffer, (byte) 0);
@@ -370,6 +399,10 @@ public class BluetoothConnectionManager {
         txBuffer[20] = (byte) SHM;
         txBuffer[21] = 0x20;
 
+
+
+
+
         try {
             synchronized (this) {
                 if (isConnected.get() && outputStream != null) {
@@ -378,7 +411,7 @@ public class BluetoothConnectionManager {
 
                     // Better debugging with hex format
                     Log.d(TAG, "Data sent successfully");
-                    Log.d(TAG, "txBuffer as HEX: " + bytesToHex(txBuffer));
+                    Log.d("TEMP_DATA", "txBuffer as HEX: " + bytesToHex(txBuffer));
                 }
             }
         } catch (IOException e) {
@@ -524,6 +557,11 @@ public class BluetoothConnectionManager {
                     if (rxBuffer[21] == 0x20) {
                         serialtimeout = 0;
 
+                        DigitalIN[0] = rxBuffer[3]; DigitalIN[1] = rxBuffer[4];
+                        AnalogTMPR[1] = rxBuffer[5]; AnalogTMPR[0] = rxBuffer[6];
+                        AnalogHUMD[1] = rxBuffer[7]; AnalogHUMD[0] = rxBuffer[8];
+                        AnalogAIRP[1] = rxBuffer[9]; AnalogAIRP[0] = rxBuffer[10];
+
                         // Combine bytes directly (little-endian)
                       //  int tempValue = ((rxBuffer[6] & 0xFF) << 8) | (rxBuffer[5] & 0xFF);
                         int tempValue = (short) (((rxBuffer[5] & 0xFF) << 8) | (rxBuffer[6] & 0xFF));
@@ -547,6 +585,32 @@ public class BluetoothConnectionManager {
                         DISP_PRES = tempValue;
                         if (DISP_PRES < 0) DISP_PRES = 0;
                         Log.d(TAG, "Differential Pressure: " + DISP_PRES);
+
+                        sec++;
+                        if (sec >= 1)
+                        {
+                            sec = 0;
+                            if (toggle == true) toggle = false;          // FOR ALARM BLINKING AFTER EVERY 500 MSEC
+                            else toggle = true;                          // FOR ALARM BLINKING AFTER EVERY 500 MSEC
+                            //checkdigitalinputs();                        // GAS ALARM FUNCTION AFTER EVERY 500 MSEC
+
+                            if (DISP_TEMP > SET_TEMP)                   // Temperature Relay Output Control
+                            {
+                                DigitalOUT[1] |= 0x40;
+                            }
+                            if (DISP_TEMP < SET_TEMP)
+                            {
+                                DigitalOUT[1] &= 0xBF;
+                            }
+                            if (DISP_HUMD > SET_HUMD)                   // Humidity Relay Output Control
+                            {
+                                DigitalOUT[1] |= 0x80;
+                            }
+                            if (DISP_HUMD < SET_HUMD)
+                            {
+                                DigitalOUT[1] &= 0x7F;
+                            }
+                        }
 
                         notifySensorDataUpdated(DISP_TEMP, DISP_HUMD, DISP_PRES);
                     }

@@ -54,7 +54,7 @@
                     android:paddingEnd="8dp"/>
 
                 <ImageView
-                    android:id="@+id/connectionStatusIcon"
+                    android:id="@+id/connectionStatus"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_bluetooth_disconnected"
@@ -278,14 +278,13 @@
             <LinearLayout
                 android:id="@+id/rightPart"
                 android:layout_width="167dp"
-                android:layout_height="match_parent"
+                android:layout_height="72dp"
                 android:layout_gravity="center"
                 android:layout_margin="6dp"
                 android:layout_weight="1"
-                android:gravity="center"
                 android:background="@drawable/layout_bg_temp"
+                android:gravity="center"
                 android:orientation="vertical">
-
 
 
                 <LinearLayout
@@ -302,19 +301,20 @@
                         android:layout_gravity="center"
                         android:background="@drawable/mybutton_minus"
                         android:src="@drawable/ic_minus" />
+
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
-                    <TextView
-                    android:id="@+id/setPoint"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/set_point"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/textSize">
-                </TextView>
+
+                        <TextView
+                            android:id="@+id/setPoint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/set_point"
+                            android:textColor="@color/colorBlack"
+                            android:textSize="@dimen/textSize"></TextView>
 
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -325,11 +325,11 @@
                                 android:id="@+id/tempSetTextView"
                                 android:layout_width="42dp"
                                 android:layout_height="wrap_content"
-                                android:text="00"
-                                android:gravity="center"
-                                android:layout_marginRight="3dp"
-                                android:layout_marginLeft="1dp"
                                 android:layout_gravity="center"
+                                android:layout_marginLeft="1dp"
+                                android:layout_marginRight="3dp"
+                                android:gravity="center"
+                                android:text="00"
                                 android:textColor="@color/colorBlack"
                                 android:textSize="29sp" />
 
@@ -337,10 +337,10 @@
                                 android:id="@+id/tempUnit"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="&#xb0;C"
                                 android:layout_gravity="center"
                                 android:layout_marginLeft="3dp"
                                 android:layout_marginRight="6dp"
+                                android:text="&#xb0;C"
                                 android:textColor="@color/colorBlack"
                                 android:textSize="24sp" />
                         </LinearLayout>
@@ -606,13 +606,13 @@
 
 
             <TextView
-                android:id="@+id/pressureSetTextView"
+                android:id="@+id/gasSevenStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/healthy"
                 android:layout_gravity="center"
                 android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:text="@string/healthy"
                 android:textColor="@color/colorBlack"
                 android:textSize="29sp" />
 
@@ -667,7 +667,7 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasOneStatusIcon"
+                    android:id="@+id/gasOneStatus"
                     android:layout_width="80dp"
                     android:layout_height="33dp"
                     android:layout_marginBottom="10dp"
@@ -693,7 +693,7 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasTwoStatusIcon"
+                    android:id="@+id/gasTwoStatus"
                     android:layout_width="80dp"
                     android:layout_height="33dp"
                     android:layout_marginBottom="10dp"
@@ -726,7 +726,7 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasThreeStatusIcon"
+                    android:id="@+id/gasThreeStatus"
                     android:layout_width="80dp"
                     android:layout_height="33dp"
                     android:layout_marginBottom="10dp"
@@ -752,7 +752,7 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasFourStatusIcon"
+                    android:id="@+id/gasFourStatus"
                     android:layout_width="80dp"
                     android:layout_height="33dp"
                     android:layout_marginBottom="10dp"
@@ -786,7 +786,7 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasFiveStatusIcon"
+                    android:id="@+id/gasFiveStatus"
                     android:layout_width="80dp"
                     android:layout_height="33dp"
                     android:layout_marginBottom="10dp"
@@ -812,7 +812,7 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasSixStatusIcon"
+                    android:id="@+id/gasSixStatus"
                     android:layout_width="80dp"
                     android:layout_height="33dp"
                     android:layout_marginBottom="10dp"
@@ -1115,15 +1115,7 @@
         </ScrollView>
 
 
-        <TextView
-            android:id="@+id/connectionStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|bottom"
-            android:text="@string/no_device_connected"
-            android:textColor="@color/redColor"
-            android:textSize="24sp">
-        </TextView>
+
 
     </RelativeLayout>
 
