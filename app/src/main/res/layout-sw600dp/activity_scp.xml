@@ -54,7 +54,7 @@
                     android:paddingEnd="8dp"/>
 
                 <ImageView
-                    android:id="@+id/connectionStatusIcon"
+                    android:id="@+id/connectionStatus"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_bluetooth_disconnected"
@@ -76,10 +76,11 @@
             <LinearLayout
                 android:id="@+id/textClockLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginTop="3dp"
+
                 android:gravity="center"
+                android:background="@color/custom_green"
                 android:orientation="vertical">
                 <TextView
                     android:layout_width="wrap_content"
@@ -117,6 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@color/royal_blue"
                 android:gravity="top|center"
                 android:orientation="vertical">
 
@@ -254,7 +256,7 @@
                         android:src="@drawable/ic_temp_thermometer"/>
 
                     <TextView
-                        android:id="@+id/tempShow"
+                        android:id="@+id/temperatureTextView"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:text="00"
@@ -277,15 +279,14 @@
 
             <LinearLayout
                 android:id="@+id/rightPart"
-                android:layout_width="167dp"
+                android:layout_width="180dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_margin="6dp"
                 android:layout_weight="1"
-                android:gravity="center"
                 android:background="@drawable/layout_bg_temp"
+                android:gravity="center"
                 android:orientation="vertical">
-
 
 
                 <LinearLayout
@@ -302,19 +303,20 @@
                         android:layout_gravity="center"
                         android:background="@drawable/mybutton_minus"
                         android:src="@drawable/ic_minus" />
+
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
-                    <TextView
-                    android:id="@+id/setPoint"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/set_point"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/textSize">
-                </TextView>
+
+                        <TextView
+                            android:id="@+id/setPoint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/set_point"
+                            android:textColor="@color/colorBlack"
+                            android:textSize="@dimen/textSize"></TextView>
 
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -322,14 +324,14 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/setTemp"
+                                android:id="@+id/tempSetTextView"
                                 android:layout_width="42dp"
                                 android:layout_height="wrap_content"
-                                android:text="00"
-                                android:gravity="center"
-                                android:layout_marginRight="3dp"
-                                android:layout_marginLeft="1dp"
                                 android:layout_gravity="center"
+                                android:layout_marginLeft="1dp"
+                                android:layout_marginRight="3dp"
+                                android:gravity="center"
+                                android:text="00"
                                 android:textColor="@color/colorBlack"
                                 android:textSize="29sp" />
 
@@ -337,10 +339,10 @@
                                 android:id="@+id/tempUnit"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="&#xb0;C"
                                 android:layout_gravity="center"
                                 android:layout_marginLeft="3dp"
                                 android:layout_marginRight="6dp"
+                                android:text="&#xb0;C"
                                 android:textColor="@color/colorBlack"
                                 android:textSize="24sp" />
                         </LinearLayout>
@@ -404,7 +406,7 @@
                     android:src="@drawable/ic_humidity_icon" />
 
                 <TextView
-                    android:id="@+id/humShow"
+                    android:id="@+id/humidityTextView"
                     android:layout_width="55dp"
                     android:layout_height="60dp"
                     android:gravity="center"
@@ -475,7 +477,7 @@
                     android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/setHum"
+                            android:id="@+id/humidSetTextView"
                             android:layout_width="42dp"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="3dp"
@@ -561,7 +563,7 @@
                     android:src="@drawable/ic_diff_pressure" />
 
                 <TextView
-                    android:id="@+id/pressureShow"
+                    android:id="@+id/pressureTextView"
                     android:layout_width="70dp"
                     android:layout_height="60dp"
                     android:gravity="center"
@@ -583,7 +585,7 @@
 
         <LinearLayout
             android:id="@+id/rightPart3"
-            android:layout_width="297dp"
+            android:layout_width="310dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_margin="6dp"
@@ -606,13 +608,13 @@
 
 
             <TextView
-                android:id="@+id/difPresStatus"
-                android:layout_width="wrap_content"
+                android:id="@+id/gasSevenStatus"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/healthy"
                 android:layout_gravity="center"
                 android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:text="@string/healthy"
                 android:textColor="@color/colorBlack"
                 android:textSize="29sp" />
 
@@ -667,9 +669,9 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasOneStatusIcon"
-                    android:layout_width="80dp"
-                    android:layout_height="33dp"
+                    android:id="@+id/gasOneStatus"
+                    android:layout_width="180dp"
+                    android:layout_height="45dp"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="10dp"
@@ -693,9 +695,9 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasTwoStatusIcon"
-                    android:layout_width="80dp"
-                    android:layout_height="33dp"
+                    android:id="@+id/gasTwoStatus"
+                    android:layout_width="180dp"
+                    android:layout_height="45dp"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/mybutton"
@@ -726,9 +728,9 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasThreeStatusIcon"
-                    android:layout_width="80dp"
-                    android:layout_height="33dp"
+                    android:id="@+id/gasThreeStatus"
+                    android:layout_width="180dp"
+                    android:layout_height="45dp"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="15dp"
@@ -752,9 +754,9 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasFourStatusIcon"
-                    android:layout_width="80dp"
-                    android:layout_height="33dp"
+                    android:id="@+id/gasFourStatus"
+                    android:layout_width="180dp"
+                    android:layout_height="45dp"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="10dp"
@@ -786,9 +788,9 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasFiveStatusIcon"
-                    android:layout_width="80dp"
-                    android:layout_height="33dp"
+                    android:id="@+id/gasFiveStatus"
+                    android:layout_width="180dp"
+                    android:layout_height="45dp"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="24dp"
@@ -812,9 +814,9 @@
                     android:textColor="@color/whiteColor"/>
 
                 <TextView
-                    android:id="@+id/gasSixStatusIcon"
-                    android:layout_width="80dp"
-                    android:layout_height="33dp"
+                    android:id="@+id/gasSixStatus"
+                    android:layout_width="180dp"
+                    android:layout_height="45dp"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/mybutton"
@@ -896,6 +898,7 @@
             android:id="@+id/customSlider1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+
           />
 
 
@@ -1046,8 +1049,8 @@
         <com.kyleduo.switchbutton.SwitchButton
             android:id="@+id/switch1"
             style="@style/SwitchButtonStyle"
-            android:layout_width="150dp"
-            android:layout_height="51dp"
+            android:layout_width="180dp"
+            android:layout_height="63dp"
             android:textColor="@color/custom_text_state_color"
             android:textSize="16sp"
             app:kswTextAdjust="-2dp"
@@ -1074,8 +1077,8 @@
             <com.kyleduo.switchbutton.SwitchButton
                 android:id="@+id/switch2"
                 style="@style/SwitchButtonStyle"
-                android:layout_width="150dp"
-                android:layout_height="51dp"
+                android:layout_width="180dp"
+                android:layout_height="63dp"
                 android:textColor="@color/custom_text_state_color"
                 android:textSize="16sp"
                 app:kswTextAdjust="-2dp"
@@ -1114,15 +1117,7 @@
         </ScrollView>
 
 
-        <TextView
-            android:id="@+id/connectionStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|bottom"
-            android:text="@string/no_device_connected"
-            android:textColor="@color/redColor"
-            android:textSize="24sp">
-        </TextView>
+
 
     </RelativeLayout>
 

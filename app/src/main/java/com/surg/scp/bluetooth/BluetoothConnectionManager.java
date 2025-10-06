@@ -40,12 +40,12 @@ public class BluetoothConnectionManager {
     private static final int RECONNECT_BASE_DELAY_MS = 5000;
     public int sec;
 
-    public static byte[] AnalogTMPR = new byte[] { 0x00, 0x00 };
-    public static byte[] AnalogHUMD = new byte[] { 0x00, 0x00 };
-    public static byte[] AnalogAIRP = new byte[] { 0x00, 0x00 };
-    public static byte[] DigitalMASK = new byte[] { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80 };
+    public static byte[] AnalogTMPR = new byte[]{0x00, 0x00};
+    public static byte[] AnalogHUMD = new byte[]{0x00, 0x00};
+    public static byte[] AnalogAIRP = new byte[]{0x00, 0x00};
+    public static byte[] DigitalMASK = new byte[]{0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80};
 
-    public static byte[] DigitalIN = new byte[] { 0x00, 0x00 };
+    public static byte[] DigitalIN = new byte[]{0x00, 0x00};
 
     // UUIDs for SPP (Serial Port Profile)
     private static final UUID[] SPP_UUIDS = {
@@ -105,12 +105,13 @@ public class BluetoothConnectionManager {
 
     // Add these near your other state variables
     private int serialtimeout = 0;
-    private int  DISP_TEMP,  DISP_HUMD,  DISP_PRES;
+    private int DISP_TEMP, DISP_HUMD, DISP_PRES;
 
     public byte buzzerHexGas1, buzzerHexGas2, buzzerHexGas3, buzzerHexGas4;
     public byte buzzerHexGas5, buzzerHexGas6, buzzerHexGas7, buzzerHexGas8;
     public int autoManualStatus;
-
+    // Use a single-thread executor to handle background tasks
+    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     // Sensor readings
     private int readTemp, readHumd, readPres;
     private int dispTemp, dispHumd, dispPres;
@@ -146,23 +147,23 @@ public class BluetoothConnectionManager {
 // Initialize DigitalOUT array
         this.DigitalOUT = new byte[]{0x00, 0x00};
 
-        this.DigitalIN =new byte[]{0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80};
-        this.DigitalMASK = new byte[] { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80 };
-        this.AnalogTMPR = new byte[] { 0x00, 0x00 };
-        this.AnalogHUMD = new byte[] { 0x00, 0x00 };
-        this.AnalogAIRP = new byte[] { 0x00, 0x00 };
-        this.intensity1 =0;
-        this.intensity2=0;
-        this.intensity3=0;
-        this.intensity4=0;
-        this.tempSet=0;
-        this.humidSet=0;
-        this.ac =0;
-        this.ac2=0;
+        this.DigitalIN = new byte[]{0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80};
+        this.DigitalMASK = new byte[]{0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (byte) 0x80};
+        this.AnalogTMPR = new byte[]{0x00, 0x00};
+        this.AnalogHUMD = new byte[]{0x00, 0x00};
+        this.AnalogAIRP = new byte[]{0x00, 0x00};
+        this.intensity1 = 0;
+        this.intensity2 = 0;
+        this.intensity3 = 0;
+        this.intensity4 = 0;
+        this.tempSet = 0;
+        this.humidSet = 0;
+        this.ac = 0;
+        this.ac2 = 0;
         this.toggle = true;
-        this.pac =0;
-        this.Muteflag =0;
-        this.speakerStatus =0;
+        this.pac = 0;
+        this.Muteflag = 0;
+        this.speakerStatus = 0;
         // Register Bluetooth state receiver
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(bluetoothStateReceiver, filter);
@@ -222,7 +223,9 @@ public class BluetoothConnectionManager {
 
             try {
                 BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
-                establishConnection(device);
+
+
+                establishConnection(device,deviceAddress);
                 notifyConnectionResult(CONNECTION_SUCCESS, "Connected to " + getDeviceDisplayName(device));
             } catch (IllegalArgumentException e) {
                 notifyConnectionResult(CONNECTION_FAILED, "Invalid device address");
@@ -235,7 +238,64 @@ public class BluetoothConnectionManager {
         });
     }
 
-    private void establishConnection(BluetoothDevice device) throws IOException {
+    public  void sendATCommand(BluetoothSocket socket, String deviceAddress, String command) {
+        executor.execute(() -> {
+            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+            if (adapter == null || !adapter.isEnabled()) {
+                Log.e(TAG, "Bluetooth not enabled or not supported");
+                return;
+            }
+
+            BluetoothDevice device = adapter.getRemoteDevice(deviceAddress);
+            //BluetoothSocket socket = null;
+
+            try {
+                //socket = device.createRfcommSocketToServiceRecord(HC05_UUID);
+                //adapter.cancelDiscovery();
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                socket.connect();
+
+                OutputStream outputStream = socket.getOutputStream();
+                InputStream inputStream = socket.getInputStream();
+
+                // Send AT command with CR+LF
+                String atCommand = command + "\r\n";
+                outputStream.write(atCommand.getBytes());
+                outputStream.flush();
+                Log.d(TAG, "Sent: " + command);
+
+                // Read response
+                byte[] buffer = new byte[1024];
+                int bytes = inputStream.read(buffer);
+                String response = new String(buffer, 0, bytes);
+                Log.d(TAG, "Response: " + response);
+
+                outputStream.close();
+                inputStream.close();
+               // socket.close();
+
+            } catch (IOException e) {
+                Log.e(TAG, "Error: " + e.getMessage());
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException ex) {
+                        Log.e(TAG, "Close error: " + ex.getMessage());
+                    }
+                }
+            }
+        });
+    }
+    private void establishConnection(BluetoothDevice device,String deviceAddress) throws IOException {
         BluetoothSocket socket = null;
         IOException lastException = null;
 
@@ -254,7 +314,7 @@ public class BluetoothConnectionManager {
                     return;
                 }
                 socket.connect();
-
+              //  sendATCommand(btSocket, deviceAddress, "AT+NAME=HELLO_SCP");
                 // Connection successful
                 btSocket = socket;
                 inputStream = btSocket.getInputStream();
@@ -264,7 +324,15 @@ public class BluetoothConnectionManager {
                     throw new IOException("Failed to establish streams");
                 }
 
+                // Send AT command with CR+LF
+                String atCommand = "AT+NAME=HELLO_SCP" + "\r\n";
+                outputStream.write(atCommand.getBytes());
+                outputStream.flush();
+                Log.d("ihiuyhiuyui", "Sent: " + "AT+NAME=HELLO_SCP");
+
                 isConnected.set(true);
+
+
 
                 verifyProtocol();
                 startListeningThread();
