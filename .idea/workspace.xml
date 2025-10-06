@@ -123,9 +123,7 @@
       <change beforePath="$PROJECT_DIR$/.gradle/8.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/DeviceList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/ScanActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/ScanActivity.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -690,7 +688,7 @@
       <option name="project" value="LOCAL" />
       <updated>1626256050906</updated>
     </task>
-    <option name="localTasksCounter" value="94" />
+    <option name="localTasksCounter" value="95" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

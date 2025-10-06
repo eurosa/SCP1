@@ -1062,7 +1062,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         } else {
             startActivity(intent);
         }
-
+        
     }
     public void shareApp() {
         try {
