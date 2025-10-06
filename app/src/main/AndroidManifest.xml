@@ -33,6 +33,7 @@
 
         <activity
             android:name="com.surg.scp.ScanActivity"
+            android:launchMode="singleTop"
             android:theme="@style/MyMaterialTheme.Base" />
         <activity
             android:name="com.surg.scp.SplashScreen"
@@ -47,6 +48,7 @@
         <activity
 
             android:name="com.surg.scp.DeviceList"
+            android:launchMode="singleTop"
             android:theme="@style/MyMaterialTheme" />
         <activity
             android:name="com.surg.scp.DataControl"

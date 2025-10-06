@@ -116,7 +116,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     /***************************************************************************************
      *                           Start Increment and Decrement
      ****************************************************************************************/
-
+    private boolean doubleBackToExitPressedOnce = false;
     ImageButton tempMinusButton;
     ImageButton tempPlusButton;
     ImageButton[] arrayOfControlButtons;
@@ -971,6 +971,37 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         countUpTimer.start();
     }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return;
+        }
+
+        if (doubleBackToExitPressedOnce) {
+            // Second back press - exit
+            cleanupBeforeExit();
+            super.onBackPressed(); // This is okay here since we want to exit
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please press BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler(Looper.getMainLooper()).postDelayed(() ->
+                doubleBackToExitPressedOnce = false, 2000);
+    }
+
+    private void cleanupBeforeExit() {
+        if (bluetoothManager != null) {
+            bluetoothManager.disconnect();
+            finish();
+        }
+        saveCurrentValues();
+        stopAutoRepeat();
+    }
+
     public void exitApplication() {
         final AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setMessage("Are you sure you want to exit application?");
@@ -1031,6 +1062,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         } else {
             startActivity(intent);
         }
+
     }
     public void shareApp() {
         try {

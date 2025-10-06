@@ -369,6 +369,7 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
             i.putExtra(EXTRA_ADDRESS, address); //this will be received at DataControl (class) Activity
             i.putExtra(EXTRA_INFO, info); //this will be received at DataControl (class) Activity
             startActivity(i);
+            finish();
         }
     };
 
