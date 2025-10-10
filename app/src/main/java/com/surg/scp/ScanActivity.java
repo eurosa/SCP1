@@ -368,11 +368,20 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
             //Change the activity.
             i.putExtra(EXTRA_ADDRESS, address); //this will be received at DataControl (class) Activity
             i.putExtra(EXTRA_INFO, info); //this will be received at DataControl (class) Activity
+           // startActivity(i);
+            // Clear the activity stack and start fresh
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            setResult(RESULT_OK, i);
+
             startActivity(i);
             finish();
         }
     };
-
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        super.onBackPressed();
+    }
     /*private AdapterView.OnItemClickListener myListClickListener = new AdapterView.OnItemClickListener()
     {
         public void onItemClick (AdapterView<?> av, View v, int arg2, long arg3)

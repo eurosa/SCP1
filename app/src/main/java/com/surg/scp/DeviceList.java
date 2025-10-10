@@ -473,11 +473,34 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
 
         // Example: set initial value
-
+        // Handle intent data - BOTH from direct start and from activity result
+        handleIncomingIntent();
  
 
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reset the double back press flag when returning to this activity
+        doubleBackToExitPressedOnce = false;
+    }
 
+    private void handleIncomingIntent() {
+        Intent intent = getIntent();
+        String address = intent.getStringExtra(DeviceList.EXTRA_ADDRESS);
+        String info_address = intent.getStringExtra(DeviceList.EXTRA_INFO);
+
+        if (address != null) {
+            connectToDevice(address, info_address);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIncomingIntent();
+    }
     private void initializeUIComponents() {
         // Initialize all UI components here
         setAnimation();
@@ -1054,15 +1077,24 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+    private static final int SCAN_ACTIVITY_REQUEST_CODE = 1001;
+
     private void ScanDevicesList() {
         Intent intent = new Intent(this, ScanActivity.class);
         if (Build.VERSION.SDK_INT > 20) {
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this);
-            startActivity(intent, options.toBundle());
+            startActivityForResult(intent, SCAN_ACTIVITY_REQUEST_CODE, options.toBundle());
         } else {
-            startActivity(intent);
+            startActivityForResult(intent, SCAN_ACTIVITY_REQUEST_CODE);
         }
-        
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SCAN_ACTIVITY_REQUEST_CODE) {
+            // Handle any results from ScanActivity if needed
+        }
     }
     public void shareApp() {
         try {
