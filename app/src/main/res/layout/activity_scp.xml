@@ -271,6 +271,7 @@
                         android:layout_weight="1"
                         android:background="@drawable/layout_bg_temp"
                         android:gravity="center"
+                        android:layout_marginEnd="3dp"
                         android:layout_gravity="center"
                         android:orientation="vertical"
                         android:padding="@dimen/medium_padding">
@@ -408,6 +409,7 @@
                         android:layout_weight="1"
                         android:background="@drawable/layout_bg_hum"
                         android:gravity="center"
+                        android:layout_marginEnd="3dp"
                         android:layout_gravity="center"
                         android:orientation="vertical"
                         android:padding="@dimen/medium_padding">
@@ -546,6 +548,7 @@
                         android:layout_weight="1"
                         android:background="@drawable/layout_bg_pressure"
                         android:gravity="center"
+                        android:layout_marginEnd="3dp"
                         android:layout_gravity="center"
                         android:orientation="vertical"
                         android:padding="@dimen/medium_padding">
