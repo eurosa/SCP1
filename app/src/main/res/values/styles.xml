@@ -97,11 +97,18 @@
         <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
     </style>
 
-    <style name="SwitchButtonStyle">
+   <!-- <style name="SwitchButtonStyle">
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
         <item name="android:paddingTop">4dp</item>
         <item name="android:paddingBottom">4dp</item>
+    </style>-->
+
+    <style name="SwitchButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">150dp</item>
+        <item name="android:minHeight">51dp</item>
     </style>
 
     <style name="MyMaterialTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -114,6 +121,15 @@
     <!--To fix rendering in preview -->
     <style name="AppTextAppearance.Button" parent="TextAppearance.MaterialComponents.Button">
         <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="ControlCardStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/control_card_height</item>
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="cardUseCompatPadding">true</item>
+        <item name="cardPreventCornerOverlap">true</item>
     </style>
 
 

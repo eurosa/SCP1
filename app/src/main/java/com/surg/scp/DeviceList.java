@@ -76,6 +76,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.exifinterface.media.ExifInterface;
@@ -93,6 +94,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.text.BreakIterator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -302,6 +304,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private TextView temperatureTextView, humidityTextView, pressureTextView, tempSetTextView,humidSetTextView,pressureSetTextView;
     public TextView gasOneStatus, gasTwoStatus, gasThreeStatus,gasFourStatus,gasFiveStatus,gasSixStatus,gasSevenStatus;
     private LinearLayout rightPart3;
+    private TextView gasOne, gasTwo, gasThree, gasFour, gasFive, gasSix;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -315,6 +318,14 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         humidSetTextView = findViewById(R.id.humidSetTextView);
         gasSevenStatus = findViewById(R.id.gasSevenStatus);
         rightPart3 = findViewById(R.id.rightPart3);
+
+        // Gas names
+        gasOne = findViewById(R.id.gasOne);
+        gasTwo = findViewById(R.id.gasTwo);
+        gasThree = findViewById(R.id.gasThree);
+        gasFour = findViewById(R.id.gasFour);
+        gasFive = findViewById(R.id.gasFive);
+        gasSix = findViewById(R.id.gasSix);
 
         gasOneStatus = findViewById(R.id.gasOneStatus);
         gasTwoStatus = findViewById(R.id.gasTwoStatus);
@@ -475,9 +486,84 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Example: set initial value
         // Handle intent data - BOTH from direct start and from activity result
         handleIncomingIntent();
- 
 
+        setupGasTexts();
+        setupStatusTexts();
     }
+
+
+    private void setupGasTexts() {
+        // Method 1: Using HtmlCompat (recommended for Android X)
+        gasOne.setText(HtmlCompat.fromHtml(
+                getString(R.string.oxygen),
+                HtmlCompat.FROM_HTML_MODE_LEGACY
+        ));
+
+        // Method 2: Direct Unicode (simpler)
+        gasThree.setText("N\u2082O"); // Nitrous Oxide
+
+        // Method 3: Using helper method
+        setHtmlText(gasFive, R.string.carbon_dioxide);
+
+        // Regular text
+        gasTwo.setText(getString(R.string.air_4_bar));
+        gasFour.setText(getString(R.string.air_7_bar));
+        gasSix.setText(getString(R.string.vacuum));
+    }
+
+    private void setHtmlText(TextView textView, int stringResId) {
+        String htmlText = getString(stringResId);
+        textView.setText(HtmlCompat.fromHtml(htmlText, HtmlCompat.FROM_HTML_MODE_LEGACY));
+    }
+
+    private void setupStatusTexts() {
+        // Set initial status
+        String normalStatus = getString(R.string.normal);
+
+        gasOneStatus.setText(normalStatus);
+        gasTwoStatus.setText(normalStatus);
+        gasThreeStatus.setText(normalStatus);
+        gasFourStatus.setText(normalStatus);
+        gasFiveStatus.setText(normalStatus);
+        gasSixStatus.setText(normalStatus);
+
+        // You can update status dynamically
+        // Example: updateGasStatus("oxygen", "Warning");
+    }
+
+    public void updateGasStatus(String gasType, String status) {
+        switch (gasType.toLowerCase()) {
+            case "oxygen":
+                gasOneStatus.setText(status);
+                break;
+            case "air_4_bar":
+                gasTwoStatus.setText(status);
+                break;
+            case "nitrous_oxide":
+                gasThreeStatus.setText(status);
+                break;
+            case "air_7_bar":
+                gasFourStatus.setText(status);
+                break;
+            case "carbon_dioxide":
+                gasFiveStatus.setText(status);
+                break;
+            case "vacuum":
+                gasSixStatus.setText(status);
+                break;
+        }
+    }
+
+    // To update all status at once
+    public void updateAllStatus(String status) {
+        gasOneStatus.setText(status);
+        gasTwoStatus.setText(status);
+        gasThreeStatus.setText(status);
+        gasFourStatus.setText(status);
+        gasFiveStatus.setText(status);
+        gasSixStatus.setText(status);
+    }
+    
     @Override
     protected void onResume() {
         super.onResume();

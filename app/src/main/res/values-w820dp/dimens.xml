@@ -1,7 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Example customization of dimensions originally defined in res/values/dimens.xml
-         (such as screen margins) for screens with more than 820dp of available width. This
-         would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively). -->
-    <dimen name="activity_horizontal_margin">64dp</dimen>
+    <!-- Extra large controls for large tablets -->
+    <dimen name="control_button_size">48dp</dimen>
+    <dimen name="control_button_large">68dp</dimen>
+    <dimen name="light_button_size">64dp</dimen>
 
+    <!-- Extra large cards for large tablets -->
+    <dimen name="control_card_height">140dp</dimen>
+    <dimen name="time_section_height">190dp</dimen>
+    <dimen name="switch_width">150dp</dimen>
+    <dimen name="switch_height">51dp</dimen>
+    <!-- Extra large icons for large tablets -->
+    <dimen name="icon_size_medium">48dp</dimen>
+    <dimen name="icon_size_large">64dp</dimen>
+
+    <!-- Extra large Font Sizes for Large Tablets -->
+    <dimen name="toolbar_title_text">24sp</dimen>
+    <dimen name="large_time_text">48sp</dimen>
+    <dimen name="card_title_text">18sp</dimen>
+    <dimen name="large_value_text">40sp</dimen>
+    <dimen name="unit_text">32sp</dimen>
+    <dimen name="section_title_text">22sp</dimen>
+    <dimen name="gas_label_text">18sp</dimen>
+    <dimen name="gas_status_text">18sp</dimen>
+    <dimen name="light_label_text">20sp</dimen>
+    <dimen name="switch_label_text">20sp</dimen>
+    <dimen name="switch_text">18sp</dimen>
+    <dimen name="_90dp">90dp</dimen>
+
+    <!-- More columns for large tablets -->
+    <integer name="gas_alarm_columns">4</integer>
 </resources>

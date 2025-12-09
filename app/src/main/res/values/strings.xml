@@ -33,9 +33,9 @@
     <string name="startButtonLabel">Start</string>
     <string name="resetButtonLabel">Reset</string>
     <string name="stopButtonLabel">Stop</string>
-    <string name="carbon_dioxide">CO<sub>2</sub></string>
-    <string name="nitrous_oxide">N<sub>2</sub>O</string>
-    <string name="oxygen">O<sub>2</sub></string>
+    <string name="carbon_dioxide">CO₂</string>
+    <string name="nitrous_oxide">N₂O</string>
+    <string name="oxygen">O₂</string>
     <string name="air_4_bar">Air 4</string>
     <string name="air_7_bar">Air 7</string>
     <string name="vacuum">Vacuum</string>
