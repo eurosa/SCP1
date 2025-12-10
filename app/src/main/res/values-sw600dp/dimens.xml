@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Larger padding for tablets -->
+    <dimen name="medium_padding">12dp</dimen>
+    <dimen name="large_padding">24dp</dimen>
+    <dimen name="extra_large_padding">32dp</dimen>
+
+    <!-- Larger controls for tablets -->
+    <dimen name="control_button_size">42dp</dimen>
+    <dimen name="control_button_large">60dp</dimen>
+    <dimen name="light_button_size">56dp</dimen>
+
+    <!-- Larger cards for tablets -->
+    <dimen name="control_card_height">120dp</dimen>
+    <dimen name="time_section_height">180dp</dimen>
+    <dimen name="switch_width">150dp</dimen>
+    <dimen name="switch_height">51dp</dimen>
+    <!-- Larger icons for tablets -->
+    <dimen name="icon_size_medium">40dp</dimen>
+    <dimen name="icon_size_large">56dp</dimen>
+
+    <!-- Larger gas status for tablets -->
+    <dimen name="gas_status_min_width">100dp</dimen>
+
+    <!-- Larger Font Sizes for Tablets -->
+    <dimen name="toolbar_title_text">22sp</dimen>
+    <dimen name="large_time_text">44sp</dimen>
+    <dimen name="card_title_text">16sp</dimen>
+    <dimen name="large_value_text">36sp</dimen>
+    <dimen name="unit_text">28sp</dimen>
+    <dimen name="section_title_text">20sp</dimen>
+    <dimen name="gas_label_text">16sp</dimen>
+    <dimen name="gas_status_text">16sp</dimen>
+    <dimen name="light_label_text">18sp</dimen>
+    <dimen name="switch_label_text">18sp</dimen>
+    <dimen name="switch_text">16sp</dimen>
+    <dimen name="_90dp">92dp</dimen>
+</resources>

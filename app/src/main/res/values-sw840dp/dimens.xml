@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Maximum sizes for extra large tablets -->
+    <dimen name="medium_padding">20dp</dimen>
+    <dimen name="large_padding">40dp</dimen>
+    <dimen name="extra_large_padding">48dp</dimen>
+
+    <!-- Maximum controls -->
+    <dimen name="control_button_size">56dp</dimen>
+    <dimen name="control_button_large">76dp</dimen>
+    <dimen name="light_button_size">72dp</dimen>
+
+    <!-- Maximum card sizes -->
+    <dimen name="control_card_height">160dp</dimen>
+    <dimen name="time_section_height">200dp</dimen>
+    <dimen name="switch_width">150dp</dimen>
+    <dimen name="switch_height">51dp</dimen>
+    <!-- Maximum icons -->
+    <dimen name="icon_size_medium">56dp</dimen>
+    <dimen name="icon_size_large">72dp</dimen>
+
+    <!-- Maximum gas status -->
+    <dimen name="gas_status_min_width">140dp</dimen>
+
+    <!-- Maximum Font Sizes -->
+    <dimen name="toolbar_title_text">26sp</dimen>
+    <dimen name="large_time_text">52sp</dimen>
+    <dimen name="card_title_text">20sp</dimen>
+    <dimen name="large_value_text">44sp</dimen>
+    <dimen name="unit_text">36sp</dimen>
+    <dimen name="section_title_text">24sp</dimen>
+    <dimen name="gas_label_text">20sp</dimen>
+    <dimen name="gas_status_text">20sp</dimen>
+    <dimen name="light_label_text">22sp</dimen>
+    <dimen name="switch_label_text">22sp</dimen>
+    <dimen name="switch_text">20sp</dimen>
+    <dimen name="_90dp">96dp</dimen>
+
+    <!-- Even more columns for landscape -->
+    <integer name="gas_alarm_columns">6</integer>
+</resources>

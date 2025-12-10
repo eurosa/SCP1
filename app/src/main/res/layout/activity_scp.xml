@@ -540,7 +540,7 @@
                                 android:textSize="@dimen/unit_text" />
                         </LinearLayout>
                     </LinearLayout>
-
+x
                     <LinearLayout
                         android:id="@+id/rightPart3"
                         android:layout_width="0dp"
