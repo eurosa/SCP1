@@ -75,14 +75,15 @@
                 android:background="@color/custom_green"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="@dimen/medium_padding">
+                android:padding="@dimen/small_padding">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/time_date_title"
                     android:textColor="@color/whiteColor"
-                    android:textSize="@dimen/small_text" />
+                    android:layout_marginBottom="@dimen/small_padding"
+                    android:textSize="@dimen/large_text" />
 
                 <TextView
                     android:id="@+id/hk_time"
@@ -90,6 +91,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="12:48:12"
+                    android:layout_marginBottom="@dimen/small_padding"
+                    android:layout_marginTop="@dimen/small_padding"
                     android:textColor="@color/whiteColor"
                     android:textSize="@dimen/large_time_text"
                     android:textStyle="bold" />
@@ -98,7 +101,8 @@
                     android:id="@+id/hk_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/tiny_padding"
+
+                    android:layout_marginBottom="@dimen/medium_padding"
                     android:text="12/18/2020"
                     android:textColor="@color/whiteColor"
                     android:textSize="@dimen/medium_text" />
@@ -132,7 +136,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/elapsed_time"
                         android:textColor="@color/whiteColor"
-                        android:textSize="@dimen/small_text" />
+                        android:textSize="@dimen/large_text" />
 
                     <TextView
                         android:id="@+id/timerValue"
@@ -540,7 +544,7 @@
                                 android:textSize="@dimen/unit_text" />
                         </LinearLayout>
                     </LinearLayout>
-x
+
                     <LinearLayout
                         android:id="@+id/rightPart3"
                         android:layout_width="0dp"
@@ -569,7 +573,7 @@ x
                             android:gravity="center"
                             android:text="@string/healthy"
                             android:textColor="@color/colorBlack"
-                            android:textSize="@dimen/large_value_text" />
+                            android:textSize="@dimen/extra_large_text" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -805,8 +809,8 @@ x
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/divider_height"
                     android:layout_below="@id/firstRowGasLayout"
-                    android:layout_marginTop="@dimen/small_padding"
-                    android:layout_marginBottom="@dimen/small_padding"
+                    android:layout_marginTop="@dimen/medium_padding"
+                    android:layout_marginBottom="@dimen/medium_padding"
                     android:background="@color/darkGray" />
 
                 <!-- Light 1 -->
@@ -826,6 +830,7 @@ x
                         android:layout_marginStart="@dimen/medium_padding"
                         android:background="@color/colorBlack"
                         android:contentDescription="Light 1"
+                        android:scaleType="fitCenter"
                         android:src="@drawable/ic_bulb_on" />
 
                     <TextView
@@ -861,6 +866,7 @@ x
                         android:layout_marginStart="@dimen/medium_padding"
                         android:background="@color/colorBlack"
                         android:contentDescription="Light 2"
+                        android:scaleType="fitCenter"
                         android:src="@drawable/ic_bulb_off" />
 
                     <TextView
@@ -896,6 +902,7 @@ x
                         android:layout_marginStart="@dimen/medium_padding"
                         android:background="@color/colorBlack"
                         android:contentDescription="Light 3"
+                        android:scaleType="fitCenter"
                         android:src="@drawable/ic_bulb_off" />
 
                     <TextView
@@ -931,6 +938,7 @@ x
                         android:layout_marginStart="@dimen/medium_padding"
                         android:background="@color/colorBlack"
                         android:contentDescription="Light 4"
+                        android:scaleType="fitCenter"
                         android:src="@drawable/ic_bulb_off" />
 
                     <TextView

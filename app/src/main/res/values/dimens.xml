@@ -55,7 +55,7 @@
         <dimen name="medium_text">14sp</dimen>
         <dimen name="normal_text">16sp</dimen>
         <dimen name="large_text">18sp</dimen>
-        <dimen name="extra_large_text">20sp</dimen>
+        <dimen name="extra_large_text">27sp</dimen>
 
         <!-- Component Specific Font Sizes - Phone -->
         <dimen name="toolbar_title_text">18sp</dimen>
