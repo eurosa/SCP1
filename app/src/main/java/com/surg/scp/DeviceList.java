@@ -500,6 +500,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             tryAutoConnect();
         }, 1500); // Wait 1.5 seconds for UI to load
 
+        // Setup both switches to handle click and slide
+        setupSwitch1();
+        setupSwitch2();
+
     }
 
     private boolean isBluetoothConnected() {
@@ -2162,9 +2166,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         int id = v.getId();
 
         if (id == R.id.switch1) {
-            switch1(v);
+         //   switch1(v);
         } else if (id == R.id.switch2) {
-            switch2(v);
+          //  switch2(v);
         } else if (id == R.id.tempBtnPlus) {
             tempBtnPlusPressed();
         } else if (id == R.id.tempBtnMinus) {
@@ -2183,6 +2187,108 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             switch4Light(v);
         }
     }
+
+    // Setup Switch1 to handle both click and slide
+    private void setupSwitch1() {
+        // Create a flag to track if this is a programmatic change
+        final boolean[] isProgrammaticChange = {false};
+
+        switch1.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Skip if this is a programmatic change (not user interaction)
+            if (isProgrammaticChange[0]) {
+                isProgrammaticChange[0] = false;
+                return;
+            }
+
+            // Use a debouncing mechanism to prevent rapid firing
+            uiHandler.removeCallbacksAndMessages("switch1");
+            uiHandler.postDelayed(() -> {
+                handleSwitch1Toggle(isChecked);
+            }, 150); // 150ms delay to allow animation to complete
+        });
+    }
+
+    // Setup Switch2 to handle both click and slide
+    private void setupSwitch2() {
+        // Create a flag to track if this is a programmatic change
+        final boolean[] isProgrammaticChange = {false};
+
+        switch2.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Skip if this is a programmatic change (not user interaction)
+            if (isProgrammaticChange[0]) {
+                isProgrammaticChange[0] = false;
+                return;
+            }
+
+            // Use a debouncing mechanism to prevent rapid firing
+            uiHandler.removeCallbacksAndMessages("switch2");
+            uiHandler.postDelayed(() -> {
+                handleSwitch2Toggle(isChecked);
+            }, 150); // 150ms delay to allow animation to complete
+        });
+    }
+
+    // Unified handler for Switch1 (works for both click and slide)
+    private void handleSwitch1Toggle(boolean isChecked) {
+        // Update UI immediately
+        if (isChecked) {
+            switch1.setThumbColorRes(R.color.red);
+        } else {
+            switch1.setThumbColorRes(R.color.limeGreen);
+        }
+
+        // Update Bluetooth manager
+        if (bluetoothManager != null) {
+            if (isChecked) {
+                bluetoothManager.DigitalOUT[1] &= 0xFE;  // Turn ON
+            } else {
+                bluetoothManager.DigitalOUT[1] |= 0x01;  // Turn OFF
+            }
+        }
+
+        // Save to preferences
+        editor.putBoolean("switch1", isChecked);
+        editor.apply();
+
+        // Send data to device
+        if (bluetoothManager != null) {
+            backgroundExecutor.execute(() -> bluetoothManager.sendControllerData());
+        }
+
+        Log.d("Switch1", "State changed to: " + (isChecked ? "ON" : "OFF"));
+    }
+
+    // Unified handler for Switch2 (works for both click and slide)
+    private void handleSwitch2Toggle(boolean isChecked) {
+        // Update UI immediately
+        if (isChecked) {
+            switch2.setThumbColorRes(R.color.red);
+        } else {
+            switch2.setThumbColorRes(R.color.limeGreen);
+        }
+
+        // Update Bluetooth manager
+        if (bluetoothManager != null) {
+            if (isChecked) {
+                bluetoothManager.DigitalOUT[1] &= 0xFD;  // Turn ON
+            } else {
+                bluetoothManager.DigitalOUT[1] |= 0x02;  // Turn OFF
+            }
+        }
+
+        // Save to preferences
+        editor.putBoolean("switch2", isChecked);
+        editor.apply();
+
+        // Send data to device
+        if (bluetoothManager != null) {
+            backgroundExecutor.execute(() -> bluetoothManager.sendControllerData());
+        }
+
+        Log.d("Switch2", "State changed to: " + (isChecked ? "ON" : "OFF"));
+    }
+
+
     public void switch1Light(View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (isLightOneOn) {

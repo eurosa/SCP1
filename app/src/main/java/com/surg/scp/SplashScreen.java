@@ -1,4 +1,5 @@
 package com.surg.scp;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.animation.Animation;
@@ -11,9 +12,6 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.surg.scp.databinding.ActivitySplashScreenBinding;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by PEACE on 3/30/2016.
@@ -28,6 +26,14 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivitySplashScreenBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Check if launched from boot
+        boolean fromBoot = getIntent() != null && getIntent().getBooleanExtra("from_boot", false);
+
+        // Log for debugging
+        if (fromBoot) {
+            android.util.Log.d("SplashScreen", "Launched from boot");
+        }
 
         // Initialize views
         descimage = binding.titleimage;
@@ -47,11 +53,14 @@ public class SplashScreen extends AppCompatActivity {
         rotate.setInterpolator(new LinearInterpolator());
         mLogo.startAnimation(rotate);
 
+        // Adjust delay based on launch source
+        int delayTime = fromBoot ? 2000 : 6000;
+
         Thread myThread = new Thread(){
             @Override
             public void run(){
                 try {
-                    sleep(6000);
+                    sleep(delayTime);
                     Intent intent = new Intent(getApplicationContext(), DeviceList.class);
                     startActivity(intent);
                     finish();

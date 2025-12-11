@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-   package="com.surg.scp" >
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.surg.scp" >
+
+    <!-- Permissions for boot receiver -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- For foreground service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- For Android 12+ -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- Add this permission -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- For foreground service notification (if using service) -->
+
+    <!-- For Android 12+ (if starting activity from background) -->
+
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -29,7 +44,8 @@
         android:icon="@mipmap/ic_launcher_foreground"
         android:label=""
         android:requestLegacyExternalStorage="true"
-        android:theme="@style/MyMaterialTheme.Base">
+        android:theme="@style/MyMaterialTheme.Base"
+        tools:ignore="ForegroundServicePermission">
 
         <activity
             android:name="com.surg.scp.ScanActivity"
@@ -45,6 +61,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Add Boot Receiver -->
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+        <!-- Boot Foreground Service -->
+        <service
+            android:name=".BootForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
         <activity
 
             android:name="com.surg.scp.DeviceList"
@@ -59,12 +94,7 @@
             android:label="@string/title_activity_about"
             android:theme="@style/MyMaterialTheme.Base" />
 
-        <service
-            android:name=".bluetooth.BluetoothService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="connectedDevice|location"
-          />
+
     </application>
 
 </manifest>
