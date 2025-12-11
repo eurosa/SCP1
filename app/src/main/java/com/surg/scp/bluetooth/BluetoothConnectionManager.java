@@ -225,7 +225,7 @@ public class BluetoothConnectionManager {
                 BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
 
 
-                establishConnection(device,deviceAddress);
+                establishConnection(context,device,deviceAddress);
                 notifyConnectionResult(CONNECTION_SUCCESS, "Connected to " + getDeviceDisplayName(device));
             } catch (IllegalArgumentException e) {
                 notifyConnectionResult(CONNECTION_FAILED, "Invalid device address");
@@ -295,7 +295,8 @@ public class BluetoothConnectionManager {
             }
         });
     }
-    private void establishConnection(BluetoothDevice device,String deviceAddress) throws IOException {
+    // Modify the method to accept context
+    private void establishConnection(Context context, BluetoothDevice device, String deviceAddress) throws IOException {
         BluetoothSocket socket = null;
         IOException lastException = null;
 
@@ -303,19 +304,18 @@ public class BluetoothConnectionManager {
         for (UUID uuid : SPP_UUIDS) {
             try {
                 socket = createSocket(device, uuid);
-                if (ActivityCompat.checkSelfPermission(BluetoothController.context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
+
+                // Check permissions using passed context
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        throw new IOException("Bluetooth Connect permission not granted");
+                    }
                 }
+
                 socket.connect();
-              //  sendATCommand(btSocket, deviceAddress, "AT+NAME=HELLO_SCP");
-                // Connection successful
+
+                // Rest of your connection code...
                 btSocket = socket;
                 inputStream = btSocket.getInputStream();
                 outputStream = btSocket.getOutputStream();
@@ -324,20 +324,15 @@ public class BluetoothConnectionManager {
                     throw new IOException("Failed to establish streams");
                 }
 
-                // Send AT command with CR+LF
                 String atCommand = "AT+NAME=HELLO_SCP" + "\r\n";
                 outputStream.write(atCommand.getBytes());
                 outputStream.flush();
-                Log.d("ihiuyhiuyui", "Sent: " + "AT+NAME=HELLO_SCP");
+                Log.d(TAG, "Sent: AT+NAME=HELLO_SCP");
 
                 isConnected.set(true);
-
-
-
                 verifyProtocol();
                 startListeningThread();
                 startKeepAlive();
-                // Send initial controller data after connection
 
                 return;
 
@@ -351,20 +346,18 @@ public class BluetoothConnectionManager {
             }
         }
 
-        // Fallback method if standard connection fails
+        // Fallback method
         try {
             Method m = device.getClass().getMethod("createInsecureRfcommSocket", int.class);
             BluetoothSocket fallbackSocket = (BluetoothSocket) m.invoke(device, 1);
-            if (ActivityCompat.checkSelfPermission(BluetoothController.context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    throw new IOException("Bluetooth Connect permission not granted");
+                }
             }
+
             fallbackSocket.connect();
 
             btSocket = fallbackSocket;
@@ -375,11 +368,11 @@ public class BluetoothConnectionManager {
             startListeningThread();
             startKeepAlive();
             return;
+
         } catch (Exception e) {
             Log.w(TAG, "Fallback connection method failed", e);
         }
 
-        // All attempts failed
         if (lastException != null) {
             throw lastException;
         } else {
@@ -501,6 +494,15 @@ public class BluetoothConnectionManager {
     }
 
     private void verifyProtocol() throws IOException {
+        // CRITICAL: Add null checks
+        if (inputStream == null) {
+            throw new IOException("Input stream is null");
+        }
+
+        if (outputStream == null) {
+            throw new IOException("Output stream is null");
+        }
+
         // Send verification packet
         byte[] verificationPacket = new byte[]{0x01, 0x02, 0x03};
         outputStream.write(verificationPacket);

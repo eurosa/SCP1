@@ -290,6 +290,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private SharedPreferences sharedPreferences1;
     private static final String PREFS_NAME = "TimerPrefs";
 
+    private SharedPreferences lastDevicePrefs;
+    private String currentConnectionAddress;
+    private String currentConnectionInfo;
+
     /***************************************************************************************
      * End Stop Watch
      ****************************************************************************************/
@@ -310,7 +314,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scp);
-
+        // Initialize SharedPreferences for storing last device
+        lastDevicePrefs = getSharedPreferences("last_device", MODE_PRIVATE);
         temperatureTextView = findViewById(R.id.temperatureTextView);
         humidityTextView = findViewById(R.id.humidityTextView);
         pressureTextView = findViewById(R.id.pressureTextView);
@@ -489,8 +494,37 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         setupGasTexts();
         setupStatusTexts();
+
+        // After UI is initialized, try auto-connect
+        new Handler().postDelayed(() -> {
+            tryAutoConnect();
+        }, 1500); // Wait 1.5 seconds for UI to load
+
     }
 
+    private boolean isBluetoothConnected() {
+        return bluetoothManager != null && bluetoothManager.isConnected();
+    }
+    private void tryAutoConnect() {
+        // Don't auto-connect if already connected
+        if (isBluetoothConnected()) {
+            Log.d("AutoConnect", "Already connected");
+            return;
+        }
+
+        // Get last connected device from SharedPreferences
+        String savedAddress = lastDevicePrefs.getString("address", "");
+        String savedInfo = lastDevicePrefs.getString("info", "");
+
+        if (!savedAddress.isEmpty()) {
+            Log.d("AutoConnect", "Found saved device: " + savedAddress);
+
+            // Try to connect to the saved device
+            connectToDevice(savedAddress, savedInfo);
+        } else {
+            Log.d("AutoConnect", "No saved device found");
+        }
+    }
 
     private void setupGasTexts() {
         // Method 1: Using HtmlCompat (recommended for Android X)
@@ -569,6 +603,13 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         super.onResume();
         // Reset the double back press flag when returning to this activity
         doubleBackToExitPressedOnce = false;
+        // Try to reconnect if we're not connected
+        if (!isBluetoothConnected()) {
+            new Handler().postDelayed(() -> {
+                tryAutoConnect();
+            }, 1000);
+        }
+
     }
 
     private void handleIncomingIntent() {
@@ -1434,7 +1475,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             @Override
             public void run() {
                 String pattern = "dd MMM yyyy";
-                String pattern2 = "hh:mm:ss";
+                String pattern2 = "hh:mm";
                 SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
                 SimpleDateFormat clocTime2 = new SimpleDateFormat(pattern2, Locale.getDefault());
                 clockView.setText(sdf.format(new Date()));
@@ -1536,6 +1577,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     // Optimized Bluetooth connection method
     private void connectToDevice(String address, String info) {
+
+        // Save the address and info for use in callback
+        this.currentConnectionAddress = address;
+        this.currentConnectionInfo = info;
+
         if (!BluetoothConnectionManager.checkBluetoothPermissions(this)) {
             BluetoothConnectionManager.requestBluetoothPermissions(this, 1001);
             return;
@@ -1571,6 +1617,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 case BluetoothConnectionManager.CONNECTION_SUCCESS:
                     connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_connected);
                     Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                    // SAVE DEVICE FOR AUTO-CONNECT
+                    saveDeviceForAutoConnect();
                     break;
                 case BluetoothConnectionManager.CONNECTION_FAILED:
                     connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
@@ -1580,6 +1628,20 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         });
     }
+
+    private void saveDeviceForAutoConnect() {
+        if (currentConnectionAddress != null && currentConnectionInfo != null) {
+            lastDevicePrefs.edit()
+                    .putString("address", currentConnectionAddress)
+                    .putString("info", currentConnectionInfo)
+                    .putLong("timestamp", System.currentTimeMillis())
+                    .apply();
+
+            Log.d("AutoConnect", "Device saved for auto-connect: " + currentConnectionAddress);
+        }
+    }
+
+
     @Override
     protected void onPause() {
         super.onPause();
