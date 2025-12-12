@@ -67,7 +67,8 @@ public class BluetoothConnectionManager {
     // Application context and handlers
     private final Context context;
     private final Handler mainHandler;
-    private final ExecutorService executorService;
+    private  ExecutorService executorService;
+    private volatile boolean isShutdown = false;
     public int Muteflag;
     public int speakerStatus;
 
@@ -143,6 +144,7 @@ public class BluetoothConnectionManager {
     public BluetoothConnectionManager(Context context) {
         this.context = context.getApplicationContext();
         this.mainHandler = new Handler(Looper.getMainLooper());
+        initializeExecutorService(); // Initialize here
         this.executorService = Executors.newFixedThreadPool(2); // Separate threads for RX and TX
 // Initialize DigitalOUT array
         this.DigitalOUT = new byte[]{0x00, 0x00};
@@ -172,6 +174,19 @@ public class BluetoothConnectionManager {
         resetControllerState();
     }
 
+    private synchronized void initializeExecutorService() {
+        if (executorService == null || executorService.isShutdown()) {
+            executorService = Executors.newFixedThreadPool(2);
+            isShutdown = false;
+        }
+    }
+    private synchronized void ensureExecutorRunning() {
+        if (executorService == null || executorService.isShutdown() || executorService.isTerminated()) {
+            Log.w(TAG, "Executor was terminated, recreating...");
+            executorService = Executors.newFixedThreadPool(2);
+            isShutdown = false;
+        }
+    }
     private void resetControllerState() {
         deviceId = 0;
         tempSet = 0;
@@ -187,6 +202,9 @@ public class BluetoothConnectionManager {
 
     // Connection Management
     public void connect(String deviceAddress, String deviceInfo, ConnectionCallback callback) {
+
+        ensureExecutorRunning(); // Check and recreate if needed
+
         this.connectionCallback = callback;
         this.currentDeviceAddress = deviceAddress;
         this.currentDeviceInfo = deviceInfo;
@@ -584,6 +602,7 @@ public class BluetoothConnectionManager {
     }
     private void startListeningThread() {
             final int BUFFER_SIZE = 4096; // 4KB buffer
+        ensureExecutorRunning();
         executorService.execute(() -> {
             byte[] buffer = new byte[BUFFER_SIZE];
             while (isConnected.get()) {
@@ -850,8 +869,16 @@ public class BluetoothConnectionManager {
 
     // Connection State Management
     public void disconnect() {
+        // Don't submit new tasks if we're shutting down
+        if (isShutdown) {
+            cleanupResources();
+            return;
+        }
+
+        ensureExecutorRunning();
         executorService.execute(() -> {
             isConnected.set(false);
+            cleanupResources();
 
             // Remove all pending callbacks
             mainHandler.removeCallbacks(keepAliveRunnable);
@@ -877,7 +904,30 @@ public class BluetoothConnectionManager {
             notifyConnectionLost();
         });
     }
+    private void cleanupResources() {
+        isConnected.set(false);
+        mainHandler.removeCallbacks(keepAliveRunnable);
+        mainHandler.removeCallbacksAndMessages(null); // Remove all pending callbacks
 
+        synchronized (this) {
+            if (inputStream != null) {
+                try { inputStream.close(); } catch (IOException e) { Log.e(TAG, "Error closing input stream", e); }
+                inputStream = null;
+            }
+
+            if (outputStream != null) {
+                try { outputStream.close(); } catch (IOException e) { Log.e(TAG, "Error closing output stream", e); }
+                outputStream = null;
+            }
+
+            if (btSocket != null) {
+                try { btSocket.close(); } catch (IOException e) { Log.e(TAG, "Error closing socket", e); }
+                btSocket = null;
+            }
+        }
+
+        notifyConnectionLost();
+    }
     private void handleConnectionLost() {
         if (isConnected.compareAndSet(true, false)) {
             disconnect();
@@ -932,6 +982,7 @@ public class BluetoothConnectionManager {
     }
 
     public void shutdown() {
+        isShutdown = true;
         disconnect();
         try {
             context.unregisterReceiver(bluetoothStateReceiver);
@@ -940,7 +991,13 @@ public class BluetoothConnectionManager {
         }
         executorService.shutdown();
     }
-
+    // Add a method to restart the connection manager if needed
+    public synchronized void restart() {
+        if (isShutdown) {
+            disconnect();
+            initializeExecutorService();
+        }
+    }
     public static boolean checkBluetoothPermissions(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             return ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)

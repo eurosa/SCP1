@@ -107,6 +107,8 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.content.ContentValues.TAG;
 
@@ -294,15 +296,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private String currentConnectionAddress;
     private String currentConnectionInfo;
 
-    /***************************************************************************************
-     * End Stop Watch
-     ****************************************************************************************/
-
-    // Handler for UI updates
-    private final Handler uiHandler = new Handler(Looper.getMainLooper());
-
     // Executor for background tasks
-    private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService backgroundExecutor;
+    private volatile boolean isExecutorShutdown = false;
+
     private IncrementDecrementSlider customSlider1,customSlider2,customSlider3,customSlider4;
     private int myVariable1,myVariable2,myVariable3,myVariable4;
     private TextView temperatureTextView, humidityTextView, pressureTextView, tempSetTextView,humidSetTextView,pressureSetTextView;
@@ -314,6 +311,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scp);
+
+        // Initialize ExecutorService first
+        initializeExecutorService();
+
         // Initialize SharedPreferences for storing last device
         lastDevicePrefs = getSharedPreferences("last_device", MODE_PRIVATE);
         temperatureTextView = findViewById(R.id.temperatureTextView);
@@ -369,8 +370,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         //=========================Adding Toolbar in android layout=======================================
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // getSupportActionBar().setDisplayShowHomeEnabled(true);
         //=========================Toolbar End============================================================
         Drawable drawable = myToolbar.getOverflowIcon();
         if (drawable != null) {
@@ -432,8 +431,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // to make the Navigation drawer icon always appear on the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);  // ← Important!
+
         // Run heavy operations in background
-        backgroundExecutor.execute(() -> {
+        executeInBackground(() -> {
             // Perform background initialization
             initializeBackgroundComponents();
 
@@ -506,9 +506,38 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     }
 
+    private synchronized void initializeExecutorService() {
+        if (backgroundExecutor == null || backgroundExecutor.isShutdown() || backgroundExecutor.isTerminated()) {
+            backgroundExecutor = Executors.newSingleThreadExecutor();
+            isExecutorShutdown = false;
+            Log.d("DeviceList", "ExecutorService initialized");
+        }
+    }
+
+    private synchronized void ensureExecutorRunning() {
+        if (backgroundExecutor == null || backgroundExecutor.isShutdown() || backgroundExecutor.isTerminated()) {
+            Log.w("DeviceList", "ExecutorService was terminated, recreating...");
+            backgroundExecutor = Executors.newSingleThreadExecutor();
+            isExecutorShutdown = false;
+        }
+    }
+
+    private void executeInBackground(Runnable task) {
+        ensureExecutorRunning();
+        try {
+            backgroundExecutor.execute(task);
+        } catch (Exception e) {
+            Log.e("DeviceList", "Failed to execute task", e);
+            // Try to recreate executor and retry
+            initializeExecutorService();
+            backgroundExecutor.execute(task);
+        }
+    }
+
     private boolean isBluetoothConnected() {
         return bluetoothManager != null && bluetoothManager.isConnected();
     }
+
     private void tryAutoConnect() {
         // Don't auto-connect if already connected
         if (isBluetoothConnected()) {
@@ -601,19 +630,27 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         gasFiveStatus.setText(status);
         gasSixStatus.setText(status);
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
         // Reset the double back press flag when returning to this activity
         doubleBackToExitPressedOnce = false;
+        // Ensure executor is running
+        ensureExecutorRunning();
+
         // Try to reconnect if we're not connected
         if (!isBluetoothConnected()) {
             new Handler().postDelayed(() -> {
                 tryAutoConnect();
             }, 1000);
         }
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveCurrentValues();
     }
 
     private void handleIncomingIntent() {
@@ -632,6 +669,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         setIntent(intent);
         handleIncomingIntent();
     }
+
     private void initializeUIComponents() {
         // Initialize all UI components here
         setAnimation();
@@ -668,7 +706,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
     private void initializeBackgroundComponents() {
-
         sharedPreferences1 = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         sharedPreferences = getSharedPreferences("LightPrefs", MODE_PRIVATE);
         editor = sharedPreferences.edit();
@@ -681,6 +718,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Check Bluetooth availability
         myBluetooth = BluetoothAdapter.getDefaultAdapter();
     }
+
     public void setAnimation() {
         if (Build.VERSION.SDK_INT > 20) {
             Slide slide = new Slide();
@@ -698,6 +736,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         editor.putInt(PREFS_HUM_VALUE, currentHumValue);
         editor.apply();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_device_list, menu);
@@ -731,12 +770,13 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 btSocket.close();
                 Toast.makeText(DeviceList.this, "Bluetooth device has been disconnected", Toast.LENGTH_LONG).show();
             } catch (IOException e) {
-             //   msg("Error");
+                // msg("Error");
             }
         } else {
             Toast.makeText(DeviceList.this, "No device connected", Toast.LENGTH_LONG).show();
         }
     }
+
     private void loadTimerValues() {
         String hour = sharedPreferences1.getString("timer_hour", "0");
         String minute = sharedPreferences1.getString("timer_minute", "0");
@@ -785,12 +825,14 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 break;
         }
     }
+
     private String method5(int secs) {
         int hours = secs / 3600;
         int minutes = (secs % 3600) / 60;
         int seconds = secs % 60;
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
+
     private void restoreStates() {
         boolean switch1State = sharedPreferences.getBoolean("switch1", false);
         boolean switch2State = sharedPreferences.getBoolean("switch2", false);
@@ -835,6 +877,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         if (light3State) bluetoothManager.DigitalOUT[1] |= 0x10; else bluetoothManager.DigitalOUT[1] &= 0xEF;
         if (light4State) bluetoothManager.DigitalOUT[1] |= 0x20; else bluetoothManager.DigitalOUT[1] &= 0xDF;
     }
+
     private void initializeUIAfterBackground() {
         // Load saved timer values
         loadTimerValues();
@@ -1005,6 +1048,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             timerStart();
         }
     }
+
     private void saveTimerValues(int hours, int minutes, int seconds, boolean upChecked, boolean downChecked) {
         SharedPreferences.Editor editor = sharedPreferences1.edit();
         editor.putString("timer_hour", String.valueOf(hours));
@@ -1033,6 +1077,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         updateDisplayForCurrentMode();
     }
+
     public void timerPause() {
         cdflag = 0;
         isTimerRunning = false;
@@ -1048,6 +1093,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             countUpTimer.cancel();
         }
     }
+
     private void timeDone() {
         resetAllTimerStates();
 
@@ -1064,6 +1110,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         // vibrator.vibrate(500);
     }
+
     public void timerStart() {
         if (cdflag == 0) {
             cdflag = 1;
@@ -1148,12 +1195,15 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
     private void cleanupBeforeExit() {
-        if (bluetoothManager != null) {
-            bluetoothManager.disconnect();
-            finish();
-        }
         saveCurrentValues();
         stopAutoRepeat();
+
+        // Shutdown in background to avoid ANR
+        executeInBackground(() -> {
+            if (bluetoothManager != null) {
+                bluetoothManager.disconnect();
+            }
+        });
     }
 
     public void exitApplication() {
@@ -1202,12 +1252,13 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         } else if (id == R.id.action_pairedList) {
             pairedDevicesList();
         } else if (id == R.id.action_disconnect) {
-            bluetoothManager.disconnect();
+            executeInBackground(() -> bluetoothManager.disconnect());
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+
     private static final int SCAN_ACTIVITY_REQUEST_CODE = 1001;
 
     private void ScanDevicesList() {
@@ -1227,6 +1278,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             // Handle any results from ScanActivity if needed
         }
     }
+
     public void shareApp() {
         try {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -1239,7 +1291,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         } catch (Exception e) {
         }
     }
-
 
     // Custom CountUpTimer class
     public abstract class CountUpTimer {
@@ -1304,6 +1355,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             return elapsedTime;
         }
     }
+
     private void handleStopwatchPlayPause() {
         if (isPlaying) {
             pauseStopwatch();
@@ -1315,6 +1367,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             resetButton.setClickable(false);
         }
     }
+
     private void setupButtonListeners() {
         // Initialize the array first
         arrayOfControlButtons = new ImageButton[] {
@@ -1369,6 +1422,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         }
     }
+
     private void resetAllTimerStates() {
         cdflag = 0;
         isTimerRunning = false;
@@ -1394,6 +1448,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Reset UI
         playPause.setImageResource(R.drawable.ic_play);
     }
+
     public void resetTimer() {
         // First, completely reset all timer states
         resetAllTimerStates();
@@ -1424,9 +1479,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         playPause.setImageResource(R.drawable.ic_play);
         resetButton.setClickable(false);
     }
+
     private void updateTimerDisplay(String timeText) {
         timerValue.setText(timeText);
     }
+
     private void startAutoRepeat(View v) {
         stopAutoRepeat(); // Stop any existing auto-repeat
 
@@ -1579,9 +1636,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         resetButton.setClickable(true);
     }
 
+    // Handler for UI updates
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
+
     // Optimized Bluetooth connection method
     private void connectToDevice(String address, String info) {
-
         // Save the address and info for use in callback
         this.currentConnectionAddress = address;
         this.currentConnectionInfo = info;
@@ -1602,7 +1661,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         });
 
         // Run connection in background
-        backgroundExecutor.execute(() -> {
+        executeInBackground(() -> {
             bluetoothManager.connect(address, info, this);
 
             // Dismiss progress on UI thread
@@ -1645,12 +1704,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        saveCurrentValues();
-    }
     @Override
     public void onDataReceived(byte[] data) {
         uiHandler.post(() -> {
@@ -1663,7 +1716,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     @Override
     public void onConnectionLost() {
         uiHandler.post(() -> {
-           // connectionStatus.setText("Connection lost");
             connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
             Toast.makeText(this, "Connection lost, attempting to reconnect...", Toast.LENGTH_SHORT).show();
         });
@@ -1678,175 +1730,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             pressureTextView.setText(String.valueOf(pressure));
 
             checkdigitalinputs();
-
         });
     }
-
-    /*
-    private void checkdigitalinputs() {
-        bluetoothManager.ac = 0;
-
-        // Gas One
-        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[0]) == bluetoothManager.DigitalMASK[0]) {
-            bluetoothManager.ac++;
-            gasOneStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasOneStatus.setText("HIGH");
-            gasOneStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[1]) == bluetoothManager.DigitalMASK[1]) {
-            bluetoothManager.ac++;
-            gasOneStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasOneStatus.setText("LOW");
-            gasOneStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else {
-            gasOneStatus.setBackgroundResource(R.drawable.mybutton);
-            gasOneStatus.setText("OK");
-            if (gasOneStatus.getVisibility() == View.GONE) {
-                gasOneStatus.setVisibility(View.VISIBLE);
-            }
-        }
-
-        // Gas Two
-        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[2]) == bluetoothManager.DigitalMASK[2]) {
-            bluetoothManager.ac++;
-            gasTwoStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasTwoStatus.setText("HIGH");
-            gasTwoStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[3]) == bluetoothManager.DigitalMASK[3]) {
-            bluetoothManager.ac++;
-            gasTwoStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasTwoStatus.setText("LOW");
-            gasTwoStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else {
-            gasTwoStatus.setBackgroundResource(R.drawable.mybutton);
-            gasTwoStatus.setText("OK");
-            if (gasTwoStatus.getVisibility() == View.GONE) {
-                gasTwoStatus.setVisibility(View.VISIBLE);
-            }
-        }
-
-        // Gas Three
-        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[4]) == bluetoothManager.DigitalMASK[4]) {
-            bluetoothManager.ac++;
-            gasThreeStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasThreeStatus.setText("HIGH");
-            gasThreeStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[5]) == bluetoothManager.DigitalMASK[5]) {
-            bluetoothManager.ac++;
-            gasThreeStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasThreeStatus.setText("LOW");
-            gasThreeStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else {
-            gasThreeStatus.setBackgroundResource(R.drawable.mybutton);
-            gasThreeStatus.setText("OK");
-            if (gasThreeStatus.getVisibility() == View.GONE) {
-                gasThreeStatus.setVisibility(View.VISIBLE);
-            }
-        }
-
-        // Gas Four
-        if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[6]) == bluetoothManager.DigitalMASK[6]) {
-            bluetoothManager.ac++;
-            gasFourStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasFourStatus.setText("HIGH");
-            gasFourStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else if ((bluetoothManager.DigitalIN[1] & bluetoothManager.DigitalMASK[7]) == bluetoothManager.DigitalMASK[7]) {
-            bluetoothManager.ac++;
-            gasFourStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasFourStatus.setText("LOW");
-            gasFourStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else {
-            gasFourStatus.setBackgroundResource(R.drawable.mybutton);
-            gasFourStatus.setText("OK");
-            if (gasFourStatus.getVisibility() == View.GONE) {
-                gasFourStatus.setVisibility(View.VISIBLE);
-            }
-        }
-
-        // Gas Five
-        if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[0]) == bluetoothManager.DigitalMASK[0]) {
-            bluetoothManager.ac++;
-            gasFiveStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasFiveStatus.setText("HIGH");
-            gasFiveStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[1]) == bluetoothManager.DigitalMASK[1]) {
-            bluetoothManager.ac++;
-            gasFiveStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasFiveStatus.setText("LOW");
-            gasFiveStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else {
-            gasFiveStatus.setBackgroundResource(R.drawable.mybutton);
-            gasFiveStatus.setText("OK");
-            if (gasFiveStatus.getVisibility() == View.GONE) {
-                gasFiveStatus.setVisibility(View.VISIBLE);
-            }
-        }
-
-        // Gas Six
-        if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[2]) == bluetoothManager.DigitalMASK[2]) {
-            bluetoothManager.ac++;
-            gasSixStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasSixStatus.setText("HIGH");
-            gasSixStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[3]) == bluetoothManager.DigitalMASK[3]) {
-            bluetoothManager.ac++;
-            gasSixStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasSixStatus.setText("LOW");
-            gasSixStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else {
-            gasSixStatus.setBackgroundResource(R.drawable.mybutton);
-            gasSixStatus.setText("OK");
-            if (gasSixStatus.getVisibility() == View.GONE) {
-                gasSixStatus.setVisibility(View.VISIBLE);
-            }
-        }
-
-        // HEPA Filter (Gas Seven)
-        if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[4]) == bluetoothManager.DigitalMASK[4]) {
-            bluetoothManager.ac++;
-            gasSevenStatus.setBackgroundResource(R.drawable.mybutton_red);
-            gasSevenStatus.setText("CHOKE");
-            gasSevenStatus.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.GONE);
-        } else {
-            gasSevenStatus.setBackgroundResource(R.drawable.mybutton);
-            gasSevenStatus.setText("HEALTHY");
-            if (gasSevenStatus.getVisibility() == View.GONE) {
-                gasSevenStatus.setVisibility(View.VISIBLE);
-            }
-        }
-
-        // Buzzer control logic
-        if (bluetoothManager.ac > bluetoothManager.pac) {
-            bluetoothManager.DigitalOUT[0] |= 0x01; // buzzer on
-            bluetoothManager.Muteflag = 0;           // Unmute
-
-         //  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
-         //   speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
-          //  dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
-        }
-
-        if (bluetoothManager.ac2 == 1) {
-            bluetoothManager.ac2 = 2;
-            bluetoothManager.DigitalOUT[0] |= 0x01; // buzzer on
-            bluetoothManager.Muteflag = 0;           // Unmute
-
-          //  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
-         //   speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
-           // dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
-        }
-
-        if (bluetoothManager.ac == 0 && bluetoothManager.ac2 == 0) {
-            bluetoothManager.DigitalOUT[0] &= 0xFE; // buzzer off
-            bluetoothManager.Muteflag = 0;           // Unmute
-
-           // dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
-            //speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
-           // dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
-        }
-
-        bluetoothManager.pac = bluetoothManager.ac;
-    }
-
-     */
 
     private void checkdigitalinputs() {
         bluetoothManager.ac = 0;
@@ -1969,11 +1854,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         if ((bluetoothManager.DigitalIN[0] & bluetoothManager.DigitalMASK[4]) == bluetoothManager.DigitalMASK[4]) {
             bluetoothManager.ac++;
             rightPart3.setBackgroundResource(R.drawable.mybutton_red);
-           // gasSevenStatus.setBackgroundResource(R.drawable.mybutton_red);
             gasSevenStatus.setText("CHOKE");
             rightPart3.setVisibility(bluetoothManager.toggle ? View.VISIBLE : View.INVISIBLE);
         } else {
-          //  gasSevenStatus.setBackgroundResource(R.drawable.mybutton);
             rightPart3.setBackgroundResource(R.drawable.mybutton);
             gasSevenStatus.setText("HEALTHY");
             if (rightPart3.getVisibility() == View.INVISIBLE) {
@@ -1985,46 +1868,35 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         if (bluetoothManager.ac > bluetoothManager.pac) {
             bluetoothManager.DigitalOUT[0] |= 0x01; // buzzer on
             bluetoothManager.Muteflag = 0;           // Unmute
-
-            //  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
-            //   speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
-            //  dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
         }
 
         if (bluetoothManager.ac2 == 1) {
             bluetoothManager.ac2 = 2;
             bluetoothManager.DigitalOUT[0] |= 0x01; // buzzer on
             bluetoothManager.Muteflag = 0;           // Unmute
-
-            //  dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
-            //   speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
-            // dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
         }
 
         if (bluetoothManager.ac == 0 && bluetoothManager.ac2 == 0) {
             bluetoothManager.DigitalOUT[0] &= 0xFE; // buzzer off
             bluetoothManager.Muteflag = 0;           // Unmute
-
-            // dataModel.speakerStatus = String.valueOf(bluetoothManager.speakerStatus);
-            //speakerOnOff.setBackground(dbHandlr.byteArrayToBitmap(dataModel.icon_speaker));
-            // dbHandlr.updateSpeakerStatus(m_dbConnection, dataModel);
         }
 
         bluetoothManager.pac = bluetoothManager.ac;
     }
+
     @Override
     public void onSettingsUpdated(int tempSet, int humidSet, int pressureSet) {
         // Update UI with settings values
         runOnUiThread(() -> {
             tempSetTextView.setText(String.valueOf(tempSet));
             humidSetTextView.setText(String.valueOf(humidSet));
-            pressureSetTextView.setText(String.valueOf(pressureSet));
+            // pressureSetTextView.setText(String.valueOf(pressureSet));
         });
     }
 
     // Optimized paired devices list
     private void pairedDevicesList() {
-        backgroundExecutor.execute(() -> {
+        executeInBackground(() -> {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
@@ -2079,6 +1951,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         }
     };
+
     public static boolean setListViewHeightBasedOnItems(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter != null) {
@@ -2146,18 +2019,32 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             uiHandler.removeCallbacksAndMessages(null);
         }
 
-        if (backgroundExecutor != null) {
-            backgroundExecutor.shutdownNow();
-        }
+        // Clean up timers
+        stopAutoRepeat();
+        resetAllTimerStates();
+
+        // Shutdown executor properly
+        shutdownExecutor();
 
         // Clean up Bluetooth
         if (bluetoothManager != null) {
             bluetoothManager.shutdown();
         }
+    }
 
-        // Clean up timers
-        stopAutoRepeat();
-        resetAllTimerStates();
+    private void shutdownExecutor() {
+        if (backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
+            isExecutorShutdown = true;
+            backgroundExecutor.shutdownNow();
+            try {
+                if (!backgroundExecutor.awaitTermination(2, TimeUnit.SECONDS)) {
+                    Log.w("DeviceList", "Executor did not terminate in time");
+                }
+            } catch (InterruptedException e) {
+                Log.e("DeviceList", "Executor shutdown interrupted", e);
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     // Additional optimizations for UI responsiveness
@@ -2166,9 +2053,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         int id = v.getId();
 
         if (id == R.id.switch1) {
-         //   switch1(v);
+            // switch1(v);
         } else if (id == R.id.switch2) {
-          //  switch2(v);
+            // switch2(v);
         } else if (id == R.id.tempBtnPlus) {
             tempBtnPlusPressed();
         } else if (id == R.id.tempBtnMinus) {
@@ -2252,7 +2139,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         // Send data to device
         if (bluetoothManager != null) {
-            backgroundExecutor.execute(() -> bluetoothManager.sendControllerData());
+            executeInBackground(() -> bluetoothManager.sendControllerData());
         }
 
         Log.d("Switch1", "State changed to: " + (isChecked ? "ON" : "OFF"));
@@ -2282,12 +2169,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         // Send data to device
         if (bluetoothManager != null) {
-            backgroundExecutor.execute(() -> bluetoothManager.sendControllerData());
+            executeInBackground(() -> bluetoothManager.sendControllerData());
         }
 
         Log.d("Switch2", "State changed to: " + (isChecked ? "ON" : "OFF"));
     }
-
 
     public void switch1Light(View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -2356,6 +2242,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             editor.apply();
         }
     }
+
     // Optimized switch methods
     @SuppressLint("NewApi")
     public void switch1(View v) {
@@ -2373,9 +2260,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         editor.apply();
 
         // Send data in background
-        backgroundExecutor.execute(() -> bluetoothManager.sendControllerData());
+        executeInBackground(() -> bluetoothManager.sendControllerData());
     }
-
 
     public void switch2(View v) {
         boolean isChecked = switch2.isChecked();
@@ -2392,9 +2278,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         editor.apply();
 
         // Send data in background
-        backgroundExecutor.execute(() -> bluetoothManager.sendControllerData());
+        executeInBackground(() -> bluetoothManager.sendControllerData());
     }
-    // Similar optimizations for other switch methods...
 
     // Memory-efficient bitmap handling if needed
     private Bitmap decodeSampledBitmapFromResource(String path, int reqWidth, int reqHeight) {
