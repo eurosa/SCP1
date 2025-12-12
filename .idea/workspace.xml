@@ -35,6 +35,11 @@
           <theme>@style/MyMaterialTheme.Base</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/telephone.xml">
+        <config>
+          <theme>@style/MyMaterialTheme.Base</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/menu/menu_device_list.xml">
         <config>
           <theme>@style/MyMaterialTheme</theme>
@@ -57,8 +62,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f1087ba0-e1c4-4d27-967a-d6ef8a1d0909" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/telephone.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/bluetooth/BluetoothConnectionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/surg/scp/bluetooth/BluetoothConnectionManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/telephone.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/telephone.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -289,7 +295,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765520135529</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="ok">
+      <option name="closed" value="true" />
+      <created>1765526314330</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1765526314330</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

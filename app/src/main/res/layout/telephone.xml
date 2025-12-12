@@ -142,21 +142,21 @@
 
             <Button
                 android:id="@+id/mDial"
-                android:layout_width="54dp"
+                android:layout_width="wrap_content"
                 android:layout_height="54dp"
                 android:text="M-DIAL"
                 android:textSize="16sp" />
 
             <Button
                 android:id="@+id/reDial"
-                android:layout_width="54dp"
+                android:layout_width="wrap_content"
                 android:layout_height="54dp"
                 android:text="REDIAL"
                 android:textSize="16sp" />
 
             <Button
                 android:id="@+id/callBtn"
-                android:layout_width="54dp"
+                android:layout_width="wrap_content"
                 android:layout_height="54dp"
                 android:text="Call"
                 android:textSize="16sp" />
@@ -180,21 +180,21 @@
 
             <Button
                 android:id="@+id/memoryBtn"
-                android:layout_width="54dp"
+                android:layout_width="wrap_content"
                 android:layout_height="54dp"
                 android:text="MEMORY"
                 android:textSize="16sp" />
 
             <Button
                 android:id="@+id/nextBtn"
-                android:layout_width="54dp"
+                android:layout_width="wrap_content"
                 android:layout_height="54dp"
                 android:text="NEXT  "
                 android:textSize="16sp" />
 
             <Button
                 android:id="@+id/holdBtn"
-                android:layout_width="54dp"
+                android:layout_width="wrap_content"
                 android:layout_height="54dp"
                 android:text="HOLD"
                 android:textSize="16sp" />
@@ -202,7 +202,7 @@
 
             <Button
                 android:id="@+id/flashButton"
-                android:layout_width="54dp"
+                android:layout_width="wrap_content"
                 android:layout_height="54dp"
                 android:text="FLASH"
                 android:textSize="16sp" />
