@@ -745,23 +745,36 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
-            int id = item.getItemId();
+        // Handle action bar item clicks here
+        int id = item.getItemId();
 
-            if (id == R.id.action_disconnect) {
-                Disconnect();
-                return true;
-            } else if (id == R.id.action_searchList) {
-                ScanDevicesList();
-                return true;
-            } else if (id == R.id.action_pairedList) {
-                pairedDevicesList();
-                return true;
-            }
+        if (id == R.id.action_disconnect) {
+            // Use executeInBackground to avoid RejectedExecutionException
+            executeInBackground(() -> {
+                if (bluetoothManager != null) {
+                    bluetoothManager.disconnect();
+                    runOnUiThread(() -> {
+                        Toast.makeText(DeviceList.this,
+                                "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+                        connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                    });
+                }
+            });
             return true;
-        } else {
-            return super.onOptionsItemSelected(item);
+        } else if (id == R.id.action_searchList) {
+            ScanDevicesList();
+            return true;
+        } else if (id == R.id.action_pairedList) {
+            pairedDevicesList();
+            return true;
         }
+
+        // This handles the hamburger icon for navigation drawer
+        if (actionBarDrawerToggle != null && actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void Disconnect() {
