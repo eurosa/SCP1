@@ -46,7 +46,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f1087ba0-e1c4-4d27-967a-d6ef8a1d0909" name="Changes" comment="" />
+    <list default="true" id="f1087ba0-e1c4-4d27-967a-d6ef8a1d0909" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/popup_timer_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/popup_timer_settings.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -236,7 +239,23 @@
       <option name="project" value="LOCAL" />
       <updated>1765448737007</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="ok">
+      <option name="closed" value="true" />
+      <created>1765449772876</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1765449772876</updated>
+    </task>
+    <task id="LOCAL-00009" summary="ok">
+      <option name="closed" value="true" />
+      <created>1765449790083</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1765449790083</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

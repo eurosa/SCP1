@@ -31,8 +31,8 @@
 
             <Button
                 android:id="@+id/hrUpBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:text="+"
                 android:textSize="16sp" />
 
@@ -49,8 +49,8 @@
 
             <Button
                 android:id="@+id/hrDownBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:text="-"
                 android:textSize="16sp" />
 
@@ -72,8 +72,8 @@
 
             <Button
                 android:id="@+id/minUpBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:text="+"
                 android:textSize="16sp" />
 
@@ -90,8 +90,8 @@
 
             <Button
                 android:id="@+id/minDownBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:text="-"
                 android:textSize="16sp" />
 
@@ -112,8 +112,8 @@
 
             <Button
                 android:id="@+id/secUpBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:text="+"
                 android:textSize="16sp" />
 
@@ -130,8 +130,8 @@
 
             <Button
                 android:id="@+id/secDownBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:text="-"
                 android:textSize="16sp" />
 
