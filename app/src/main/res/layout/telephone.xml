@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/popupLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/popup_background">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Timer Settings"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- Hours -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/digit1"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="1"
+                android:textSize="16sp" />
+            <Button
+                android:id="@+id/digit4"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="4"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/digit7"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="7"
+                android:textSize="16sp" />
+            <Button
+                android:id="@+id/digitHash"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="#"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <!-- Minutes -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginHorizontal="16dp">
+
+            <Button
+                android:id="@+id/digit2"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="2"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/digit5"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="5"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/digit8"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="8"
+                android:textSize="16sp" />
+            <Button
+                android:id="@+id/digit0"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="0"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+
+        <!-- Seconds -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/digit3"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="3"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/digit6"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="6"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/digit9"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="9"
+                android:textSize="16sp" />
+
+
+            <Button
+                android:id="@+id/digitStar"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="*"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/mDial"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="M-DIAL"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/reDial"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="REDIAL"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/callBtn"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="Call"
+                android:textSize="16sp" />
+
+
+            <Button
+                android:id="@+id/secDownBtn"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="-"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/memoryBtn"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="MEMORY"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/nextBtn"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="NEXT  "
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/holdBtn"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="HOLD"
+                android:textSize="16sp" />
+
+
+            <Button
+                android:id="@+id/flashButton"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:text="FLASH"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="start"
+        android:layout_marginTop="24dp">
+
+        <TextView
+            android:id="@+id/volume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Volume"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/tVolumeDown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-" />
+        <Button
+            android:id="@+id/tVolumeUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="24dp">
+
+
+
+        <Button
+            android:id="@+id/okBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OK" />
+    </LinearLayout>
+
+</LinearLayout>
