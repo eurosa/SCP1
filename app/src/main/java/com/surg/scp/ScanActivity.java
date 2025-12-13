@@ -149,8 +149,8 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
 
         // Changes the theme back from the splashscreen. It's very important that this is called
         // BEFORE onCreate.
-        //SystemClock.sleep(1500);
-        //setTheme(R.style.AppTheme_NoActionBar);
+        // SystemClock.sleep(1500);
+        // setTheme(R.style.AppTheme_NoActionBar);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
