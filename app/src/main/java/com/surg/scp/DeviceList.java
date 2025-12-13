@@ -116,7 +116,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         BluetoothConnectionManager.ConnectionCallback {
     private static final String MY_PREFS_NAME = "MyTxtFile";
     private ImageView connectionStatusIcon;
-
+    // Add this line - it's missing
+    private static final String APP_SETTINGS = "app_settings";
     /***************************************************************************************
      *                           Start Increment and Decrement
      ****************************************************************************************/
@@ -306,7 +307,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     public TextView gasOneStatus, gasTwoStatus, gasThreeStatus,gasFourStatus,gasFiveStatus,gasSixStatus,gasSevenStatus;
     private LinearLayout rightPart3;
     private TextView gasOne, gasTwo, gasThree, gasFour, gasFive, gasSix;
-
+    // Add these constants
+    private static final String PREF_UNLOCK_SETUP = "unlock_setup_complete";
+    private static final String PREF_SERVICE_RUNNING = "service_was_running";
+    private static final String PREF_LAST_CHECK = "last_battery_check";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -504,6 +508,301 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         setupSwitch1();
         setupSwitch2();
 
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+        );
+        // Setup unlock launch
+
+
+    }
+
+    // Improved setup method
+    private void setupUnlockLaunch() {
+        SharedPreferences prefs = getSharedPreferences(APP_SETTINGS, MODE_PRIVATE);
+        boolean isServiceEnabled = isAccessibilityServiceEnabled();
+
+        // Check if we need to ask for battery optimization
+        checkBatteryOptimization();
+
+        // Only show prompt if service is not enabled
+        if (!isServiceEnabled) {
+            showEnhancedAccessibilityPrompt(prefs);
+        } else {
+            // Service is enabled, start foreground service to keep it alive
+            startUnlockService();
+
+            // Show success message if first time
+            if (!prefs.getBoolean(PREF_UNLOCK_SETUP, false)) {
+                showSetupCompleteDialog();
+                prefs.edit().putBoolean(PREF_UNLOCK_SETUP, true).apply();
+            }
+        }
+    }
+
+    // Enhanced prompt with more options
+    private void showEnhancedAccessibilityPrompt(SharedPreferences prefs) {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
+
+        builder.setTitle("Enable Auto-Launch");
+        builder.setMessage("This feature will:\n" +
+                "• Launch app when device unlocks\n" +
+                "• Start automatically after reboot\n" +
+                "• Requires Accessibility permission");
+
+        builder.setPositiveButton("Enable Now", (dialog, which) -> {
+            // Save user choice
+            prefs.edit().putBoolean("user_wants_autolaunch", true).apply();
+
+            // Open accessibility settings
+            Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivity(intent);
+
+            // Show detailed instructions
+            showEnableInstructionsDialog();
+        });
+
+        builder.setNegativeButton("Not Now", (dialog, which) -> {
+            prefs.edit().putBoolean("user_wants_autolaunch", false).apply();
+        });
+
+        builder.setNeutralButton("Learn More", (dialog, which) -> {
+            showAutoLaunchInfoDialog(prefs);
+        });
+
+        builder.setOnCancelListener(dialog -> {
+            // Don't mark as declined if user cancels
+        });
+
+        builder.show();
+    }
+
+    // Show detailed instructions
+    private void showEnableInstructionsDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
+
+        builder.setTitle("Step-by-Step Setup");
+        builder.setMessage("1. Find 'SCP Unlock Launcher' in the list\n" +
+                "2. Tap on it\n" +
+                "3. Toggle the switch ON\n" +
+                "4. Return to this app\n\n" +
+                "Important: Disable battery optimization for reliable auto-launch");
+
+        builder.setPositiveButton("Open Settings", (dialog, which) -> {
+            Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivity(intent);
+        });
+
+        builder.setNegativeButton("Done", (dialog, which) -> {
+            // Check if service is now enabled
+            checkAndStartService();
+        });
+
+        builder.show();
+    }
+
+    // Check and start foreground service
+    private void checkAndStartService() {
+        if (isAccessibilityServiceEnabled()) {
+            startUnlockService();
+            showSuccessMessage();
+        }
+    }
+
+    // Start foreground service to prevent being killed
+    private void startUnlockService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent serviceIntent = new Intent(this, UnlockForegroundService.class);
+            startForegroundService(serviceIntent);
+
+            // Save that service is running
+            getSharedPreferences(APP_SETTINGS, MODE_PRIVATE)
+                    .edit()
+                    .putBoolean(PREF_SERVICE_RUNNING, true)
+                    .apply();
+        }
+    }
+
+    // Check battery optimization
+    private void checkBatteryOptimization() {
+        SharedPreferences prefs = getSharedPreferences(APP_SETTINGS, MODE_PRIVATE);
+        long currentTime = System.currentTimeMillis();
+        long lastCheck = prefs.getLong(PREF_LAST_CHECK, 0);
+
+        // Don't check too frequently (once per day)
+        if (currentTime - lastCheck > 24 * 60 * 60 * 1000) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                String packageName = getPackageName();
+                android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);
+
+                if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                    // Show battery optimization dialog
+                    showBatteryOptimizationDialog();
+                }
+            }
+
+            prefs.edit().putLong(PREF_LAST_CHECK, currentTime).apply();
+        }
+    }
+
+    // Battery optimization dialog
+    private void showBatteryOptimizationDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
+
+        builder.setTitle("Battery Optimization");
+        builder.setMessage("For reliable auto-launch, please disable battery optimization for this app.\n\n" +
+                "Otherwise, Android may stop the service to save battery.");
+
+        builder.setPositiveButton("Disable Optimization", (dialog, which) -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Intent intent = new Intent();
+                intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(android.net.Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            }
+        });
+
+        builder.setNegativeButton("Skip", null);
+        builder.setNeutralButton("Why?", (dialog, which) -> {
+            showBatteryInfoDialog();
+        });
+
+        builder.show();
+    }
+
+    // Setup complete dialog
+    private void showSetupCompleteDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
+
+        builder.setTitle("✓ Auto-Launch Setup Complete");
+        builder.setMessage("The app will now:\n" +
+                "• Launch when device is unlocked\n" +
+                "• Start after reboot\n" +
+                "• Run in background (no battery drain)\n\n" +
+                "To disable: Settings → Accessibility → SCP Unlock Launcher");
+
+        builder.setPositiveButton("Great!", null);
+        builder.setNeutralButton("Test Now", (dialog, which) -> {
+            // Simulate unlock by locking and unlocking device
+            Toast.makeText(this, "Lock your device, then unlock to test", Toast.LENGTH_LONG).show();
+        });
+
+        builder.show();
+    }
+
+    // Auto-launch info dialog
+    private void showAutoLaunchInfoDialog(SharedPreferences prefs) {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
+
+        builder.setTitle("How Auto-Launch Works");
+        builder.setMessage("This feature uses Android's Accessibility Service.\n\n" +
+                "Benefits:\n" +
+                "• Instant access when you unlock phone\n" +
+                "• Auto-starts after device reboot\n" +
+                "• Works with all unlock methods\n\n" +
+                "Requirements:\n" +
+                "• Accessibility permission (one-time)\n" +
+                "• Disable battery optimization\n\n" +
+                "Privacy: Only detects unlock events, no data collection.");
+
+        builder.setPositiveButton("Enable", (dialog, which) -> {
+            prefs.edit().putBoolean("user_wants_autolaunch", true).apply();
+            Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivity(intent);
+        });
+
+        builder.setNegativeButton("Maybe Later", null);
+        builder.show();
+    }
+
+    // Battery info dialog
+    private void showBatteryInfoDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
+
+        builder.setTitle("About Battery Optimization");
+        builder.setMessage("Android's battery optimization:\n" +
+                "• May stop background services\n" +
+                "• Prevents auto-launch after reboot\n" +
+                "• Can delay unlock detection\n\n" +
+                "Disabling it ensures:\n" +
+                "• Reliable auto-launch every time\n" +
+                "• Immediate response on unlock\n" +
+                "• Service survives device restart");
+
+        builder.setPositiveButton("Got It", null);
+        builder.show();
+    }
+
+    // Show success message
+    private void showSuccessMessage() {
+        runOnUiThread(() -> {
+            Toast.makeText(this,
+                    "✓ Auto-launch activated! Lock and unlock to test.",
+                    Toast.LENGTH_LONG).show();
+        });
+    }
+
+    // Check service status periodically
+    private void checkServiceStatusPeriodically() {
+        Handler handler = new Handler();
+        Runnable checkRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isAccessibilityServiceEnabled()) {
+                    startUnlockService();
+                }
+                // Check every 30 minutes
+                handler.postDelayed(this, 30 * 60 * 1000);
+            }
+        };
+        handler.postDelayed(checkRunnable, 5 * 60 * 1000); // First check after 5 minutes
+    }
+
+
+    // Add to DeviceList.java
+   /* private void setupUnlockLaunch() {
+        // Check if accessibility service is enabled
+        if (!isAccessibilityServiceEnabled()) {
+            showAccessibilityPrompt();
+        }
+    }*/
+
+    private boolean isAccessibilityServiceEnabled() {
+        String serviceName = getPackageName() + "/.UnlockAccessibilityService";
+        try {
+            String enabledServices = android.provider.Settings.Secure.getString(
+                    getContentResolver(),
+                    android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            );
+            return enabledServices != null && enabledServices.contains(serviceName);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void showAccessibilityPrompt() {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Enable Unlock Launch");
+        builder.setMessage("Do you want to launch this app when you unlock your device?");
+
+        builder.setPositiveButton("Enable", (dialog, which) -> {
+            // Open accessibility settings
+            Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivity(intent);
+            Toast.makeText(this,
+                    "Please enable 'SCP Unlock Launcher' in Accessibility Services",
+                    Toast.LENGTH_LONG).show();
+        });
+
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
     }
 
     private synchronized void initializeExecutorService() {
@@ -1124,6 +1423,19 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // vibrator.vibrate(500);
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+            );
+        }
+    }
+
+
     public void timerStart() {
         if (cdflag == 0) {
             cdflag = 1;
@@ -1255,7 +1567,12 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         if (id == R.id.nav_exit) {
             exitApplication();
-        } else if (id == R.id.action_share) {
+        }
+        if (id == R.id.nav_unlock_launch) {
+            // Handle unlock launch menu item
+            setupUnlockLaunch();
+        }
+        else if (id == R.id.action_share) {
             shareApp();
         } else if (id == R.id.action_about) {
             Intent intent = new Intent(this, AboutActivity.class);

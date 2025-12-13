@@ -61,6 +61,8 @@
     <string name="healthy">Healthy</string>
     <string name="percent_sign">%</string>
     <string name="humidity_control">Humidity Control</string>
+    <string name="accessibility_service_description">Axx</string>
+    <string name="accessibility_unlock_description">Launches SCP app when device is unlocked</string>
 
 
 </resources>

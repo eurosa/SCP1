@@ -86,6 +86,12 @@ public class BootForegroundService extends Service {
                 .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+                // 🔥 REQUIRED TO POP APP TO FRONT
+                .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setFullScreenIntent(pendingIntent, true)
+
                 .setAutoCancel(true)
                 .build();
     }
