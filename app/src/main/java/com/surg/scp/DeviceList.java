@@ -47,6 +47,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -514,7 +515,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
         );
         // Setup unlock launch
-
+        // Keep screen ON while this activity is visible
+        getWindow().addFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        );
 
     }
 
@@ -944,12 +948,21 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 tryAutoConnect();
             }, 1000);
         }
+
+        // Optional cleanup
+        getWindow().clearFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        );
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         saveCurrentValues();
+        // Optional cleanup
+        getWindow().clearFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        );
     }
 
     private void handleIncomingIntent() {
@@ -2360,6 +2373,11 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         if (bluetoothManager != null) {
             bluetoothManager.shutdown();
         }
+
+        // Optional cleanup
+        getWindow().clearFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        );
     }
 
     private void shutdownExecutor() {
