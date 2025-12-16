@@ -12,7 +12,8 @@
         android:id="@+id/clockLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorBlack">
+        android:background="@color/colorBlack"
+        android:keepScreenOn="true">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/my_toolbar"

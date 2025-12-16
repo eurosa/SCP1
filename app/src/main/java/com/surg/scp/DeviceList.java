@@ -2028,6 +2028,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                     break;
                 case BluetoothConnectionManager.CONNECTION_FAILED:
                     connectionStatusIcon.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                    bluetoothManager.disconnect();
                     Toast.makeText(this, "Bluetooth connection failed " + message, Toast.LENGTH_LONG).show();
                     break;
                 // Handle other cases...
