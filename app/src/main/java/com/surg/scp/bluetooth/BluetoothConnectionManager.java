@@ -301,6 +301,7 @@ public class BluetoothConnectionManager {
                 notifyConnectionResult(SECURITY_EXCEPTION, "Bluetooth permission denied");
             } catch (IOException e) {
                 notifyConnectionResult(CONNECTION_FAILED, "Connection failed: " + e.getMessage());
+                 disconnect();
                 startAutoReconnect();
             }
         });
