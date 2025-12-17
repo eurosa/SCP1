@@ -579,7 +579,7 @@
                         android:layout_marginBottom="4dp"
                         android:gravity="center"
                         android:orientation="horizontal"
-                        android:weightSum="3">
+                        android:weightSum="6">
 
                         <!-- Oxygen -->
                         <LinearLayout
@@ -625,19 +625,20 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/air_4_bar"
                                 android:textColor="@color/whiteColor"
-                                android:textSize="10sp" />
+                                android:textSize="@dimen/gas_label_text" />
 
                             <TextView
                                 android:id="@+id/gasTwoStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/small_padding"
                                 android:background="@drawable/mybutton"
                                 android:gravity="center"
-                                android:minWidth="60dp"
-                                android:padding="2dp"
+                                android:minWidth="@dimen/gas_status_min_width"
+                                android:padding="@dimen/gas_status_padding"
                                 android:text="@string/normal"
                                 android:textColor="@color/colorBlack"
-                                android:textSize="10sp" />
+                                android:textSize="@dimen/gas_status_text" />
                         </LinearLayout>
 
                         <!-- Nitrous Oxide -->
@@ -654,29 +655,21 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/nitrous_oxide"
                                 android:textColor="@color/whiteColor"
-                                android:textSize="10sp" />
+                                android:textSize="@dimen/gas_label_text" />
 
                             <TextView
                                 android:id="@+id/gasThreeStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/small_padding"
                                 android:background="@drawable/mybutton"
                                 android:gravity="center"
-                                android:minWidth="60dp"
-                                android:padding="2dp"
+                                android:minWidth="@dimen/gas_status_min_width"
+                                android:padding="@dimen/gas_status_padding"
                                 android:text="@string/normal"
                                 android:textColor="@color/colorBlack"
-                                android:textSize="10sp" />
+                                android:textSize="@dimen/gas_status_text" />
                         </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Row 2 - Made very compact -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        android:weightSum="3">
 
                         <!-- Air 7 Bar -->
                         <LinearLayout
@@ -707,7 +700,6 @@
                                 android:textColor="@color/colorBlack"
                                 android:textSize="@dimen/gas_status_text" />
                         </LinearLayout>
-
                         <!-- Carbon Dioxide -->
                         <LinearLayout
                             android:layout_width="0dp"
@@ -722,19 +714,20 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/carbon_dioxide"
                                 android:textColor="@color/whiteColor"
-                                android:textSize="10sp" />
+                                android:textSize="@dimen/gas_label_text" />
 
                             <TextView
                                 android:id="@+id/gasFiveStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/small_padding"
                                 android:background="@drawable/mybutton"
                                 android:gravity="center"
-                                android:minWidth="60dp"
-                                android:padding="2dp"
+                                android:minWidth="@dimen/gas_status_min_width"
+                                android:padding="@dimen/gas_status_padding"
                                 android:text="@string/normal"
                                 android:textColor="@color/colorBlack"
-                                android:textSize="10sp" />
+                                android:textSize="@dimen/gas_status_text" />
                         </LinearLayout>
 
                         <!-- Vacuum -->
@@ -751,20 +744,34 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/vacuum"
                                 android:textColor="@color/whiteColor"
-                                android:textSize="10sp" />
+                                android:textSize="@dimen/gas_label_text" />
 
                             <TextView
                                 android:id="@+id/gasSixStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/small_padding"
                                 android:background="@drawable/mybutton"
                                 android:gravity="center"
-                                android:minWidth="60dp"
-                                android:padding="2dp"
+                                android:minWidth="@dimen/gas_status_min_width"
+                                android:padding="@dimen/gas_status_padding"
                                 android:text="@string/normal"
                                 android:textColor="@color/colorBlack"
-                                android:textSize="10sp" />
+                                android:textSize="@dimen/gas_status_text" />
                         </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Row 2 - Made very compact -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:weightSum="3">
+
+
+
+
                     </LinearLayout>
                 </LinearLayout>
 
