@@ -1,5 +1,7 @@
 package com.surg.scp.bluetooth;
 
+import static com.surg.scp.DeviceList.PERMISSION_REQUEST_CODE;
+
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -907,22 +909,34 @@ public class BluetoothConnectionManager {
     }
 
     public static boolean checkBluetoothPermissions(Context context) {
+        // For Android 12+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
-                    == PackageManager.PERMISSION_GRANTED;
+            return ActivityCompat.checkSelfPermission(context,
+                    Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
         }
-        return true;
+
+        // For Android 6-10, need location permission for Bluetooth
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return ActivityCompat.checkSelfPermission(context,
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        }
+
+        return true; // No special permissions needed for older Android
     }
 
     private boolean checkBluetoothPermissions() {
         return checkBluetoothPermissions(context);
     }
 
-    public static void requestBluetoothPermissions(@NonNull android.app.Activity activity, int requestCode) {
+    public static void requestBluetoothPermissions(@NonNull android.app.Activity context, int requestCode) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            ActivityCompat.requestPermissions(activity,
+            ActivityCompat.requestPermissions(context,
                     new String[]{Manifest.permission.BLUETOOTH_CONNECT},
-                    requestCode);
+                    PERMISSION_REQUEST_CODE);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(context,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_REQUEST_CODE);
         }
     }
 

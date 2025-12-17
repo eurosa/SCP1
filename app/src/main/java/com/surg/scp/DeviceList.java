@@ -47,6 +47,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
@@ -112,6 +113,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.content.ContentValues.TAG;
+import static com.surg.scp.bluetooth.BluetoothConnectionManager.checkBluetoothPermissions;
+import static com.surg.scp.bluetooth.BluetoothConnectionManager.requestBluetoothPermissions;
 
 public class DeviceList extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener,
         BluetoothConnectionManager.ConnectionCallback {
@@ -286,7 +289,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private ImageButton lightTwoBtn;
     private ImageButton lightOneBtn;
     private BluetoothConnectionManager bluetoothManager;
-    private static final int PERMISSION_REQUEST_CODE = 1001;
+    public static final int PERMISSION_REQUEST_CODE = 1001;
     // Timer
     private CountDownTimer countDownTimer;
     private CountUpTimer countUpTimer;
@@ -1543,7 +1546,20 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         });
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, refresh paired devices list
+                pairedDevicesList();
+            } else {
+                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
     public void exitApplication() {
         final AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setMessage("Are you sure you want to exit application?");
@@ -1988,8 +2004,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         this.currentConnectionAddress = address;
         this.currentConnectionInfo = info;
 
-        if (!BluetoothConnectionManager.checkBluetoothPermissions(this)) {
-            BluetoothConnectionManager.requestBluetoothPermissions(this, 1001);
+        if (!checkBluetoothPermissions(this)) {
+            requestBluetoothPermissions(this, 1001);
             return;
         }
 
@@ -2241,57 +2257,144 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     // Optimized paired devices list
     private void pairedDevicesList() {
         executeInBackground(() -> {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            // Check if Bluetooth is supported
+            if (myBluetooth == null) {
+                uiHandler.post(() ->
+                        Toast.makeText(DeviceList.this, "Bluetooth not supported", Toast.LENGTH_LONG).show());
                 return;
             }
 
-            pairedDevices = myBluetooth.getBondedDevices();
-            ArrayList<String> list = new ArrayList<>();
+            // Check if Bluetooth is enabled
+            if (!myBluetooth.isEnabled()) {
+                uiHandler.post(() -> {
+                    Toast.makeText(DeviceList.this, "Please enable Bluetooth", Toast.LENGTH_LONG).show();
+                    // Optionally prompt user to enable Bluetooth
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivity(enableBtIntent);
+                });
+                return;
+            }
 
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice bt : pairedDevices) {
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    list.add(bt.getName() + "\n" + bt.getAddress());
+            // For Android 12+ (API 31+), check BLUETOOTH_CONNECT permission
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    uiHandler.post(() ->
+                            Toast.makeText(DeviceList.this,
+                                    "Bluetooth permission required for Android 12+",
+                                    Toast.LENGTH_LONG).show());
+                    return;
                 }
             }
 
-            // Update UI on main thread
-            uiHandler.post(() -> {
-                if (list.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
+            // For Android 6-10, check location permissions for Bluetooth scanning
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    uiHandler.post(() ->
+                            Toast.makeText(DeviceList.this,
+                                    "Location permission required for Bluetooth on Android 6-10",
+                                    Toast.LENGTH_LONG).show());
                     return;
                 }
+            }
 
-                Dialog dialog = new Dialog(this);
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Select a paired device for connecting");
+            try {
+                // Get paired devices
+                Set<BluetoothDevice> pairedDevices = myBluetooth.getBondedDevices();
+                ArrayList<String> list = new ArrayList<>();
 
-                LinearLayout parent = new LinearLayout(DeviceList.this);
-                parent.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                parent.setOrientation(LinearLayout.VERTICAL);
+                if (pairedDevices != null && pairedDevices.size() > 0) {
+                    for (BluetoothDevice bt : pairedDevices) {
+                        // Get device name safely
+                        String deviceName = "Unknown Device";
+                        String deviceAddress = bt.getAddress();
 
-                ListView modeList = new ListView(this);
-                setListViewHeightBasedOnItems(modeList);
+                        // For Android 12+, check permission before getting name
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            if (ActivityCompat.checkSelfPermission(this,
+                                    Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+                                deviceName = bt.getName() != null ? bt.getName() : "Unknown Device";
+                            }
+                        } else {
+                            // For older versions, just get the name
+                            deviceName = bt.getName() != null ? bt.getName() : "Unknown Device";
+                        }
 
-                final ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
-                modeList.setAdapter(modeAdapter);
-                modeList.setOnItemClickListener(myListClickListener);
-                builder.setView(modeList);
-                dialog = builder.create();
-                dialog.show();
-                dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, 600);
-            });
+                        list.add(deviceName + "\n" + deviceAddress);
+                    }
+                }
+
+                // Update UI on main thread
+                uiHandler.post(() -> {
+                    if (list.isEmpty()) {
+                        Toast.makeText(getApplicationContext(),
+                                "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    showPairedDevicesDialog(list);
+                });
+
+            } catch (SecurityException e) {
+                Log.e("Bluetooth", "Security exception: " + e.getMessage());
+                uiHandler.post(() ->
+                        Toast.makeText(DeviceList.this,
+                                "Permission denied: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show());
+            } catch (Exception e) {
+                Log.e("Bluetooth", "Error getting paired devices: " + e.getMessage());
+                uiHandler.post(() ->
+                        Toast.makeText(DeviceList.this,
+                                "Error: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show());
+            }
         });
     }
 
+    private void showPairedDevicesDialog(ArrayList<String> deviceList) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select a paired device for connecting");
+
+        LinearLayout parent = new LinearLayout(DeviceList.this);
+        parent.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        parent.setOrientation(LinearLayout.VERTICAL);
+
+        ListView modeList = new ListView(this);
+
+        final ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_list_item_1,
+                deviceList);
+        modeList.setAdapter(modeAdapter);
+        modeList.setOnItemClickListener(myListClickListener);
+
+        builder.setView(modeList);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Set dialog window size
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, 600);
+        }
+    }
+
+    // Also update your myListClickListener to handle permissions
     private AdapterView.OnItemClickListener myListClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
             String info = ((TextView) v).getText().toString();
             String address = info.substring(info.length() - 17);
-            if (address != null) {
+
+            // Check permissions before connecting
+            if (checkBluetoothPermissions(DeviceList.this)) {
                 connectToDevice(address, info);
+            } else {
+                // Request permissions
+                requestBluetoothPermissions(DeviceList.this,1001);
             }
         }
     };
