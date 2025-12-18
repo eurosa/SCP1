@@ -75,6 +75,9 @@
     <dimen name="data_text_size">36sp</dimen>
     <dimen name="image_width">33dp</dimen>
     <dimen name="image_height">33dp</dimen>
+    <dimen name="margin_set_hs">6dp</dimen>
+    <dimen name="in_de_button">45dp</dimen>
+    <dimen name="hum_temp_panel">81dp</dimen>
 
     <!-- Integer for responsive grid -->
         <integer name="gas_alarm_columns">3</integer>

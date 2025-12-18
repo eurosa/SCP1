@@ -196,7 +196,7 @@
                 <LinearLayout
                     android:id="@+id/LinearLayout02"
                     android:layout_width="match_parent"
-                    android:layout_height="81dp"
+                    android:layout_height="@dimen/hum_temp_panel"
                     android:layout_marginBottom="4dp"
                     android:background="@color/whiteColor"
                     android:orientation="horizontal"
@@ -260,8 +260,9 @@
                         android:layout_weight="1"
                         android:background="@drawable/layout_bg_temp"
                         android:gravity="center"
+                        android:layout_margin="@dimen/margin_set_hs"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:padding="1dp">
 
                         <TextView
                             android:id="@+id/setPoint"
@@ -280,8 +281,8 @@
 
                             <ImageButton
                                 android:id="@+id/tempBtnMinus"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
+                                android:layout_width="@dimen/in_de_button"
+                                android:layout_height="@dimen/in_de_button"
                                 android:layout_marginStart="8dp"
                                 android:background="@drawable/mybutton_minus"
                                 android:contentDescription="Decrease temperature"
@@ -316,8 +317,8 @@
 
                             <ImageButton
                                 android:id="@+id/tempBtnPlus"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
+                                android:layout_width="@dimen/in_de_button"
+                                android:layout_height="@dimen/in_de_button"
                                 android:layout_marginEnd="8dp"
                                 android:background="@drawable/mybutton_plus"
                                 android:contentDescription="Increase temperature"
@@ -399,7 +400,7 @@
                 <LinearLayout
                     android:id="@+id/LinearLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="70dp"
+                    android:layout_height="@dimen/hum_temp_panel"
                     android:layout_below="@+id/LinearLayout02"
                     android:layout_marginBottom="4dp"
                     android:background="@color/whiteColor"
@@ -463,6 +464,7 @@
                         android:layout_weight="1"
                         android:background="@drawable/layout_bg_hum"
                         android:gravity="center"
+                        android:layout_margin="@dimen/margin_set_hs"
                         android:orientation="vertical"
                         android:padding="1dp">
 
@@ -483,8 +485,8 @@
 
                             <ImageButton
                                 android:id="@+id/humBtnMinus"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
+                                android:layout_width="@dimen/in_de_button"
+                                android:layout_height="@dimen/in_de_button"
                                 android:layout_marginStart="8dp"
                                 android:background="@drawable/mybutton_minus"
                                 android:contentDescription="Decrease humidity"
@@ -519,8 +521,8 @@
 
                             <ImageButton
                                 android:id="@+id/humBtnPlus"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
+                                android:layout_width="@dimen/in_de_button"
+                                android:layout_height="@dimen/in_de_button"
                                 android:layout_marginEnd="8dp"
                                 android:background="@drawable/mybutton_plus"
                                 android:contentDescription="Increase humidity"
@@ -667,6 +669,7 @@
                         android:layout_weight="1"
                         android:background="@drawable/layout_bg_pressure"
                         android:gravity="center"
+                        android:layout_margin="@dimen/margin_set_hs"
                         android:orientation="vertical"
                         android:padding="8dp">
 
