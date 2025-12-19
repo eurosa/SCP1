@@ -571,16 +571,28 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         runOnUiThread(() -> {
             try {
                 TextView clockView = findViewById(R.id.hk_date);
+                TextView dayView = findViewById(R.id.hk_day);
                 TextView clockTimeView = findViewById(R.id.hk_time);
 
-                if (clockView != null && clockTimeView != null) {
-                    String pattern = "dd MMM yyyy";
-                    String pattern2 = "hh:mm:ss";
-                    SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
-                    SimpleDateFormat timeFormat = new SimpleDateFormat(pattern2, Locale.getDefault());
+                if (clockView != null && dayView != null && clockTimeView != null) {
+                    // Date pattern: "dd MMM yyyy" (e.g., "19 Dec 2024")
+                    String datePattern = "dd MMM yyyy";
 
-                    clockView.setText(sdf.format(new Date(currentTime)));
-                    clockTimeView.setText(timeFormat.format(new Date(currentTime)));
+                    // Day pattern - Full day name
+                    String dayPattern = "EEEE";  // "Monday", "Tuesday", etc.
+
+                    // Time pattern: "hh:mm:ss" (e.g., "02:30:45")
+                    String timePattern = "hh:mm:ss";
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat(datePattern, Locale.getDefault());
+                    SimpleDateFormat dayFormat = new SimpleDateFormat(dayPattern, Locale.getDefault());
+                    SimpleDateFormat timeFormat = new SimpleDateFormat(timePattern, Locale.getDefault());
+
+                    Date currentDate = new Date(currentTime);
+
+                    clockView.setText(dateFormat.format(currentDate));
+                    dayView.setText(dayFormat.format(currentDate));
+                    clockTimeView.setText(timeFormat.format(currentDate));
                 }
             } catch (Exception e) {
                 Log.e("Timer", "Error updating clock", e);
