@@ -35,6 +35,7 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.text.Html;
 import android.transition.Slide;
@@ -109,6 +110,8 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -118,10 +121,22 @@ import static com.surg.scp.bluetooth.BluetoothConnectionManager.requestBluetooth
 
 public class DeviceList extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener,
         BluetoothConnectionManager.ConnectionCallback {
+    // Add this lock at class level
+    private final Object timerLock = new Object();
+    // Add these helper variables
+    private long countUpTimerStartTime = 0;
+    private long countDownTimerStartTime = 0;
     private static final String MY_PREFS_NAME = "MyTxtFile";
     private ImageView connectionStatusIcon;
     // Add this line - it's missing
     private static final String APP_SETTINGS = "app_settings";
+
+    // Replace ALL timer-related variables and handlers with this unified approach
+
+    private ScheduledExecutorService unifiedScheduler;
+    private ScheduledFuture<?> unifiedTimerTask;
+    private AtomicBoolean isTimerScheduled = new AtomicBoolean(false);
+
     /***************************************************************************************
      *                           Start Increment and Decrement
      ****************************************************************************************/
@@ -291,8 +306,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private BluetoothConnectionManager bluetoothManager;
     public static final int PERMISSION_REQUEST_CODE = 1001;
     // Timer
-    private CountDownTimer countDownTimer;
-    private CountUpTimer countUpTimer;
+
+
     // SharedPreferences
     private SharedPreferences sharedPreferences1;
     private static final String PREFS_NAME = "TimerPrefs";
@@ -524,6 +539,162 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         );
 
     }
+
+    // Combined update method for all timer modes
+    private void unifiedTimerUpdate() {
+        long currentTime = System.currentTimeMillis();
+
+        // Always update the clock (but only display updates every second)
+        if (currentTime - lastClockUpdate >= 1000) {
+            lastClockUpdate = currentTime;
+            updateClock(currentTime);
+        }
+
+        // Update the appropriate timer based on current mode
+        switch (currentTimerMode) {
+            case MODE_STOPWATCH:
+                updateStopwatch(currentTime);
+                break;
+            case MODE_COUNT_UP:
+                updateCountUpTimer(currentTime);
+                break;
+            case MODE_COUNT_DOWN:
+                updateCountDownTimer(currentTime);
+                break;
+        }
+    }
+
+    // Add this variable at class level
+    private long lastClockUpdate = 0;
+
+    private void updateClock(long currentTime) {
+        runOnUiThread(() -> {
+            try {
+                TextView clockView = findViewById(R.id.hk_date);
+                TextView clockTimeView = findViewById(R.id.hk_time);
+
+                if (clockView != null && clockTimeView != null) {
+                    String pattern = "dd MMM yyyy";
+                    String pattern2 = "hh:mm:ss";
+                    SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
+                    SimpleDateFormat timeFormat = new SimpleDateFormat(pattern2, Locale.getDefault());
+
+                    clockView.setText(sdf.format(new Date(currentTime)));
+                    clockTimeView.setText(timeFormat.format(new Date(currentTime)));
+                }
+            } catch (Exception e) {
+                Log.e("Timer", "Error updating clock", e);
+            }
+        });
+    }
+    private void updateStopwatch(long currentTime) {
+        if (isPlaying) {
+            runOnUiThread(() -> {
+                timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
+                updatedTime = timeSwapBuff + timeInMilliseconds;
+
+                int seconds = (int) (updatedTime / 1000);
+                int minutes = seconds / 60;
+                int hours = seconds / 3600;
+                seconds = seconds % 60;
+
+                String newString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+                if (timerValue != null && !newString.equals(timerValue.getText().toString())) {
+                    timerValue.setText(newString);
+                }
+            });
+        }
+    }
+
+    // Fix the updateCountUpTimer method
+    private void updateCountUpTimer(long currentTime) {
+        synchronized (timerLock) {
+            if (isTimerRunning && cdflag == 1) {
+                long elapsedMillis = currentTime - countUpTimerStartTime;
+                int elapsedSeconds = (int) (elapsedMillis / 1000);
+
+                // Cap at maximum time
+                if (elapsedSeconds >= maxTimeInSeconds) {
+                    elapsedSeconds = maxTimeInSeconds;
+                    timeDone();
+                }
+
+                // Only update if the value changed
+                if (currentTimeInSeconds != elapsedSeconds) {
+                    currentTimeInSeconds = elapsedSeconds;
+                    pausedTimeInSeconds = elapsedSeconds;
+
+                    int finalElapsedSeconds = elapsedSeconds;
+                    runOnUiThread(() -> {
+                        if (timerValue != null) {
+                            timerValue.setText(method5(finalElapsedSeconds));
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    private void updateCountDownTimer(long currentTime) {
+        synchronized (timerLock) {
+            if (isTimerRunning && cdflag == 1) {
+                long elapsedMillis = currentTime - countDownTimerStartTime;
+                int elapsedSeconds = (int) (elapsedMillis / 1000);
+
+                // Calculate remaining time
+                int remainingSeconds = timeVar - elapsedSeconds;
+
+                if (remainingSeconds <= 0) {
+                    remainingSeconds = 0;
+                    timeDone();
+                }
+
+                // Only update if the value changed
+                if (timeVarEdit != remainingSeconds) {
+                    timeVarEdit = remainingSeconds;
+                    pausedCountDownTimeInSeconds = remainingSeconds;
+
+                    int finalRemainingSeconds = remainingSeconds;
+                    runOnUiThread(() -> {
+                        if (timerValue != null) {
+                            timerValue.setText(method5(finalRemainingSeconds));
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    // Initialize and start the unified timer
+    private void startUnifiedTimer() {
+        if (unifiedScheduler == null || unifiedScheduler.isShutdown()) {
+            unifiedScheduler = Executors.newSingleThreadScheduledExecutor();
+        }
+
+        // Cancel existing task if running
+        stopUnifiedTimer();
+
+        // Start new task with 1-second intervals
+        unifiedTimerTask = unifiedScheduler.scheduleAtFixedRate(
+                this::unifiedTimerUpdate,
+                0,  // Initial delay
+                1000, // Update interval (1 second)
+                TimeUnit.MILLISECONDS
+        );
+
+        isTimerScheduled.set(true);
+        Log.d("Timer", "Unified timer started");
+    }
+
+    private void stopUnifiedTimer() {
+        if (unifiedTimerTask != null) {
+            unifiedTimerTask.cancel(true);
+            unifiedTimerTask = null;
+        }
+        isTimerScheduled.set(false);
+    }
+
+
 
     // Improved setup method
     private void setupUnlockLaunch() {
@@ -944,7 +1115,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         doubleBackToExitPressedOnce = false;
         // Ensure executor is running
         ensureExecutorRunning();
-
+        // Ensure timer is running if it should be
+        if (isTimerRunning || isPlaying || !isTimerScheduled.get()) {
+            startUnifiedTimer();
+        }
         // Try to reconnect if we're not connected
         if (!isBluetoothConnected()) {
             new Handler().postDelayed(() -> {
@@ -962,6 +1136,10 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     protected void onPause() {
         super.onPause();
         saveCurrentValues();
+        // Keep timer running in background if needed, or stop to save battery
+        if (!isTimerRunning && !isPlaying) {
+            // Timer not active, we can keep it minimal
+        }
         // Optional cleanup
         getWindow().clearFlags(
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
@@ -1370,10 +1548,12 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
     private void handleCountTimerPlayPause() {
-        if (isTimerRunning) {
-            timerPause();
-        } else {
-            timerStart();
+        synchronized (timerLock) {
+            if (isTimerRunning) {
+                timerPause();
+            } else {
+                timerStart();
+            }
         }
     }
 
@@ -1406,37 +1586,52 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         updateDisplayForCurrentMode();
     }
 
+    // Modified timerPause() method
     public void timerPause() {
-        cdflag = 0;
-        isTimerRunning = false;
-        playPause.setImageResource(R.drawable.ic_play);
+        synchronized (timerLock) {
+            cdflag = 0;
+            isTimerRunning = false;
+            isPlaying = false;
+            playPause.setImageResource(R.drawable.ic_play);
 
-        if (countDownTimer != null) {
-            pausedCountDownTimeInSeconds = timeVarEdit;
-            countDownTimer.cancel();
-        }
-        if (countUpTimer != null) {
-            // For count up, store the current progress
-            pausedTimeInSeconds = currentTimeInSeconds;
-            countUpTimer.cancel();
+            // Save current state for resumption
+            if (currentTimerMode == MODE_COUNT_DOWN) {
+                // Use current time to calculate remaining time
+                long elapsedMillis = System.currentTimeMillis() - countDownTimerStartTime;
+                int elapsedSeconds = (int) (elapsedMillis / 1000);
+                timeVarEdit = Math.max(0, timeVarEdit - elapsedSeconds);
+            } else if (currentTimerMode == MODE_COUNT_UP) {
+                // Use current time to calculate elapsed time
+                long elapsedMillis = System.currentTimeMillis() - countUpTimerStartTime;
+                currentTimeInSeconds = (int) (elapsedMillis / 1000);
+            }
         }
     }
 
+    // Modified timeDone() method
     private void timeDone() {
         resetAllTimerStates();
 
-        if (currentTimerMode == MODE_COUNT_UP) {
-            updateTimerDisplay(method5(maxTimeInSeconds));
-        } else if (currentTimerMode == MODE_COUNT_DOWN) {
-            updateTimerDisplay("00:00:00");
-        }
+        runOnUiThread(() -> {
+            if (currentTimerMode == MODE_COUNT_UP) {
+                updateTimerDisplay(method5(maxTimeInSeconds));
+            } else if (currentTimerMode == MODE_COUNT_DOWN) {
+                updateTimerDisplay("00:00:00");
+            }
 
-        playPause.setImageResource(R.drawable.ic_play);
-        resetButton.setClickable(true);
+            playPause.setImageResource(R.drawable.ic_play);
+            resetButton.setClickable(true);
 
-        // Optional: Add a completion sound or vibration
-        // Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // vibrator.vibrate(500);
+            // Optional: Play sound or vibrate
+            try {
+                Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                if (vibrator != null && vibrator.hasVibrator()) {
+                    vibrator.vibrate(500);
+                }
+            } catch (Exception e) {
+                Log.e("Timer", "Error with vibration", e);
+            }
+        });
     }
 
     @Override
@@ -1452,6 +1647,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
 
+    // Modified timerStart() method
     public void timerStart() {
         if (cdflag == 0) {
             cdflag = 1;
@@ -1459,60 +1655,20 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             playPause.setImageResource(R.drawable.ic_pause);
             resetButton.setClickable(true);
 
-            switch (currentTimerMode) {
-                case MODE_COUNT_UP:
-                    // If starting count up from reset, ensure we start from 0
-                    if (pausedTimeInSeconds == 0) {
-                        currentTimeInSeconds = 0;
-                    }
-                    startCountUpTimer();
-                    break;
+            // Reset start times for accurate calculations
+            countUpTimerStartTime = System.currentTimeMillis();
+            countDownTimerStartTime = System.currentTimeMillis();
 
-                case MODE_COUNT_DOWN:
-                    // If starting count down from reset, ensure we start from full time
-                    if (pausedCountDownTimeInSeconds == 0) {
-                        timeVarEdit = timeVar;
-                    }
-                    startCountDownTimer();
-                    break;
+            // Start unified timer if not already running
+            if (!isTimerScheduled.get()) {
+                startUnifiedTimer();
             }
+
+            Log.d("Timer", "Timer started in mode: " + currentTimerMode);
         }
     }
 
-    private void startCountUpTimer() {
-        if (countUpTimer != null) {
-            countUpTimer.cancel();
-            countUpTimer = null;
-        }
 
-        // Calculate the time to count up to (from current position to max)
-        long timeToCount = (maxTimeInSeconds - currentTimeInSeconds) * 1000L;
-
-        countUpTimer = new  CountUpTimer(timeToCount, 1000) {
-            @Override
-            public void onTick(long millisElapsed) {
-                if (cdflag == 1 && isTimerRunning) {
-                    int elapsedSeconds = (int) (millisElapsed / 1000);
-                    int totalSeconds = currentTimeInSeconds + elapsedSeconds;
-
-                    // Update display
-                    updateTimerDisplay(method5(totalSeconds));
-
-                    // Check if we've reached the maximum time
-                    if (totalSeconds >= maxTimeInSeconds) {
-                        timeDone();
-                    }
-                }
-            }
-
-            @Override
-            public void onFinish() {
-                timeDone();
-            }
-        };
-
-        countUpTimer.start();
-    }
 
     @Override
     public void onBackPressed() {
@@ -1783,31 +1939,33 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
     private void resetAllTimerStates() {
-        cdflag = 0;
-        isTimerRunning = false;
-        isPlaying = false;
-        pausedTimeInSeconds = 0;
-        pausedCountDownTimeInSeconds = 0;
-        currentTimeInSeconds = 0;
-        timeSwapBuff = 0;
-        timeInMilliseconds = 0L;
-        updatedTime = 0L;
+        synchronized (timerLock) {
+            cdflag = 0;
+            isTimerRunning = false;
+            isPlaying = false;
+            pausedTimeInSeconds = 0;
+            pausedCountDownTimeInSeconds = 0;
+            currentTimeInSeconds = 0;
+            timeSwapBuff = 0;
+            timeInMilliseconds = 0L;
+            updatedTime = 0L;
 
-        // Cancel and nullify all timers
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-            countDownTimer = null;
-        }
-        if (countUpTimer != null) {
-            countUpTimer.cancel();
-            countUpTimer = null;
-        }
-        customHandler.removeCallbacks(updateTimerThread);
+            // Reset start times
+            countUpTimerStartTime = 0;
+            countDownTimerStartTime = 0;
 
-        // Reset UI
-        playPause.setImageResource(R.drawable.ic_play);
+            // Remove all handler callbacks
+            customHandler.removeCallbacksAndMessages(null);
+
+            // Reset UI
+            runOnUiThread(() -> {
+                playPause.setImageResource(R.drawable.ic_play);
+                resetButton.setClickable(false);
+            });
+        }
     }
 
+    // Modified resetTimer() method
     public void resetTimer() {
         // First, completely reset all timer states
         resetAllTimerStates();
@@ -1815,29 +1973,33 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         // Now handle mode-specific reset
         switch (currentTimerMode) {
             case MODE_STOPWATCH:
-                // For stopwatch, reset to 00:00:00
                 timerValue.setText("00:00:00");
                 startTime = SystemClock.uptimeMillis();
+                timeSwapBuff = 0;
+                timeInMilliseconds = 0L;
+                updatedTime = 0L;
                 break;
 
             case MODE_COUNT_UP:
-                // For count up, reset to 00:00:00
                 currentTimeInSeconds = 0;
                 timeVarEdit = 0;
+                pausedTimeInSeconds = 0;
+                countUpTimerStartTime = 0;
                 updateTimerDisplay(method5(0));
                 break;
 
             case MODE_COUNT_DOWN:
-                // For count down, reset to the full configured time
                 timeVarEdit = timeVar;
+                pausedCountDownTimeInSeconds = 0;
+                countDownTimerStartTime = 0;
                 updateTimerDisplay(method5(timeVar));
                 break;
         }
 
-        // Make sure UI reflects reset state
         playPause.setImageResource(R.drawable.ic_play);
         resetButton.setClickable(false);
     }
+
 
     private void updateTimerDisplay(String timeText) {
         timerValue.setText(timeText);
@@ -1886,24 +2048,30 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
     private void setupClock() {
-        TextView clockView = findViewById(R.id.hk_date);
-        TextView clocTime = findViewById(R.id.hk_time);
+        // Ensure we don't have multiple timers
+        stopUnifiedTimer();
 
-        // Use a single handler for both date and time updates
-        Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
+        // Reset all states
+        resetAllTimerStates();
+
+        // Start fresh unified timer
+        startUnifiedTimer();
+
+        // Also update the clock display immediately
+        runOnUiThread(() -> {
+            TextView clockView = findViewById(R.id.hk_date);
+            TextView clockTimeView = findViewById(R.id.hk_time);
+
+            if (clockView != null && clockTimeView != null) {
                 String pattern = "dd MMM yyyy";
                 String pattern2 = "hh:mm";
                 SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
-                SimpleDateFormat clocTime2 = new SimpleDateFormat(pattern2, Locale.getDefault());
+                SimpleDateFormat timeFormat = new SimpleDateFormat(pattern2, Locale.getDefault());
+
                 clockView.setText(sdf.format(new Date()));
-                clocTime.setText(clocTime2.format(new Date()));
-                customHandler.postDelayed(this, 1000); // update every second
+                clockTimeView.setText(timeFormat.format(new Date()));
             }
-        };
-        customHandler.post(runnable);
+        });
     }
 
     // Add these class variables for auto-repeat functionality
@@ -1982,17 +2150,26 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     };
 
     public void playStopwatch() {
-        startTime = SystemClock.uptimeMillis();
-        customHandler.postDelayed(updateTimerThread, 0);
-        playPause.setImageResource(R.drawable.ic_pause);
-        resetButton.setClickable(false);
+        if (!isPlaying) {
+            startTime = SystemClock.uptimeMillis();
+            isPlaying = true;
+            playPause.setImageResource(R.drawable.ic_pause);
+            resetButton.setClickable(false);
+
+            // Ensure unified timer is running
+            if (!isTimerScheduled.get()) {
+                startUnifiedTimer();
+            }
+        }
     }
 
     public void pauseStopwatch() {
-        timeSwapBuff += timeInMilliseconds;
-        customHandler.removeCallbacks(updateTimerThread);
-        playPause.setImageResource(R.drawable.ic_play);
-        resetButton.setClickable(true);
+        if (isPlaying) {
+            isPlaying = false;
+            timeSwapBuff += timeInMilliseconds;
+            playPause.setImageResource(R.drawable.ic_play);
+            resetButton.setClickable(true);
+        }
     }
 
     // Handler for UI updates
@@ -2422,35 +2599,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
     // Optimized timer methods
-    private void startCountDownTimer() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
 
-        long startTimeMillis = (pausedCountDownTimeInSeconds > 0) ?
-                pausedCountDownTimeInSeconds * 1000L :
-                timeVarEdit * 1000L;
-
-        countDownTimer = new CountDownTimer(startTimeMillis, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                if (cdflag == 1 && isTimerRunning) {
-                    timeVarEdit = (int) (millisUntilFinished / 1000);
-                    // Update UI efficiently
-                    String newTime = method5(timeVarEdit);
-                    if (!newTime.equals(timerValue.getText().toString())) {
-                        uiHandler.post(() -> timerValue.setText(newTime));
-                    }
-                    pausedCountDownTimeInSeconds = timeVarEdit;
-                }
-            }
-
-            @Override
-            public void onFinish() {
-                uiHandler.post(() -> timeDone());
-            }
-        }.start();
-    }
 
     // Memory management improvements
     @Override
@@ -2458,10 +2607,20 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         super.onDestroy();
         saveCurrentValues();
         // Clean up handlers and executors
+
+        // Stop the unified timer
+        stopUnifiedTimer();
+
+        // Shutdown scheduler
+        if (unifiedScheduler != null) {
+            unifiedScheduler.shutdownNow();
+            unifiedScheduler = null;
+        }
+
+        // Remove any remaining handler callbacks
         if (customHandler != null) {
             customHandler.removeCallbacksAndMessages(null);
         }
-
         if (uiHandler != null) {
             uiHandler.removeCallbacksAndMessages(null);
         }

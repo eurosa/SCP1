@@ -75,33 +75,56 @@
                 android:layout_weight="1"
                 android:background="@color/custom_green"
                 android:gravity="center"
-                android:orientation="vertical"
-                android:padding="4dp">
+                android:weightSum="2"
+                android:orientation="horizontal"
+                android:padding="14dp">
 
-                <TextView
+                <!--<TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/time_date_title"
                     android:textColor="@color/whiteColor"
-                    android:textSize="12sp" />
+                    android:textSize="12sp" />-->
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:layout_weight="1"
+     >
+    <TextView
+        android:id="@+id/hk_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="12:48:12"
+        android:textColor="@color/whiteColor"
+        android:textSize="@dimen/data_text_size"
+        android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/hk_time"
+</LinearLayout>
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:gravity="center"
-                    android:text="12:48:12"
-                    android:textColor="@color/whiteColor"
-                    android:textSize="@dimen/data_text_size"
-                    android:textStyle="bold" />
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/hk_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12/18/2020"
+                        android:textColor="@color/whiteColor"
+                        android:textSize="27sp" />
 
-                <TextView
-                    android:id="@+id/hk_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="12/18/2020"
-                    android:textColor="@color/whiteColor"
-                    android:textSize="10sp" />
+                    <TextView
+                        android:id="@+id/hk_day"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12/18/2020"
+                        android:textColor="@color/whiteColor"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
             </LinearLayout>
 
             <View
@@ -240,7 +263,7 @@
                                 android:gravity="center"
                                 android:text="00"
                                 android:textColor="@color/limeGreen"
-                                android:textSize="@dimen/data_text_size" />
+                                android:textSize="@dimen/tem_hum_text_size" />
 
                             <TextView
                                 android:id="@+id/celUnit"
@@ -444,7 +467,7 @@
                                 android:gravity="center"
                                 android:text="00"
                                 android:textColor="@color/limeGreen"
-                                android:textSize="@dimen/data_text_size" />
+                                android:textSize="@dimen/tem_hum_text_size" />
 
                             <TextView
                                 android:id="@+id/humUnitShow"
@@ -649,7 +672,7 @@
                                 android:gravity="center"
                                 android:text="000"
                                 android:textColor="@color/limeGreen"
-                                android:textSize="@dimen/data_text_size" />
+                                android:textSize="@dimen/tem_hum_text_size" />
 
                             <TextView
                                 android:id="@+id/prssureUnit"
