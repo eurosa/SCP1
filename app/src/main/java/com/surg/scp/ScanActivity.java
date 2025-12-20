@@ -415,9 +415,10 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
         Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
     }
 
-    public void searchDeviceList(){
+    public void searchDeviceList() {
         // Check permissions first
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12+ permissions
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
@@ -425,21 +426,79 @@ public class ScanActivity extends AppCompatActivity implements ListInteractionLi
                         PERMISSION_REQUEST_BLUETOOTH_SCAN_CONNECT);
                 return;
             }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Android 6.0-11: Need location permission for Bluetooth discovery
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_LOCATION_PERMISSION);
+                return;
+            }
+        }
+
+        // For Android 7 specifically, ensure Bluetooth is properly enabled
+        if (myBluetooth == null) {
+            myBluetooth = BluetoothAdapter.getDefaultAdapter();
+        }
+
+        if (myBluetooth == null) {
+            Toast.makeText(this, "Bluetooth not available", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         // If the bluetooth is not enabled, turns it on.
-        if (!bluetooth.isBluetoothEnabled()) {
-            Toast.makeText(getApplicationContext(),R.string.enabling_bluetooth,Toast.LENGTH_SHORT).show();
-            bluetooth.turnOnBluetoothAndScheduleDiscovery();
+        if (!myBluetooth.isEnabled()) {
+            Toast.makeText(getApplicationContext(), R.string.enabling_bluetooth, Toast.LENGTH_SHORT).show();
+
+            // For Android 7, we need to explicitly request enabling
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+
+            // Check for Bluetooth permission on newer Android versions
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.BLUETOOTH_CONNECT},
+                            PERMISSION_REQUEST_BLUETOOTH_SCAN_CONNECT);
+                    return;
+                }
+            }
+
+            startActivityForResult(enableBtIntent, 1);
+            return;
+        }
+
+        // Check if discovery is already in progress
+        if (myBluetooth.isDiscovering()) {
+            myBluetooth.cancelDiscovery();
+            Toast.makeText(getApplicationContext(), "Discovery stopped", Toast.LENGTH_SHORT).show();
+            fab.setImageResource(R.drawable.ic_bluetooth_white_24dp);
+            return;
+        }
+
+        // Clear previous discovered devices
+        if (bluetooth != null) {
+            bluetooth.cancelDiscovery();
+        }
+
+        // Start discovery
+        Toast.makeText(getApplicationContext(), "Searching for devices...", Toast.LENGTH_SHORT).show();
+        fab.setImageResource(R.drawable.ic_bluetooth_searching_white_24dp);
+
+        // Start discovery through BluetoothController
+        if (bluetooth != null) {
+            bluetooth.startDiscovery();
         } else {
-            //Prevents the user from spamming the button and thus glitching the UI.
-            if (!bluetooth.isDiscovering()) {
-                // Starts the discovery.
-                Toast.makeText(getApplicationContext(),R.string.device_discovery_started,Toast.LENGTH_SHORT).show();
-                bluetooth.startDiscovery();
-            } else {
-                Toast.makeText(getApplicationContext(),R.string.device_discovery_stopped,Toast.LENGTH_SHORT).show();
-                bluetooth.cancelDiscovery();
+            // Fallback: direct discovery
+            try {
+                boolean started = myBluetooth.startDiscovery();
+                if (!started) {
+                    Toast.makeText(this, "Failed to start discovery", Toast.LENGTH_SHORT).show();
+                }
+            } catch (SecurityException e) {
+                Log.e(TAG, "Security exception when starting discovery", e);
+                Toast.makeText(this, "Permission denied for Bluetooth discovery", Toast.LENGTH_SHORT).show();
             }
         }
     }

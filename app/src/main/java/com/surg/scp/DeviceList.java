@@ -118,10 +118,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static android.content.ContentValues.TAG;
 import static com.surg.scp.bluetooth.BluetoothConnectionManager.checkBluetoothPermissions;
 import static com.surg.scp.bluetooth.BluetoothConnectionManager.requestBluetoothPermissions;
+import static com.surg.scp.bluetooth.BluetoothController.PERMISSION_REQUEST_BLUETOOTH_SCAN_CONNECT;
+
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class DeviceList extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener,
         BluetoothConnectionManager.ConnectionCallback {
     // Add this lock at class level
+    private static final int REQUEST_LOCATION_PERMISSION = 123;
+
     private final Object timerLock = new Object();
     // Add these helper variables
     private long countUpTimerStartTime = 0;
@@ -1715,19 +1720,129 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         });
     }
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == PERMISSION_REQUEST_CODE) {
+        if (requestCode == PERMISSION_REQUEST_BLUETOOTH_SCAN_CONNECT) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, refresh paired devices list
-                pairedDevicesList();
+                // Permission granted, try the operation again
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                            searchDeviceList();
+                    }
+                }, 500);
             } else {
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Bluetooth permissions required", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Location permission granted, retry discovery
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        searchDeviceList();
+                    }
+                }, 500);
+            } else {
+                Toast.makeText(this, "Location permission is required for Bluetooth scanning",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    public void searchDeviceList() {
+        // Check permissions first
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12+ permissions
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.BLUETOOTH_SCAN},
+                        PERMISSION_REQUEST_BLUETOOTH_SCAN_CONNECT);
+                return;
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Android 6.0-11: Need location permission for Bluetooth discovery
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_LOCATION_PERMISSION);
+                return;
+            }
+        }
+
+        // For Android 7 specifically, ensure Bluetooth is properly enabled
+        if (myBluetooth == null) {
+            myBluetooth = BluetoothAdapter.getDefaultAdapter();
+        }
+
+        if (myBluetooth == null) {
+            Toast.makeText(this, "Bluetooth not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // If the bluetooth is not enabled, turns it on.
+        if (!myBluetooth.isEnabled()) {
+            Toast.makeText(getApplicationContext(), R.string.enabling_bluetooth, Toast.LENGTH_SHORT).show();
+
+            // For Android 7, we need to explicitly request enabling
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+
+            // Check for Bluetooth permission on newer Android versions
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.BLUETOOTH_CONNECT},
+                            PERMISSION_REQUEST_BLUETOOTH_SCAN_CONNECT);
+                    return;
+                }
+            }
+
+            startActivityForResult(enableBtIntent, 1);
+            return;
+        }
+
+        // Check if discovery is already in progress
+        if (myBluetooth.isDiscovering()) {
+            myBluetooth.cancelDiscovery();
+            Toast.makeText(getApplicationContext(), "Discovery stopped", Toast.LENGTH_SHORT).show();
+           // fab.setImageResource(R.drawable.ic_bluetooth_white_24dp);
+            return;
+        }
+
+        // Clear previous discovered devices
+        if (myBluetooth != null) {
+            myBluetooth.cancelDiscovery();
+        }
+
+        // Start discovery
+        Toast.makeText(getApplicationContext(), "Searching for devices...", Toast.LENGTH_SHORT).show();
+        //fab.setImageResource(R.drawable.ic_bluetooth_searching_white_24dp);
+
+        // Start discovery through BluetoothController
+        if (myBluetooth != null) {
+            myBluetooth.startDiscovery();
+        } else {
+            // Fallback: direct discovery
+            try {
+                boolean started = myBluetooth.startDiscovery();
+                if (!started) {
+                    Toast.makeText(this, "Failed to start discovery", Toast.LENGTH_SHORT).show();
+                }
+            } catch (SecurityException e) {
+                Log.e(TAG, "Security exception when starting discovery", e);
+                Toast.makeText(this, "Permission denied for Bluetooth discovery", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
+
     public void exitApplication() {
         final AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setMessage("Are you sure you want to exit application?");
@@ -1785,24 +1900,73 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
-
+    private boolean isScanPending = false;
+    private Intent pendingScanIntent;
     private static final int SCAN_ACTIVITY_REQUEST_CODE = 1001;
 
     private void ScanDevicesList() {
         Intent intent = new Intent(this, ScanActivity.class);
-        if (Build.VERSION.SDK_INT > 20) {
-            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this);
-            startActivityForResult(intent, SCAN_ACTIVITY_REQUEST_CODE, options.toBundle());
-        } else {
-            startActivityForResult(intent, SCAN_ACTIVITY_REQUEST_CODE);
+        pendingScanIntent = intent;
+        isScanPending = true;
+
+        checkPermissionsAndStart();
+    }
+    private void checkPermissionsAndStart() {
+        // For Android 6.0+ (Marshmallow), we need runtime permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Check if we have location permission
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                // Request permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMISSION_REQUEST_CODE);
+                return;
+            }
+        }
+
+        // If we have permission or Android version < 6.0, proceed
+        startPendingActivity();
+    }
+
+    private void startPendingActivity() {
+        if (pendingScanIntent != null && isScanPending) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                try {
+                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this);
+                    startActivityForResult(pendingScanIntent, SCAN_ACTIVITY_REQUEST_CODE, options.toBundle());
+                } catch (Exception e) {
+                    startActivityForResult(pendingScanIntent, SCAN_ACTIVITY_REQUEST_CODE);
+                }
+            } else {
+                startActivityForResult(pendingScanIntent, SCAN_ACTIVITY_REQUEST_CODE);
+            }
+            // Reset flags
+            pendingScanIntent = null;
+            isScanPending = false;
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SCAN_ACTIVITY_REQUEST_CODE) {
-            // Handle any results from ScanActivity if needed
+
+        if (requestCode == 1) { // Bluetooth enable request
+            if (resultCode == RESULT_OK) {
+                // Bluetooth enabled, start discovery
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (myBluetooth != null) {
+                            myBluetooth.startDiscovery();
+                        }
+                    }
+                }, 1000); // Wait a bit for Bluetooth to fully initialize
+            } else {
+                Toast.makeText(this, "Bluetooth must be enabled to scan for devices",
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -1912,10 +2076,40 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         humBtnPlus.setOnClickListener(this);
         switch1.setOnClickListener(this);
         switch2.setOnClickListener(this);
-        lightOneBtn.setOnClickListener(this);
-        lightTwoBtn.setOnClickListener(this);
-        lightThreeBtn.setOnClickListener(this);
-        lightFourBtn.setOnClickListener(this);
+        //lightOneBtn.setOnClickListener(this);
+       // lightTwoBtn.setOnClickListener(this);
+       // lightThreeBtn.setOnClickListener(this);
+       // lightFourBtn.setOnClickListener(this);
+
+
+        // Set onClickListener properly
+        lightOneBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch1Light(v);
+            }
+        });
+
+        lightTwoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch2Light(v);
+            }
+        });
+
+        lightThreeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch3Light(v);
+            }
+        });
+
+        lightFourBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch4Light(v);
+            }
+        });
 
         // Timer buttons
         playPause.setOnClickListener(v -> {
@@ -2676,9 +2870,9 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         int id = v.getId();
 
         if (id == R.id.switch1) {
-            // switch1(v);
+            // Don't call switch1(v) - let the listener handle it
         } else if (id == R.id.switch2) {
-            // switch2(v);
+            // Don't call switch2(v) - let the listener handle it
         } else if (id == R.id.tempBtnPlus) {
             tempBtnPlusPressed();
         } else if (id == R.id.tempBtnMinus) {
@@ -2687,14 +2881,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             humBtnPlusPressed();
         } else if (id == R.id.humBtnMinus) {
             humBtnMinusPressed();
-        } else if (id == R.id.lightOneBtn) {
-            switch1Light(v);
-        } else if (id == R.id.lightTwoBtn) {
-            switch2Light(v);
-        } else if (id == R.id.lightThreeBtn) {
-            switch3Light(v);
-        } else if (id == R.id.lightFourBtn) {
-            switch4Light(v);
         }
     }
 
@@ -2798,72 +2984,128 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         Log.d("Switch2", "State changed to: " + (isChecked ? "ON" : "OFF"));
     }
 
+    @SuppressLint("NewApi")
     public void switch1Light(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // Add debug log
+        Log.d("switch1Light", "Method called on Android " + Build.VERSION.SDK_INT);
+
+        // For Android 7, remove the version check or use appropriate version
+        // OR handle all versions
+        try {
             if (isLightOneOn) {
                 lightOneBtn.setImageResource(R.drawable.ic_bulb_off);
-                bluetoothManager.DigitalOUT[1] &= 0xFB;
+                if (bluetoothManager != null) {
+                    bluetoothManager.DigitalOUT[1] &= 0xFB; // Clear bit 2
+                }
                 isLightOneOn = false;
                 editor.putBoolean("light1", false);
+               // Toast.makeText(this, "Light 1 OFF", Toast.LENGTH_SHORT).show();
             } else {
                 lightOneBtn.setImageResource(R.drawable.ic_bulb_on);
-                bluetoothManager.DigitalOUT[1] |= 0x04;
+                if (bluetoothManager != null) {
+                    bluetoothManager.DigitalOUT[1] |= 0x04; // Set bit 2
+                }
                 isLightOneOn = true;
                 editor.putBoolean("light1", true);
+              //  Toast.makeText(this, "Light 1 ON", Toast.LENGTH_SHORT).show();
             }
+
             editor.apply();
+
+            // Send data to device
+            if (bluetoothManager != null) {
+                executeInBackground(() -> bluetoothManager.sendControllerData());
+            }
+
+            Log.d("switch1Light", "Light state: " + (isLightOneOn ? "ON" : "OFF"));
+        } catch (Exception e) {
+            Log.e("switch1Light", "Error: " + e.getMessage(), e);
+           // Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+    public void switch2Light(View v) {
+        if (isLightTwoOn) {
+            lightTwoBtn.setImageResource(R.drawable.ic_bulb_off);
+            if (bluetoothManager != null) {
+                bluetoothManager.DigitalOUT[1] &= 0xF7; // Clear bit 3 (0xF7 = 11110111)
+            }
+            isLightTwoOn = false;
+            editor.putBoolean("light2", false);
+            //Toast.makeText(this, "Light 2 OFF", Toast.LENGTH_SHORT).show();
+        } else {
+            lightTwoBtn.setImageResource(R.drawable.ic_bulb_on);
+            if (bluetoothManager != null) {
+                bluetoothManager.DigitalOUT[1] |= 0x08; // Set bit 3 (0x08 = 00001000)
+            }
+            isLightTwoOn = true;
+            editor.putBoolean("light2", true);
+            //Toast.makeText(this, "Light 2 ON", Toast.LENGTH_SHORT).show();
+        }
+        editor.apply();
+
+        // Send data to device
+        if (bluetoothManager != null) {
+            executeInBackground(() -> bluetoothManager.sendControllerData());
+        }
+
+        Log.d("switch2Light", "Light 2: " + (isLightTwoOn ? "ON" : "OFF"));
     }
 
-    public void switch2Light(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (isLightTwoOn) {
-                lightTwoBtn.setImageResource(R.drawable.ic_bulb_off);
-                bluetoothManager.DigitalOUT[1] &= 0xF7;
-                editor.putBoolean("light2", false);
-                isLightTwoOn = false;
-            } else {
-                lightTwoBtn.setImageResource(R.drawable.ic_bulb_on);
-                bluetoothManager.DigitalOUT[1] |= 0x08;
-                editor.putBoolean("light2", true);
-                isLightTwoOn = true;
-            }
-            editor.apply();
-        }
-    }
 
     public void switch3Light(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (isLightThreeOn) {
-                lightThreeBtn.setImageResource(R.drawable.ic_bulb_off);
-                bluetoothManager.DigitalOUT[1] &= 0xEF;
-                isLightThreeOn = false;
-                editor.putBoolean("light3", false);
-            } else {
-                lightThreeBtn.setImageResource(R.drawable.ic_bulb_on);
-                bluetoothManager.DigitalOUT[1] |= 0x10;
-                isLightThreeOn = true;
-                editor.putBoolean("light3", true);
+        if (isLightThreeOn) {
+            lightThreeBtn.setImageResource(R.drawable.ic_bulb_off);
+            if (bluetoothManager != null) {
+                bluetoothManager.DigitalOUT[1] &= 0xEF; // Clear bit 4 (0xEF = 11101111)
             }
-            editor.apply();
+            isLightThreeOn = false;
+            editor.putBoolean("light3", false);
+           // Toast.makeText(this, "Light 3 OFF", Toast.LENGTH_SHORT).show();
+        } else {
+            lightThreeBtn.setImageResource(R.drawable.ic_bulb_on);
+            if (bluetoothManager != null) {
+                bluetoothManager.DigitalOUT[1] |= 0x10; // Set bit 4 (0x10 = 00010000)
+            }
+            isLightThreeOn = true;
+            editor.putBoolean("light3", true);
+            //Toast.makeText(this, "Light 3 ON", Toast.LENGTH_SHORT).show();
         }
+        editor.apply();
+
+        // Send data to device
+        if (bluetoothManager != null) {
+            executeInBackground(() -> bluetoothManager.sendControllerData());
+        }
+
+        Log.d("switch3Light", "Light 3: " + (isLightThreeOn ? "ON" : "OFF"));
     }
 
     public void switch4Light(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (isLightFourOn) {
-                lightFourBtn.setImageResource(R.drawable.ic_bulb_off);
-                bluetoothManager.DigitalOUT[1] &= 0xDF;
-                isLightFourOn = false;
-                editor.putBoolean("light4", false);
-            } else {
-                lightFourBtn.setImageResource(R.drawable.ic_bulb_on);
-                bluetoothManager.DigitalOUT[1] |= 0x20;
-                isLightFourOn = true;
-                editor.putBoolean("light4", true);
+        if (isLightFourOn) {
+            lightFourBtn.setImageResource(R.drawable.ic_bulb_off);
+            if (bluetoothManager != null) {
+                bluetoothManager.DigitalOUT[1] &= 0xDF; // Clear bit 5 (0xDF = 11011111)
             }
-            editor.apply();
+            isLightFourOn = false;
+            editor.putBoolean("light4", false);
+            //Toast.makeText(this, "Light 4 OFF", Toast.LENGTH_SHORT).show();
+        } else {
+            lightFourBtn.setImageResource(R.drawable.ic_bulb_on);
+            if (bluetoothManager != null) {
+                bluetoothManager.DigitalOUT[1] |= 0x20; // Set bit 5 (0x20 = 00100000)
+            }
+            isLightFourOn = true;
+            editor.putBoolean("light4", true);
+           // Toast.makeText(this, "Light 4 ON", Toast.LENGTH_SHORT).show();
         }
+        editor.apply();
+
+        // Send data to device
+        if (bluetoothManager != null) {
+            executeInBackground(() -> bluetoothManager.sendControllerData());
+        }
+
+        Log.d("switch4Light", "Light 4: " + (isLightFourOn ? "ON" : "OFF"));
     }
 
     // Optimized switch methods

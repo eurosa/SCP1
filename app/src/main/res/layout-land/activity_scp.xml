@@ -67,43 +67,51 @@
             android:layout_below="@id/my_toolbar"
             android:orientation="horizontal"
             android:weightSum="2">
-
-            <LinearLayout
-                android:id="@+id/textClockLayout"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@color/custom_green"
-                android:gravity="center"
-                android:weightSum="2"
-                android:orientation="horizontal"
-                android:padding="14dp">
-
-                <!--<TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/time_date_title"
-                    android:textColor="@color/whiteColor"
-                    android:textSize="12sp" />-->
 <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
     android:layout_weight="1"
-     >
+    android:layout_height="match_parent"
+    android:background="#006400"
+    android:orientation="vertical">
     <TextView
-        android:id="@+id/hk_time"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="12:48:12"
+        android:text="@string/time_date_title"
         android:textColor="@color/whiteColor"
-        android:textSize="@dimen/data_text_size"
-        android:textStyle="bold" />
 
-</LinearLayout>
+        android:layout_gravity="center"
+        android:textSize="12sp" />
+            <LinearLayout
+                android:id="@+id/textClockLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#006400"
+                android:gravity="center"
+                android:weightSum="2"
+                android:padding="4dp"
+                android:orientation="horizontal"
+                 >
+
+                <!---->
                 <LinearLayout
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    >
+                    <TextView
+                        android:id="@+id/hk_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="12:48:12"
+                        android:textColor="@color/whiteColor"
+                        android:textSize="@dimen/data_text_size"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="270dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
@@ -111,89 +119,108 @@
 
                     <TextView
                         android:id="@+id/hk_date"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="12/18/2020"
+                        android:layout_gravity="center"
+                        android:gravity="center"
                         android:textColor="@color/whiteColor"
-                        android:textSize="36sp" />
+                        android:textSize="18sp" />
 
                     <TextView
                         android:id="@+id/hk_day"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="12/18/2020"
+                        android:layout_gravity="center"
+                        android:gravity="center"
                         android:textColor="@color/whiteColor"
-                        android:textSize="27sp" />
+                        android:textSize="30sp" />
 
                 </LinearLayout>
             </LinearLayout>
+          </LinearLayout>
 
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@color/darkGray" />
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:background="@color/royal_blue"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/elapsed_time"
+        android:layout_gravity="center"
+        android:textColor="@color/whiteColor"
+        android:textSize="12sp" />
 
             <LinearLayout
                 android:id="@+id/timevalueLayout"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:weightSum="2"
                 android:background="@color/royal_blue"
                 android:gravity="center"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:padding="4dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/elapsed_time"
-                    android:textColor="@color/whiteColor"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/timerValue"
+               <!-- -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="00:00:00"
-                    android:textColor="#FFFFFF"
-                    android:textSize="@dimen/data_text_size"
-                    android:textStyle="bold" />
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/timerValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="00:00:00"
+                        android:textColor="#FF0000"
+                        android:textSize="@dimen/data_text_size"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
                     <ImageButton
                         android:id="@+id/startButton"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="@dimen/pl_st_res_size"
+                        android:layout_height="@dimen/pl_st_res_size"
                         android:background="@android:color/transparent"
                         android:contentDescription="Start"
                         android:src="@drawable/ic_play" />
 
                     <ImageButton
                         android:id="@+id/resetButton"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_marginStart="8dp"
+                        android:layout_width="@dimen/pl_st_res_size"
+                        android:layout_height="@dimen/pl_st_res_size"
                         android:background="@android:color/transparent"
                         android:contentDescription="Reset"
                         android:src="@drawable/ic_reset_great" />
 
                     <ImageButton
                         android:id="@+id/settingButton"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_marginStart="8dp"
+                        android:layout_width="@dimen/pl_st_res_size"
+                        android:layout_height="@dimen/pl_st_res_size"
                         android:background="@android:color/transparent"
                         android:contentDescription="Settings"
                         android:src="@drawable/ic_settings" />
                 </LinearLayout>
             </LinearLayout>
+</LinearLayout>
         </LinearLayout>
 
         <View
@@ -214,7 +241,7 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="4dp">
+                android:paddingEnd="15dp">
 
                 <!-- Temperature Control - Reduced height -->
                 <LinearLayout
@@ -328,7 +355,7 @@
                                     android:singleLine="true"
                                     android:text="00"
                                     android:textColor="@color/colorBlack"
-                                    android:textSize="18sp" />
+                                    android:textSize="27sp" />
 
                                 <TextView
                                     android:id="@+id/tempUnit"
@@ -532,7 +559,7 @@
                                     android:singleLine="true"
                                     android:text="00"
                                     android:textColor="@color/colorBlack"
-                                    android:textSize="18sp" />
+                                    android:textSize="27sp" />
 
                                 <TextView
                                     android:id="@+id/humUnit"
@@ -642,7 +669,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="1dp">
+                        android:padding="0dp">
 
                         <TextView
                             android:id="@+id/diffControl"
@@ -995,22 +1022,25 @@
                             android:layout_weight="1" />
                     </LinearLayout>
                     </LinearLayout>
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_weight="1"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="1dp"
+                        android:layout_gravity="left"
+                        android:gravity="left"
+                        android:orientation="horizontal">
                     <!-- Switches -->
                     <LinearLayout
                         android:id="@+id/switchLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-
-                        android:layout_margin="@dimen/tiny_padding"
                         android:background="@color/colorBlack"
                         android:gravity="left|center"
                         android:layout_gravity="left"
-                        android:orientation="vertical"
+                        android:layout_marginStart="30dp"
+                        android:orientation="horizontal"
                         android:weightSum="2">
 
                         <LinearLayout
@@ -1018,7 +1048,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="left|center"
-                            android:layout_marginBottom="3dp"
+                            android:layout_marginTop="1dp"
                             android:orientation="horizontal">
 
                             <TextView
@@ -1051,7 +1081,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="left|center"
-                            android:layout_marginTop="3dp"
+                            android:layout_marginTop="1dp"
                             android:orientation="horizontal">
 
                             <TextView
@@ -1059,6 +1089,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/hvac"
+
+                                android:layout_marginStart="6dp"
                                 android:textColor="@color/whiteColor"
                                 android:textSize="@dimen/switch_label_text" />
 
@@ -1067,7 +1099,7 @@
                                 style="@style/SwitchButtonStyle"
                                 android:layout_width="@dimen/switch_width"
                                 android:layout_height="@dimen/switch_height"
-                                android:layout_marginStart="@dimen/large_padding"
+                                android:layout_marginStart="@dimen/tiny_padding"
                                 android:textColor="@color/custom_text_state_color"
                                 android:textSize="@dimen/switch_text"
                                 app:kswBackColor="@color/whiteColor"
