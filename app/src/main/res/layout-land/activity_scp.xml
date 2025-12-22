@@ -31,14 +31,14 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:padding="4dp">
+                android:padding="1dp">
 
                 <ImageView
                     android:id="@+id/dspl_logo"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/dspl_logo"
-                    app:tint="@color/whiteColor" />
+                    android:layout_width="54dp"
+                    android:layout_height="54dp"
+                    android:src="@drawable/digiline_logo"
+                     />
 
                 <TextView
                     android:id="@+id/toolbar_title"
@@ -67,158 +67,163 @@
             android:layout_below="@id/my_toolbar"
             android:orientation="horizontal"
             android:weightSum="2">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_weight="1"
-    android:layout_height="match_parent"
-    android:background="#006400"
-    android:orientation="vertical">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/time_date_title"
-        android:textColor="@color/whiteColor"
-        android:layout_gravity="center"
-        android:textSize="18sp" />
-            <LinearLayout
-                android:id="@+id/textClockLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#006400"
-                android:gravity="center"
-                android:weightSum="2"
 
-                android:orientation="horizontal"
-                 >
 
-                <!---->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
+                    android:layout_height="match_parent"
+                    android:background="#006400"
+                    android:orientation="vertical"
                     android:layout_weight="1"
-                    >
-                    <TextView
-                        android:id="@+id/hk_time"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="12:48:12"
-                        android:textColor="@color/whiteColor"
-                        android:textSize="@dimen/data_text_size"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="270dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    android:gravity="top|center_horizontal">
 
                     <TextView
-                        android:id="@+id/hk_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="12/18/2020"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:textColor="@color/whiteColor"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:id="@+id/hk_day"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="12/18/2020"
-                        android:layout_gravity="center"
-                        android:gravity="center"
+                        android:text="@string/time_date_title"
                         android:textColor="@color/whiteColor"
-                        android:textSize="30sp" />
+                        android:textSize="18sp"
+                       />
 
-                </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/textClockLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="2"
+
+                        android:orientation="horizontal"
+                         >
+
+                        <!-- Time Section - Now at the top -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            android:gravity="center|top"
+                            >
+
+                            <TextView
+                                android:id="@+id/hk_time"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center|top"
+                                android:text="12:48:12"
+                                android:textColor="@color/whiteColor"
+                                android:textSize="81sp"
+
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Date Section - Also at the top -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:gravity="start|top"
+                            android:orientation="vertical"
+                            android:paddingTop="0dp">
+
+                            <TextView
+                                android:id="@+id/hk_date"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="12/18/2020"
+                                android:textColor="@color/whiteColor"
+                                android:textSize="18sp" />
+
+                            <TextView
+                                android:id="@+id/hk_day"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Friday"
+                                android:textColor="@color/whiteColor"
+                                android:textSize="30sp"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
             </LinearLayout>
-          </LinearLayout>
 
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@color/darkGray" />
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:background="@color/royal_blue"
-    android:orientation="vertical">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/elapsed_time"
-        android:layout_gravity="center"
-        android:textColor="@color/whiteColor"
-        android:textSize="18sp" />
-
             <LinearLayout
-                android:id="@+id/timevalueLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:weightSum="2"
+                android:layout_weight="1"
                 android:background="@color/royal_blue"
-                android:gravity="center"
-                android:orientation="horizontal" >
+                android:orientation="vertical"
+                android:gravity="top|center_horizontal">
 
-               <!-- -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/elapsed_time"
+                    android:textColor="@color/whiteColor"
+                    android:textSize="18sp" />
+
                 <LinearLayout
+                    android:id="@+id/timevalueLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1">
+                    android:weightSum="2"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/timerValue"
-                        android:layout_width="match_parent"
+                    <!-- Timer Value Section - Now at the top -->
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1.5"
+                        android:gravity="right|top">
+
+                        <TextView
+                            android:id="@+id/timerValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="right|top"
+                            android:text="12:01:48"
+                            android:textColor="#FF0000"
+                            android:textSize="81sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Buttons Section - Also at the top -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight=".5"
                         android:gravity="center"
-                        android:text="00:00:00"
-                        android:textColor="#FF0000"
-                        android:textSize="@dimen/data_text_size"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                        android:orientation="vertical"
+                        android:paddingTop="0dp">
 
+                        <ImageButton
+                            android:id="@+id/startButton"
+                            android:layout_width="@dimen/pl_st_res_size"
+                            android:layout_height="@dimen/pl_st_res_size"
+                            android:background="@android:color/transparent"
+                            android:contentDescription="Start"
+                            android:src="@drawable/ic_play" />
 
-                <LinearLayout
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                        <ImageButton
+                            android:id="@+id/resetButton"
+                            android:layout_width="@dimen/pl_st_res_size"
+                            android:layout_height="@dimen/pl_st_res_size"
+                            android:background="@android:color/transparent"
+                            android:contentDescription="Reset"
+                            android:src="@drawable/ic_reset_great" />
 
-                    <ImageButton
-                        android:id="@+id/startButton"
-                        android:layout_width="@dimen/pl_st_res_size"
-                        android:layout_height="@dimen/pl_st_res_size"
-                        android:background="@android:color/transparent"
-                        android:contentDescription="Start"
-                        android:src="@drawable/ic_play" />
-
-                    <ImageButton
-                        android:id="@+id/resetButton"
-                        android:layout_width="@dimen/pl_st_res_size"
-                        android:layout_height="@dimen/pl_st_res_size"
-                        android:background="@android:color/transparent"
-                        android:contentDescription="Reset"
-                        android:src="@drawable/ic_reset_great" />
-
-                    <ImageButton
-                        android:id="@+id/settingButton"
-                        android:layout_width="@dimen/pl_st_res_size"
-                        android:layout_height="@dimen/pl_st_res_size"
-                        android:background="@android:color/transparent"
-                        android:contentDescription="Settings"
-                        android:src="@drawable/ic_settings" />
+                        <ImageButton
+                            android:id="@+id/settingButton"
+                            android:layout_width="@dimen/pl_st_res_size"
+                            android:layout_height="@dimen/pl_st_res_size"
+                            android:background="@android:color/transparent"
+                            android:contentDescription="Settings"
+                            android:src="@drawable/ic_settings" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-</LinearLayout>
         </LinearLayout>
 
         <View
