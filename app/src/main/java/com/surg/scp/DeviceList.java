@@ -2264,7 +2264,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         startUnifiedTimer();
 
         // Also update the clock display immediately
-        runOnUiThread(() -> {
+        /*runOnUiThread(() -> {
             TextView clockView = findViewById(R.id.hk_date);
             TextView clockTimeView = findViewById(R.id.hk_time);
 
@@ -2277,7 +2277,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 clockView.setText(sdf.format(new Date()));
                 clockTimeView.setText(timeFormat.format(new Date()));
             }
-        });
+        });*/
     }
 
     // Add these class variables for auto-repeat functionality
