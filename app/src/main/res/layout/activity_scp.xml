@@ -981,7 +981,7 @@
                     android:background="@color/colorBlack"
                     android:gravity="center"
                     android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:weightSum="3">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -1044,6 +1044,24 @@
                             app:kswTextOff="OFF"
                             app:kswTextOn="ON"
                             app:kswThumbColor="@color/limeGreen" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/miscLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@color/colorBlack"
+                        android:orientation="vertical">
+">
+                        <ImageButton
+                            android:id="@+id/telephone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@mipmap/ic_telephone"
+                            android:background="@android:color/transparent"
+                            >
+
+                        </ImageButton>
                     </LinearLayout>
                 </LinearLayout>
 

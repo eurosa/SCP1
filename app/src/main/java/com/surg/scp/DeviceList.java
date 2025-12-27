@@ -325,16 +325,18 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     private ExecutorService backgroundExecutor;
     private volatile boolean isExecutorShutdown = false;
 
-    private IncrementDecrementSlider customSlider1,customSlider2,customSlider3,customSlider4;
-    private int myVariable1,myVariable2,myVariable3,myVariable4;
-    private TextView temperatureTextView, humidityTextView, pressureTextView, tempSetTextView,humidSetTextView,pressureSetTextView;
-    public TextView gasOneStatus, gasTwoStatus, gasThreeStatus,gasFourStatus,gasFiveStatus,gasSixStatus,gasSevenStatus;
+    private IncrementDecrementSlider customSlider1, customSlider2, customSlider3, customSlider4;
+    private int myVariable1, myVariable2, myVariable3, myVariable4;
+    private TextView temperatureTextView, humidityTextView, pressureTextView, tempSetTextView, humidSetTextView, pressureSetTextView;
+    public TextView gasOneStatus, gasTwoStatus, gasThreeStatus, gasFourStatus, gasFiveStatus, gasSixStatus, gasSevenStatus;
     private LinearLayout rightPart3;
     private TextView gasOne, gasTwo, gasThree, gasFour, gasFive, gasSix;
     // Add these constants
     private static final String PREF_UNLOCK_SETUP = "unlock_setup_complete";
     private static final String PREF_SERVICE_RUNNING = "service_was_running";
     private static final String PREF_LAST_CHECK = "last_battery_check";
+    private ImageButton telephone;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -352,6 +354,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         humidSetTextView = findViewById(R.id.humidSetTextView);
         gasSevenStatus = findViewById(R.id.gasSevenStatus);
         rightPart3 = findViewById(R.id.rightPart3);
+        telephone = findViewById(R.id.telephone);
 
         // Gas names
         gasOne = findViewById(R.id.gasOne);
@@ -389,8 +392,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         int saved4 = prefs.getInt("intensity4", 0);
         currentDisplayValue = prefs.getInt(PREFS_DISPLAY_VALUE, 0);
         currentHumValue = prefs.getInt(PREFS_HUM_VALUE, 0);
-        bluetoothManager.tempSet =currentDisplayValue;
-        bluetoothManager.humidSet =currentHumValue;
+        bluetoothManager.tempSet = currentDisplayValue;
+        bluetoothManager.humidSet = currentHumValue;
 
         // Initialize UI components first to prevent ANR
         initializeUIComponents();
@@ -515,7 +518,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         });
 
 
-
         // Example: set initial value
         // Handle intent data - BOTH from direct start and from activity result
         handleIncomingIntent();
@@ -604,6 +606,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         });
     }
+
     private void updateStopwatch(long currentTime) {
         if (isPlaying) {
             runOnUiThread(() -> {
@@ -710,7 +713,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         }
         isTimerScheduled.set(false);
     }
-
 
 
     // Improved setup method
@@ -1395,10 +1397,14 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         lightThreeBtn.setImageResource(light3State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
         lightFourBtn.setImageResource(light4State ? R.drawable.ic_bulb_on : R.drawable.ic_bulb_off);
 
-        if (light1State) bluetoothManager.DigitalOUT[1] |= 0x04; else bluetoothManager.DigitalOUT[1] &= 0xFB;
-        if (light2State) bluetoothManager.DigitalOUT[1] |= 0x08; else bluetoothManager.DigitalOUT[1] &= 0xF7;
-        if (light3State) bluetoothManager.DigitalOUT[1] |= 0x10; else bluetoothManager.DigitalOUT[1] &= 0xEF;
-        if (light4State) bluetoothManager.DigitalOUT[1] |= 0x20; else bluetoothManager.DigitalOUT[1] &= 0xDF;
+        if (light1State) bluetoothManager.DigitalOUT[1] |= 0x04;
+        else bluetoothManager.DigitalOUT[1] &= 0xFB;
+        if (light2State) bluetoothManager.DigitalOUT[1] |= 0x08;
+        else bluetoothManager.DigitalOUT[1] &= 0xF7;
+        if (light3State) bluetoothManager.DigitalOUT[1] |= 0x10;
+        else bluetoothManager.DigitalOUT[1] &= 0xEF;
+        if (light4State) bluetoothManager.DigitalOUT[1] |= 0x20;
+        else bluetoothManager.DigitalOUT[1] &= 0xDF;
     }
 
     private void initializeUIAfterBackground() {
@@ -1686,7 +1692,6 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
     }
 
 
-
     @Override
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -1719,6 +1724,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         });
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -1729,7 +1735,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                            searchDeviceList();
+                        searchDeviceList();
                     }
                 }, 500);
             } else {
@@ -1812,7 +1818,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         if (myBluetooth.isDiscovering()) {
             myBluetooth.cancelDiscovery();
             Toast.makeText(getApplicationContext(), "Discovery stopped", Toast.LENGTH_SHORT).show();
-           // fab.setImageResource(R.drawable.ic_bluetooth_white_24dp);
+            // fab.setImageResource(R.drawable.ic_bluetooth_white_24dp);
             return;
         }
 
@@ -1883,8 +1889,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         if (id == R.id.nav_unlock_launch) {
             // Handle unlock launch menu item
             setupUnlockLaunch();
-        }
-        else if (id == R.id.action_share) {
+        } else if (id == R.id.action_share) {
             shareApp();
         } else if (id == R.id.action_about) {
             Intent intent = new Intent(this, AboutActivity.class);
@@ -1900,6 +1905,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+
     private boolean isScanPending = false;
     private Intent pendingScanIntent;
     private static final int SCAN_ACTIVITY_REQUEST_CODE = 1001;
@@ -1911,6 +1917,7 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         checkPermissionsAndStart();
     }
+
     private void checkPermissionsAndStart() {
         // For Android 6.0+ (Marshmallow), we need runtime permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1959,6 +1966,16 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
                     @Override
                     public void run() {
                         if (myBluetooth != null) {
+                            if (ActivityCompat.checkSelfPermission(DeviceList.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                                // TODO: Consider calling
+                                //    ActivityCompat#requestPermissions
+                                // here to request the missing permissions, and then overriding
+                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                //                                          int[] grantResults)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for ActivityCompat#requestPermissions for more details.
+                                return;
+                            }
                             myBluetooth.startDiscovery();
                         }
                     }
@@ -2083,6 +2100,12 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
 
         // Set onClickListener properly
+        telephone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                 showTelephoneDialog();
+            }
+        });
         lightOneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -2143,6 +2166,43 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
             }
         }
     }
+
+
+    private void showTelephoneDialog() {
+        // Create custom dialog
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.telephone);
+        dialog.setTitle("Custom Dialog");
+
+        // Get dialog components
+       // TextView text = dialog.findViewById(R.id.dialog_text);
+      //  ImageButton closeButton = dialog.findViewById(R.id.dialog_close_button);
+        Button okButton = dialog.findViewById(R.id.okBtn);
+
+        // Set dialog text
+    //    text.setText("This is a custom dialog opened by ImageButton click!");
+
+        // Close button click
+      /*  closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(DeviceList.this, "Dialog closed", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });*/
+
+        // OK button click
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText(DeviceList.this, "OK clicked!", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
 
     private void resetAllTimerStates() {
         synchronized (timerLock) {

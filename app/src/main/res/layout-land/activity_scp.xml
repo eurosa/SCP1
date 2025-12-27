@@ -1033,7 +1033,7 @@
                         android:layout_marginTop="1dp"
                         android:layout_gravity="left"
                         android:gravity="left"
-                        android:orientation="horizontal">
+                        android:orientation="vertical">
                     <!-- Switches -->
                     <LinearLayout
                         android:id="@+id/switchLayout"
@@ -1113,6 +1113,23 @@
                                 app:kswThumbColor="@color/limeGreen" />
                         </LinearLayout>
                     </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/miscLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:background="@color/colorBlack"
+                            android:orientation="horizontal">
+                            <ImageButton
+                                android:id="@+id/telephone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@mipmap/ic_telephone"
+                                android:background="@android:color/transparent"
+                                >
+
+                            </ImageButton>
+                        </LinearLayout>
                    </LinearLayout>
 
                 </LinearLayout>

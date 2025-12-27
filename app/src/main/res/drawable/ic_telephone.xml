@@ -1,0 +1,42 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
+
+    <!-- Phone body -->
+    <path
+        android:fillColor="#1E88E5"
+        android:pathData="
+            M32,48
+            L96,48
+            L96,112
+            L32,112
+            Z" />
+
+    <!-- Phone handle -->
+    <path
+        android:fillColor="#64B5F6"
+        android:pathData="
+            M20,40
+            C20,24 36,16 64,16
+            C92,16 108,24 108,40
+            L100,40
+            C100,28 84,24 64,24
+            C44,24 28,28 28,40
+            Z" />
+
+    <!-- Dial buttons -->
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="
+            M48,64 h8 v8 h-8 z
+            M64,64 h8 v8 h-8 z
+            M80,64 h8 v8 h-8 z
+
+            M48,80 h8 v8 h-8 z
+            M64,80 h8 v8 h-8 z
+            M80,80 h8 v8 h-8 z
+        "/>
+
+</vector>

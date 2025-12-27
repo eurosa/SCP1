@@ -157,17 +157,12 @@
             <Button
                 android:id="@+id/callBtn"
                 android:layout_width="wrap_content"
-                android:layout_height="54dp"
+                android:layout_height="108dp"
                 android:text="Call"
                 android:textSize="16sp" />
 
 
-            <Button
-                android:id="@+id/secDownBtn"
-                android:layout_width="54dp"
-                android:layout_height="54dp"
-                android:text="-"
-                android:textSize="16sp" />
+
 
 
         </LinearLayout>
