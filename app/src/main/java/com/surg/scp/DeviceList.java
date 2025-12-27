@@ -1,6 +1,7 @@
 package com.surg.scp;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
@@ -35,12 +36,14 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.text.Html;
 import android.transition.Slide;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,6 +54,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -2101,9 +2106,24 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
 
         // Set onClickListener properly
         telephone.setOnClickListener(new View.OnClickListener() {
+
+
             @Override
             public void onClick(View v) {
-                 showTelephoneDialog();
+               //  Animation shake = AnimationUtils.loadAnimation(DeviceList.this, R.anim.shake);
+               //  telephone.startAnimation(shake);
+
+                ObjectAnimator animator = ObjectAnimator.ofFloat(
+                        telephone,
+                        "translationX",
+                        0, -10, 10, -10, 10, 0
+                );
+                animator.setDuration(400);
+                animator.start();
+
+                // v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+
+                showTelephoneDialog();
             }
         });
         lightOneBtn.setOnClickListener(new View.OnClickListener() {
@@ -2175,8 +2195,8 @@ public class DeviceList extends AppCompatActivity implements View.OnClickListene
         dialog.setTitle("Custom Dialog");
 
         // Get dialog components
-       // TextView text = dialog.findViewById(R.id.dialog_text);
-      //  ImageButton closeButton = dialog.findViewById(R.id.dialog_close_button);
+        // TextView text = dialog.findViewById(R.id.dialog_text);
+        // ImageButton closeButton = dialog.findViewById(R.id.dialog_close_button);
         Button okButton = dialog.findViewById(R.id.okBtn);
 
         // Set dialog text
